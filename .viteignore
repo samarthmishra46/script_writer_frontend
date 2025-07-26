@@ -1,0 +1,5 @@
+backend/script_py/venv/
+backend/script_py/__pycache__/
+backend/script_py/*.pyc
+node_modules/
+*.log 
