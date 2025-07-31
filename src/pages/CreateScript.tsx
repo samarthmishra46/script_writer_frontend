@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AlertCircle, Crown, Copy, Download } from 'lucide-react';
+import { AlertCircle, Crown, Copy, Download, Video, RotateCcw } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { buildApiUrl } from '../config/api';
+import StoryboardGenerator from '../components/StoryboardGenerator';
 
 interface ScriptMetadata {
   format?: string;
@@ -24,6 +25,28 @@ interface ScriptResponse {
     createdAt: string;
     updatedAt: string;
     __v: number;
+  };
+  message: string;
+}
+
+interface StoryboardScene {
+  sceneNumber: number;
+  description: string;
+  cameraAngle: string;
+  lighting: string;
+  props: string[];
+  duration: string;
+  notes: string;
+}
+
+interface StoryboardResponse {
+  success: boolean;
+  storyboard: {
+    scriptId: string;
+    scenes: StoryboardScene[];
+    totalDuration: string;
+    _id: string;
+    createdAt: string;
   };
   message: string;
 }
@@ -55,6 +78,24 @@ interface User {
   };
 }
 
+// Default form data
+const defaultFormData: FormData = {
+  target_segment: '',
+  brand_name: '',
+  category: '',
+  product: '',
+  target_persona: '',
+  big_problem: '',
+  usp: '',
+  tone: '',
+  key_facts: '',
+  offer: '',
+  preferred_formats: '',
+  language_pref: 'English',
+  ad_duration: '30',
+  objective: ''
+};
+
 const CreateScript = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState<User | null>(null);
@@ -63,24 +104,13 @@ const CreateScript = () => {
   const [scriptCount, setScriptCount] = useState(0);
   const [generatedScript, setGeneratedScript] = useState<ScriptResponse['script'] | null>(null);
   const [copySuccess, setCopySuccess] = useState<string | false>(false);
-  const [formData, setFormData] = useState<FormData>({
-    target_segment: '',
-    brand_name: '',
-    category: '',
-    product: '',
-    target_persona: '',
-    big_problem: '',
-    usp: '',
-    tone: '',
-    key_facts: '',
-    offer: '',
-    preferred_formats: '',
-    language_pref: 'English',
-    ad_duration: '30',
-    objective: ''
-  });
+  const [formData, setFormData] = useState<FormData>(defaultFormData);
   const [additionalRequirements, setAdditionalRequirements] = useState('');
   const [isRegenerating, setIsRegenerating] = useState(false);
+  const [isGeneratingStoryboard, setIsGeneratingStoryboard] = useState(false);
+  const [generatedStoryboard, setGeneratedStoryboard] = useState<StoryboardResponse['storyboard'] | null>(null);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [showStoryboardGenerator, setShowStoryboardGenerator] = useState(false);
 
   // Add ref for the top of the page
   const topRef = React.useRef<HTMLDivElement>(null);
@@ -89,12 +119,38 @@ const CreateScript = () => {
     topRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
+  // Load user data
   useEffect(() => {
     const userData = localStorage.getItem('user');
     if (userData) {
       setUser(JSON.parse(userData));
     }
   }, []);
+
+  // Load saved form data from localStorage
+  useEffect(() => {
+    const savedFormData = localStorage.getItem('createScriptFormData');
+    if (savedFormData) {
+      try {
+        const parsedData = JSON.parse(savedFormData);
+        setFormData(parsedData);
+        setHasUnsavedChanges(true);
+      } catch (error) {
+        console.error('Error parsing saved form data:', error);
+        // If parsing fails, use default data
+        setFormData(defaultFormData);
+      }
+    }
+  }, []);
+
+  // Save form data to localStorage whenever it changes
+  useEffect(() => {
+    const hasData = Object.values(formData).some(value => value !== '' && value !== 'English' && value !== '30');
+    if (hasData) {
+      localStorage.setItem('createScriptFormData', JSON.stringify(formData));
+      setHasUnsavedChanges(true);
+    }
+  }, [formData]);
 
   // Add more detailed debugging
   useEffect(() => {
@@ -122,6 +178,16 @@ const CreateScript = () => {
       ...prev,
       [name]: value
     }));
+  };
+
+  // Function to clear saved form data
+  const handleClearForm = () => {
+    setFormData(defaultFormData);
+    setAdditionalRequirements('');
+    setGeneratedScript(null);
+    setGeneratedStoryboard(null);
+    localStorage.removeItem('createScriptFormData');
+    setHasUnsavedChanges(false);
   };
 
   // Function to format the script content for copying
@@ -166,6 +232,7 @@ const CreateScript = () => {
     setIsLoading(true);
     setError(null);
     setGeneratedScript(null);
+    setGeneratedStoryboard(null);
 
     try {
       const response = await fetch(buildApiUrl('api/scripts/generate'), {
@@ -236,6 +303,7 @@ const CreateScript = () => {
 
       setGeneratedScript(data.script);
       setAdditionalRequirements('');
+      setGeneratedStoryboard(null);
       
       // Scroll to top after script is regenerated
       scrollToTop();
@@ -245,6 +313,44 @@ const CreateScript = () => {
       setError(error instanceof Error ? error.message : 'Failed to regenerate script');
     } finally {
       setIsRegenerating(false);
+    }
+  };
+
+  const handleGenerateStoryboard = async () => {
+    if (!generatedScript) return;
+
+    setIsGeneratingStoryboard(true);
+    setError(null);
+
+    try {
+      const response = await fetch(buildApiUrl(`api/storyboard/${generatedScript._id}`), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+
+      const data: StoryboardResponse = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to generate storyboard');
+      }
+
+      if (!data.success || !data.storyboard) {
+        throw new Error('Invalid response from server');
+      }
+
+      setGeneratedStoryboard(data.storyboard);
+      
+      // Scroll to top after storyboard is generated
+      scrollToTop();
+      
+    } catch (error) {
+      console.error('Storyboard generation error:', error);
+      setError(error instanceof Error ? error.message : 'Failed to generate storyboard');
+    } finally {
+      setIsGeneratingStoryboard(false);
     }
   };
 
@@ -281,6 +387,27 @@ const CreateScript = () => {
                 className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200"
               >
                 Upgrade to Premium
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Saved Data Indicator */}
+        {hasUnsavedChanges && (
+          <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                <span className="text-sm text-green-700">
+                  Your form data has been automatically saved
+                </span>
+              </div>
+              <button
+                onClick={handleClearForm}
+                className="flex items-center text-sm text-green-600 hover:text-green-700 font-medium"
+              >
+                <RotateCcw className="w-4 h-4 mr-1" />
+                Clear Form
               </button>
             </div>
           </div>
@@ -424,12 +551,108 @@ const CreateScript = () => {
                 </button>
               </div>
             </div>
+
+            {/* Generate Storyboard Button */}
+            <div className="border-t border-gray-200 pt-6 mt-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                Create Storyboard
+              </h3>
+              <p className="text-sm text-gray-600 mb-4">
+                Generate a detailed storyboard with scene breakdown, camera angles, lighting, and production details.
+              </p>
+              <button
+                onClick={() => setShowStoryboardGenerator(true)}
+                className="w-full bg-green-600 text-white py-3 px-6 rounded-lg text-lg font-semibold hover:bg-green-700 transition-colors duration-200 flex items-center justify-center"
+              >
+                <Video className="w-5 h-5 mr-2" />
+                Generate Storyboard
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Generated Storyboard Display */}
+        {generatedStoryboard && (
+          <div id="generated-storyboard" className="bg-white rounded-lg shadow-sm p-6 mb-8">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900">Generated Storyboard</h2>
+                <p className="text-sm text-gray-500 mt-1">
+                  Total Duration: {generatedStoryboard.totalDuration} | Generated on {new Date(generatedStoryboard.createdAt).toLocaleDateString()}
+                </p>
+              </div>
+            </div>
+
+            {/* Storyboard Scenes */}
+            <div className="space-y-6">
+              {generatedStoryboard.scenes.map((scene, index) => (
+                <div key={index} className="border border-gray-200 rounded-lg p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-semibold text-gray-900">
+                      Scene {scene.sceneNumber}
+                    </h3>
+                    <span className="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded">
+                      {scene.duration}
+                    </span>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <h4 className="font-medium text-gray-900 mb-2">Description</h4>
+                      <p className="text-gray-700 text-sm leading-relaxed">{scene.description}</p>
+                    </div>
+                    
+                    <div>
+                      <h4 className="font-medium text-gray-900 mb-2">Camera & Lighting</h4>
+                      <div className="space-y-2 text-sm">
+                        <div>
+                          <span className="font-medium text-gray-700">Camera Angle:</span>
+                          <span className="ml-2 text-gray-600">{scene.cameraAngle}</span>
+                        </div>
+                        <div>
+                          <span className="font-medium text-gray-700">Lighting:</span>
+                          <span className="ml-2 text-gray-600">{scene.lighting}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {scene.props.length > 0 && (
+                    <div className="mt-4">
+                      <h4 className="font-medium text-gray-900 mb-2">Props & Equipment</h4>
+                      <div className="flex flex-wrap gap-2">
+                        {scene.props.map((prop, propIndex) => (
+                          <span key={propIndex} className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">
+                            {prop}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {scene.notes && (
+                    <div className="mt-4">
+                      <h4 className="font-medium text-gray-900 mb-2">Production Notes</h4>
+                      <p className="text-gray-700 text-sm italic">{scene.notes}</p>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
         )}
 
         {/* Script Generation Form */}
         <form onSubmit={handleSubmit} className="bg-white shadow-sm rounded-lg p-6 space-y-6">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">Create Ad Script</h2>
+          <div className="flex items-center justify-between">
+            <h2 className="text-2xl font-bold text-gray-900">Create Ad Script</h2>
+            {hasUnsavedChanges && (
+              <div className="flex items-center space-x-2">
+                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                <span className="text-sm text-green-600">Auto-saved</span>
+              </div>
+            )}
+          </div>
 
           {/* Brand Information */}
           <div className="space-y-4">
@@ -674,6 +897,19 @@ const CreateScript = () => {
             >
               Upgrade Now
             </button>
+          </div>
+        )}
+
+        {/* Storyboard Generator Modal */}
+        {showStoryboardGenerator && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-lg shadow-xl max-w-6xl w-full max-h-[90vh] overflow-y-auto">
+              <StoryboardGenerator
+                scriptId={generatedScript?._id}
+                scriptContent={generatedScript?.content}
+                onClose={() => setShowStoryboardGenerator(false)}
+              />
+            </div>
           </div>
         )}
       </div>
