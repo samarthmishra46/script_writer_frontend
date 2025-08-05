@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AlertCircle, Crown, Copy, Download, Video, RotateCcw } from 'lucide-react';
+import { AlertCircle, Crown, Copy, Download, Video, RotateCcw, ChevronDown, User, LogOut, Home } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { buildApiUrl } from '../config/api';
@@ -111,13 +111,29 @@ const CreateScript = () => {
   const [generatedStoryboard, setGeneratedStoryboard] = useState<StoryboardResponse['storyboard'] | null>(null);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [showStoryboardGenerator, setShowStoryboardGenerator] = useState(false);
+  const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
 
   // Add ref for the top of the page
   const topRef = React.useRef<HTMLDivElement>(null);
+  const dropdownRef = React.useRef<HTMLDivElement>(null);
 
   const scrollToTop = () => {
     topRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsUserDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   // Load user data
   useEffect(() => {
@@ -363,8 +379,103 @@ const CreateScript = () => {
     return true;
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    localStorage.removeItem('createScriptFormData');
+    navigate('/login');
+  };
+
+  const handleDashboardClick = (event: React.MouseEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setIsUserDropdownOpen(false);
+    navigate('/dashboard');
+  };
+
+  const handleLogoutClick = (event: React.MouseEvent) => {
+    console.log('Logout button clicked');
+    event.preventDefault();
+    event.stopPropagation();
+    setIsUserDropdownOpen(false);
+    handleLogout();
+  };
+
+  const getUserFirstName = () => {
+    if (user?.name) {
+      return user.name.split(' ')[0];
+    }
+    return 'User';
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 py-8">
+      {/* Header */}
+      <div className="bg-white border-b border-gray-200 mb-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <div className="flex items-center">
+              <h1 className="text-2xl font-bold bg-gradient-to-r from-pink-600 via-purple-600 to-blue-600 bg-clip-text text-transparent">
+                Ravya AI
+              </h1>
+            </div>
+            
+            {user ? (
+              <div className="relative" ref={dropdownRef}>
+                <button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setIsUserDropdownOpen(!isUserDropdownOpen);
+                  }}
+                  className="flex items-center space-x-2 px-4 py-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors"
+                >
+                  <User className="w-5 h-5 text-gray-600" />
+                  <span className="font-medium text-gray-700">{getUserFirstName()}</span>
+                  <ChevronDown className="w-4 h-4 text-gray-600" />
+                </button>
+                
+                {isUserDropdownOpen && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
+                    <div className="py-2">
+                      <button
+                        onClick={handleDashboardClick}
+                        className="flex items-center w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                      >
+                        <Home className="w-4 h-4 mr-2" />
+                        Dashboard
+                      </button>
+                      <button
+                        onClick={handleLogoutClick}
+                        className="flex items-center w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                      >
+                        <LogOut className="w-4 h-4 mr-2" />
+                        Logout
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="flex items-center space-x-4">
+                <button
+                  onClick={() => navigate('/login')}
+                  className="text-gray-600 hover:text-gray-900 transition-colors"
+                >
+                  Login
+                </button>
+                <button
+                  onClick={() => navigate('/signup')}
+                  className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  Sign Up
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
       <div ref={topRef} /> {/* Add ref at the top */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Subscription Status Banner */}

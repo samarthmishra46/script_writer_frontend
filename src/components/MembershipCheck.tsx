@@ -125,19 +125,51 @@ const MembershipCheck: React.FC<MembershipCheckProps> = ({
   }
 
   if (user.subscription?.status !== 'active') {
+    // For non-active subscriptions, redirect to payment page
     return (
       <div className="bg-orange-50 border border-orange-200 rounded-lg p-6 text-center">
         <AlertCircle className="w-12 h-12 text-orange-500 mx-auto mb-4" />
-        <h3 className="text-lg font-semibold text-orange-800 mb-2">Subscription Inactive</h3>
-        <p className="text-orange-600 mb-4">Your subscription is not active. Please renew to access this feature.</p>
+        <h3 className="text-lg font-semibold text-orange-800 mb-2">Subscription Required</h3>
+        <p className="text-orange-600 mb-4">Your subscription is not active. Subscribe now to access premium features.</p>
         <button
-          onClick={() => window.location.href = '/dashboard'}
+          onClick={() => window.location.href = '/subscription'}
           className="bg-orange-600 text-white px-6 py-2 rounded-lg hover:bg-orange-700 transition-colors"
         >
-          Go to Dashboard
+          Subscribe for ₹1,999
         </button>
       </div>
     );
+  }
+  
+  // Calculate remaining days for active subscriptions
+  if (user.subscription?.status === 'active' && user.subscription?.endDate) {
+    const endDate = new Date(user.subscription.endDate);
+    const currentDate = new Date();
+    const remainingDays = Math.ceil((endDate.getTime() - currentDate.getTime()) / (1000 * 60 * 60 * 24));
+    
+    if (remainingDays > 0) {
+      // Show the days left banner for active subscribers
+      return (
+        <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              <Crown className="w-5 h-5 text-green-500 mr-3" />
+              <div>
+                <h3 className="font-medium text-green-800">
+                  You are subscribed!
+                </h3>
+                <p className="text-green-600 text-sm">
+                  {remainingDays} days remaining in your subscription
+                </p>
+              </div>
+            </div>
+            <div>
+              {children}
+            </div>
+          </div>
+        </div>
+      );
+    }
   }
 
   return <>{children}</>;

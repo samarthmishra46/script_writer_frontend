@@ -1,18 +1,64 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Crown, Check } from 'lucide-react';
 import { buildApiUrl } from '../config/api';
 
 declare global {
   interface Window {
-    Razorpay: any;
+    Razorpay: {
+      new(options: RazorpayOptions): RazorpayInstance;
+    };
   }
 }
 
-const Subscription = () => {
+interface RazorpayOptions {
+  key: string;
+  order_id: string;
+  name: string;
+  description: string;
+  image: string;
+  currency: string;
+  amount: number;
+  handler: (response: RazorpayResponse) => void;
+  prefill: {
+    name: string;
+    email: string;
+    contact?: string;
+  };
+  notes: {
+    address: string;
+    plan: string;
+  };
+  theme: {
+    color: string;
+  };
+  modal: {
+    ondismiss: () => void;
+  };
+}
+
+interface RazorpayResponse {
+  razorpay_payment_id: string;
+  razorpay_order_id: string;
+  razorpay_signature: string;
+}
+
+interface RazorpayInstance {
+  open: () => void;
+}
+
+const Subscription: React.FC = () => {
   const navigate = useNavigate();
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [razorpayLoaded, setRazorpayLoaded] = useState(false);
+  const [subscription, setSubscription] = useState<{
+    plan?: string;
+    status?: string;
+    endDate?: string;
+    remainingDays?: number;
+  } | null>(null);
+  const [isSubscriptionChecked, setIsSubscriptionChecked] = useState(false);
 
   // Function to load Razorpay script
   const loadRazorpayScript = (): Promise<void> => {
@@ -65,6 +111,43 @@ const Subscription = () => {
     });
   };
 
+  // Check if user already has an active subscription
+  useEffect(() => {
+    const checkSubscription = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+          navigate('/login');
+          return;
+        }
+
+        const response = await fetch(buildApiUrl('api/subscription'), {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch subscription info');
+        }
+
+        const data = await response.json();
+        setSubscription(data.subscription);
+        
+        // If user has an active subscription, show relevant message
+        if (data.subscription.status === 'active' && data.subscription.plan !== 'free') {
+          console.log('Active subscription found:', data.subscription);
+        }
+        
+        setIsSubscriptionChecked(true);
+      } catch (err) {
+        console.error('Error checking subscription:', err);
+      }
+    };
+
+    checkSubscription();
+  }, [navigate]);
+
   useEffect(() => {
     // Check if Razorpay key is configured
     if (!import.meta.env.VITE_RAZORPAY_KEY_ID) {
@@ -78,8 +161,8 @@ const Subscription = () => {
         console.log('Razorpay is ready');
         setRazorpayLoaded(true);
       })
-      .catch((error) => {
-        console.error('Failed to load Razorpay:', error);
+      .catch((loadError) => {
+        console.error('Failed to load Razorpay:', loadError);
         setError('Failed to load payment system. Please check your internet connection and try again.');
       });
   }, []);
@@ -94,7 +177,8 @@ const Subscription = () => {
         console.log('Razorpay not loaded, attempting to load...');
         try {
           await loadRazorpayScript();
-        } catch (error) {
+        } catch (loadError) {
+          console.error('Failed to load Razorpay script:', loadError);
           setError('Payment system not ready. Please refresh the page and try again.');
           return;
         }
@@ -144,15 +228,15 @@ const Subscription = () => {
         throw new Error('Razorpay not available');
       }
 
-      const options = {
+      const options: RazorpayOptions = {
         key: import.meta.env.VITE_RAZORPAY_KEY_ID,
         order_id: data.orderId,
-        name: 'ScriptWin',
+        name: 'Ravya AI',
         description: 'Individual Plan - Monthly Subscription',
-        image: 'https://via.placeholder.com/150x50/2563EB/FFFFFF?text=ScriptWin',
+        image: 'https://via.placeholder.com/150x50/8B5CF6/FFFFFF?text=Ravya+AI',
         currency: 'INR',
         amount: 199900,
-        handler: async function (response: any) {
+        handler: async function (response: RazorpayResponse) {
           try {
             console.log('Payment successful, verifying...', response);
             
@@ -191,8 +275,8 @@ const Subscription = () => {
             } else {
               throw new Error(verifyData.detail || verifyData.error || 'Payment verification failed');
             }
-          } catch (error) {
-            console.error('Payment verification error:', error);
+          } catch (verifyError) {
+            console.error('Payment verification error:', verifyError);
             setError('Payment verification failed. Please contact support with your payment ID.');
           }
         },
@@ -202,11 +286,11 @@ const Subscription = () => {
           contact: userData.phone || ''
         },
         notes: {
-          address: 'ScriptWin Individual Plan Subscription',
+          address: 'Ravya AI Individual Plan Subscription',
           plan: 'individual'
         },
         theme: {
-          color: '#2563EB'
+          color: '#8B5CF6'
         },
         modal: {
           ondismiss: function() {
@@ -232,15 +316,114 @@ const Subscription = () => {
     }
   };
 
-  return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-3xl mx-auto">
-        <div className="bg-white shadow-lg rounded-2xl">
-          <div className="px-6 py-8">
-            <h2 className="text-3xl font-bold text-center text-gray-900 mb-8">
-              Upgrade to Individual Plan
-            </h2>
+  const renderSubscriptionContent = () => {
+    // If already subscribed, show subscription status
+    if (subscription && subscription.status === 'active' && subscription.plan !== 'free') {
+      return (
+        <div className="bg-white shadow-lg rounded-2xl overflow-hidden">
+          <div className="bg-gradient-to-r from-green-600 to-blue-600 px-8 py-12 text-center">
+            <div className="mb-6">
+              <div className="w-16 h-16 bg-white bg-opacity-20 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Crown className="w-8 h-8 text-white" />
+              </div>
+              <h2 className="text-3xl font-bold text-white mb-2">You're Already Subscribed!</h2>
+              <p className="text-green-100">
+                {subscription.plan ? subscription.plan.charAt(0).toUpperCase() + subscription.plan.slice(1) : 'Premium'} Plan Active
+              </p>
+            </div>
             
+            <div className="text-center mb-6">
+              <p className="text-6xl font-bold text-white">
+                {subscription.remainingDays || 30}<span className="text-2xl font-normal text-green-100"> days left</span>
+              </p>
+            </div>
+            
+            <button
+              onClick={() => navigate('/dashboard')}
+              className="bg-white text-green-600 px-8 py-3 rounded-lg font-semibold hover:bg-green-50 transition-colors"
+            >
+              Return to Dashboard
+            </button>
+          </div>
+          
+          <div className="p-8">
+            <h3 className="text-xl font-semibold text-gray-800 mb-4">Your Active Benefits</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-4">
+                <div className="flex items-center">
+                  <Check className="w-5 h-5 text-green-500 mr-3" />
+                  <span className="text-gray-700">Unlimited campaign generation</span>
+                </div>
+                <div className="flex items-center">
+                  <Check className="w-5 h-5 text-green-500 mr-3" />
+                  <span className="text-gray-700">Advanced customization options</span>
+                </div>
+                <div className="flex items-center">
+                  <Check className="w-5 h-5 text-green-500 mr-3" />
+                  <span className="text-gray-700">Priority support</span>
+                </div>
+                <div className="flex items-center">
+                  <Check className="w-5 h-5 text-green-500 mr-3" />
+                  <span className="text-gray-700">Analytics and insights</span>
+                </div>
+              </div>
+              
+              <div className="space-y-4">
+                <div className="flex items-center">
+                  <Check className="w-5 h-5 text-green-500 mr-3" />
+                  <span className="text-gray-700">Storyboard generation</span>
+                </div>
+                <div className="flex items-center">
+                  <Check className="w-5 h-5 text-green-500 mr-3" />
+                  <span className="text-gray-700">Export to multiple formats</span>
+                </div>
+                <div className="flex items-center">
+                  <Check className="w-5 h-5 text-green-500 mr-3" />
+                  <span className="text-gray-700">Team collaboration</span>
+                </div>
+                <div className="flex items-center">
+                  <Check className="w-5 h-5 text-green-500 mr-3" />
+                  <span className="text-gray-700">API access</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // Not subscribed yet - show payment page
+    return (
+      <>
+        <div className="text-center mb-12">
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+            Upgrade to Individual Plan
+          </h1>
+          <p className="text-xl text-gray-600">
+            Unlock unlimited campaigns and advanced features
+          </p>
+        </div>
+
+        <div className="bg-white shadow-lg rounded-2xl overflow-hidden">
+          {/* Header */}
+          <div className="bg-gradient-to-r from-purple-600 to-pink-600 px-8 py-12 text-center">
+            <div className="mb-6">
+              <div className="w-16 h-16 bg-white bg-opacity-20 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Crown className="w-8 h-8 text-white" />
+              </div>
+              <h2 className="text-3xl font-bold text-white mb-2">Individual Plan</h2>
+              <p className="text-purple-100">Perfect for growing businesses</p>
+            </div>
+            
+            <div className="text-center">
+              <p className="text-6xl font-bold text-white">
+                ₹1,999<span className="text-2xl font-normal text-purple-100">/month</span>
+              </p>
+            </div>
+          </div>
+
+          {/* Features */}
+          <div className="px-8 py-8">
             {error && (
               <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
                 <p className="text-red-600">{error}</p>
@@ -251,66 +434,84 @@ const Subscription = () => {
                 )}
               </div>
             )}
-            
-            <div className="border-t border-gray-200 pt-6">
-              <div className="text-center mb-8">
-                <p className="text-5xl font-bold text-gray-900">
-                  ₹1,999<span className="text-xl font-normal text-gray-500">/month</span>
-                </p>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+              <div className="space-y-4">
+                <div className="flex items-center">
+                  <Check className="w-5 h-5 text-green-500 mr-3" />
+                  <span className="text-gray-700">Unlimited campaign generation</span>
+                </div>
+                <div className="flex items-center">
+                  <Check className="w-5 h-5 text-green-500 mr-3" />
+                  <span className="text-gray-700">Advanced customization options</span>
+                </div>
+                <div className="flex items-center">
+                  <Check className="w-5 h-5 text-green-500 mr-3" />
+                  <span className="text-gray-700">Priority support</span>
+                </div>
+                <div className="flex items-center">
+                  <Check className="w-5 h-5 text-green-500 mr-3" />
+                  <span className="text-gray-700">Analytics and insights</span>
+                </div>
               </div>
+              
+              <div className="space-y-4">
+                <div className="flex items-center">
+                  <Check className="w-5 h-5 text-green-500 mr-3" />
+                  <span className="text-gray-700">Storyboard generation</span>
+                </div>
+                <div className="flex items-center">
+                  <Check className="w-5 h-5 text-green-500 mr-3" />
+                  <span className="text-gray-700">Export to multiple formats</span>
+                </div>
+                <div className="flex items-center">
+                  <Check className="w-5 h-5 text-green-500 mr-3" />
+                  <span className="text-gray-700">Team collaboration</span>
+                </div>
+                <div className="flex items-center">
+                  <Check className="w-5 h-5 text-green-500 mr-3" />
+                  <span className="text-gray-700">API access</span>
+                </div>
+              </div>
+            </div>
 
-              <ul className="space-y-4 mb-8">
-                <li className="flex items-center">
-                  <svg className="h-5 w-5 text-green-500" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" stroke="currentColor">
-                    <path d="M5 13l4 4L19 7"></path>
-                  </svg>
-                  <span className="ml-3 text-gray-700">Unlimited script generation</span>
-                </li>
-                <li className="flex items-center">
-                  <svg className="h-5 w-5 text-green-500" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" stroke="currentColor">
-                    <path d="M5 13l4 4L19 7"></path>
-                  </svg>
-                  <span className="ml-3 text-gray-700">Advanced customization options</span>
-                </li>
-                <li className="flex items-center">
-                  <svg className="h-5 w-5 text-green-500" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" stroke="currentColor">
-                    <path d="M5 13l4 4L19 7"></path>
-                  </svg>
-                  <span className="ml-3 text-gray-700">Priority support</span>
-                </li>
-                <li className="flex items-center">
-                  <svg className="h-5 w-5 text-green-500" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" stroke="currentColor">
-                    <path d="M5 13l4 4L19 7"></path>
-                  </svg>
-                  <span className="ml-3 text-gray-700">Analytics and insights</span>
-                </li>
-                <li className="flex items-center">
-                  <svg className="h-5 w-5 text-green-500" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" stroke="currentColor">
-                    <path d="M5 13l4 4L19 7"></path>
-                  </svg>
-                  <span className="ml-3 text-gray-700">Storyboard generation</span>
-                </li>
-              </ul>
+            <button
+              onClick={handleSubscribe}
+              disabled={isLoading || !razorpayLoaded}
+              className={`w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-4 px-8 rounded-lg text-xl font-semibold hover:from-purple-700 hover:to-pink-700 transition-all duration-200 shadow-lg hover:shadow-xl ${
+                (isLoading || !razorpayLoaded) ? 'opacity-50 cursor-not-allowed' : ''
+              }`}
+            >
+              {isLoading ? 'Processing...' : !razorpayLoaded ? 'Loading Payment System...' : 'Subscribe Now'}
+            </button>
 
-              <button
-                onClick={handleSubscribe}
-                disabled={isLoading}
-                className={`w-full bg-blue-600 text-white py-3 px-6 rounded-lg text-lg font-semibold hover:bg-blue-700 transition-colors duration-200 ${
-                  isLoading ? 'opacity-75 cursor-not-allowed' : ''
-                }`}
-              >
-                {isLoading ? 'Processing...' : 'Subscribe Now'}
-              </button>
-
-              <p className="text-sm text-gray-500 text-center mt-4">
+            <div className="mt-6 text-center">
+              <p className="text-sm text-gray-500">
                 Secure payments powered by Razorpay
               </p>
-              
-              <p className="text-xs text-gray-400 text-center mt-2">
+              <p className="text-xs text-gray-400 mt-2">
                 You can cancel your subscription anytime
               </p>
             </div>
           </div>
+        </div>
+      </>
+    );
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-4xl mx-auto">
+        {renderSubscriptionContent()}
+
+        {/* Back to Dashboard */}
+        <div className="text-center mt-8">
+          <button
+            onClick={() => navigate('/dashboard')}
+            className="text-purple-600 hover:text-purple-700 font-medium"
+          >
+            ← Back to Dashboard
+          </button>
         </div>
       </div>
     </div>

@@ -4,17 +4,21 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "predev": "node check-env.cjs",
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "check-env": "node check-env.cjs"
   },
   "dependencies": {
+    "@react-oauth/google": "^0.12.2",
     "@types/react-router-dom": "^5.3.3",
     "lucide-react": "^0.344.0",
     "razorpay": "^2.9.6",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "react-hot-toast": "^2.5.2",
     "react-markdown": "^10.1.0",
     "react-router-dom": "^6.20.1",
     "remark-gfm": "^4.0.1"
@@ -25,6 +29,8 @@
     "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react": "^4.3.1",
     "autoprefixer": "^10.4.18",
+    "chalk": "^4.1.2",
+    "dotenv": "^16.6.1",
     "eslint": "^9.9.1",
     "eslint-plugin-react-hooks": "^5.1.0-rc.0",
     "eslint-plugin-react-refresh": "^0.4.11",

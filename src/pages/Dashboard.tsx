@@ -1,294 +1,235 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, FileText, TrendingUp, Settings, LogOut, User, Sparkles, Crown, AlertCircle } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import { Search, FolderPlus, Loader2 } from 'lucide-react';
 import { buildApiUrl } from '../config/api';
+import Sidebar from '../components/Sidebar';
+import Header from '../components/Header';
+import SubscriptionBanner from '../components/SubscriptionBanner';
 
-interface User {
+interface Campaign {
   id: string;
   name: string;
-  email: string;
-  subscription: {
-    plan: string;
-    status: string;
-  };
-  usage: {
-    scriptsGenerated: number;
-    scriptsGeneratedThisMonth: number;
-  };
+  date: string;
+  preview: string;
+  status?: string;
+  brand_name?: string;
+  product?: string;
 }
 
-interface Script {
-  _id: string;
-  title: string;
-  type: string;
-  industry: string;
-  status: string;
-  createdAt: string;
-}
-
-const Dashboard = () => {
-  const [user, setUser] = useState<User | null>(null);
-  const [scripts, setScripts] = useState<Script[]>([]);
+const Dashboard: React.FC = () => {
+  const [campaigns, setCampaigns] = useState<Campaign[]>([]);
+  const [searchTerm, setSearchTerm] = useState('');
   const [isLoading, setIsLoading] = useState(true);
-  const navigate = useNavigate();
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    const userData = localStorage.getItem('user');
-    
-    if (!token || !userData) {
-      navigate('/login');
-      return;
-    }
+    fetchCampaigns();
+  }, []);
 
-    setUser(JSON.parse(userData));
-    fetchUserScripts(token);
-  }, [navigate]);
-
-  const fetchUserScripts = async (token: string) => {
+  const fetchCampaigns = async () => {
     try {
+      setIsLoading(true);
+      setError(null);
+      
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setError('Authentication required');
+        return;
+      }
+
+      // Since campaigns endpoint doesn't exist, fetch scripts instead
       const response = await fetch(buildApiUrl('api/scripts'), {
         headers: {
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
         }
       });
-      
-      if (response.ok) {
-        const data = await response.json();
-        setScripts(Array.isArray(data.scripts) ? data.scripts : []);
-      } else {
-        setScripts([]); // fallback if not ok
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch scripts');
       }
+
+      const result = await response.json();
+      
+      // Check if response is in new format with success flag
+      const data = result.success ? result.data : result;
+      
+      // Transform scripts to campaign format for display
+      const scriptCampaigns = data.map((script: { _id: string; title: string; createdAt: string; metadata?: Record<string, unknown>; brand_name?: string; product?: string }) => ({
+        id: script._id,
+        name: script.title,
+        date: new Date(script.createdAt).toLocaleDateString(),
+        preview: '/api/placeholder/150/100',
+        // Use enhanced fields if available, otherwise fallback to metadata
+        brand_name: script.brand_name || (script.metadata?.brand_name as string) || 'Unknown Brand',
+        product: script.product || (script.metadata?.product as string) || 'Unknown Product'
+      }));
+      
+      // Sort by creation date (newest first)
+      scriptCampaigns.sort((a: Campaign, b: Campaign) => new Date(b.date).getTime() - new Date(a.date).getTime());
+      
+      setCampaigns(scriptCampaigns || []);
     } catch (error) {
       console.error('Error fetching scripts:', error);
-      setScripts([]); // fallback on error
+      setError('Failed to load scripts. Please try again.');
+      // Fallback to sample data for demo
+      setCampaigns([
+        {
+          id: '1',
+          name: 'Ayush Wellness Script',
+          date: '30 Jul 2025',
+          preview: '/api/placeholder/150/100'
+        },
+        {
+          id: '2',
+          name: 'DNA Consulting Script',
+          date: '29 Jul 2025',
+          preview: '/api/placeholder/150/100'
+        },
+        {
+          id: '3',
+          name: 'Pawblaze.in Script',
+          date: '28 Jul 2025',
+          preview: '/api/placeholder/150/100'
+        }
+      ]);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    navigate('/');
-  };
-
-  const handleCreateScript = () => {
-    navigate('/create-script');
-  };
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-      </div>
-    );
-  }
-
-  if (!user) {
-    return null;
-  }
+  const filteredCampaigns = campaigns.filter(campaign =>
+    campaign.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
-                <Sparkles className="w-5 h-5 text-white" />
-              </div>
-              <span className="text-xl font-bold text-gray-900">ScriptWin</span>
-            </div>
-            
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
-                  <User className="w-4 h-4 text-gray-600" />
-                </div>
-                <span className="text-sm font-medium text-gray-700">{user.name}</span>
-              </div>
-              <button
-                onClick={handleLogout}
-                className="flex items-center space-x-1 text-gray-500 hover:text-gray-700 transition-colors duration-200"
-              >
-                <LogOut className="w-4 h-4" />
-                <span className="text-sm">Logout</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Welcome Section */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome back, {user.name}!</h1>
-          <p className="text-gray-600">Create compelling ad scripts that convert with AI-powered assistance.</p>
-        </div>
-
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
-            <div className="flex items-center">
-              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                <FileText className="w-6 h-6 text-blue-600" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Total Scripts</p>
-                <p className="text-2xl font-bold text-gray-900">{user.usage.scriptsGenerated}</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
-            <div className="flex items-center">
-              <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                <TrendingUp className="w-6 h-6 text-green-600" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">This Month</p>
-                <p className="text-2xl font-bold text-gray-900">{user.usage.scriptsGeneratedThisMonth}</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
-            <div className="flex items-center">
-              <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                <Settings className="w-6 h-6 text-purple-600" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Plan</p>
-                <p className="text-2xl font-bold text-gray-900 capitalize">{user.subscription.plan}</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
-            <div className="flex items-center">
-              <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                <Crown className="w-6 h-6 text-purple-600" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Subscription</p>
-                <p className="text-2xl font-bold text-gray-900 capitalize">
-                  {user.subscription?.plan || 'Free'}
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Subscription Alert for Free Users */}
-        {(!user.subscription || user.subscription.plan === 'free') && (
-          <div className="bg-blue-50 border-l-4 border-blue-500 p-4 mb-8 rounded-lg">
-            <div className="flex items-center">
-              <AlertCircle className="w-5 h-5 text-blue-500 mr-3" />
-              <div>
-                <p className="text-blue-700 font-medium">Upgrade to Premium</p>
-                <p className="text-blue-600 mt-1">Get unlimited script generation, advanced features, and priority support.</p>
-              </div>
-              <button
-                onClick={() => navigate('/subscription')}
-                className="ml-auto bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200"
-              >
-                Upgrade Now
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* Quick Actions */}
-        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200 mb-8">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <button
-              onClick={handleCreateScript}
-              className="flex items-center justify-center p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-all duration-200 group"
-            >
-              <div className="text-center">
-                <Plus className="w-8 h-8 text-gray-400 group-hover:text-blue-500 mx-auto mb-2" />
-                <p className="text-sm font-medium text-gray-700 group-hover:text-blue-700">Create New Script</p>
-              </div>
-            </button>
-            
-            <button
-              onClick={() => navigate('/scripts')}
-              className="flex items-center justify-center p-4 border border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-all duration-200 group"
-            >
-              <div className="text-center">
-                <FileText className="w-8 h-8 text-gray-400 group-hover:text-blue-500 mx-auto mb-2" />
-                <p className="text-sm font-medium text-gray-700 group-hover:text-blue-700">View All Scripts</p>
-              </div>
-            </button>
-            
-            <button className="flex items-center justify-center p-4 border border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-all duration-200 group">
-              <div className="text-center">
-                <TrendingUp className="w-8 h-8 text-gray-400 group-hover:text-blue-500 mx-auto mb-2" />
-                <p className="text-sm font-medium text-gray-700 group-hover:text-blue-700">View Analytics</p>
-              </div>
-            </button>
-            
-            <button className="flex items-center justify-center p-4 border border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-all duration-200 group">
-              <div className="text-center">
-                <Settings className="w-8 h-8 text-gray-400 group-hover:text-blue-500 mx-auto mb-2" />
-                <p className="text-sm font-medium text-gray-700 group-hover:text-blue-700">Account Settings</p>
-              </div>
-            </button>
-          </div>
-        </div>
-
-        {/* Recent Scripts */}
-        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-gray-900">Recent Scripts</h2>
-            <button className="text-sm text-blue-600 hover:text-blue-500 font-medium">
-              View all
-            </button>
-          </div>
+    <div className="flex h-screen bg-gray-100">
+      <Sidebar />
+      
+      <div className="flex-1 flex flex-col overflow-hidden">
+        <Header />
+        
+        <main className="flex-1 overflow-y-auto p-6">
+          {/* Subscription Banner */}
+          <SubscriptionBanner />
           
-          {Array.isArray(scripts) && scripts.length === 0 ? (
-            <div className="text-center py-12">
-              <FileText className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <p className="text-gray-500 mb-4">No scripts created yet</p>
-              <button
-                onClick={handleCreateScript}
-                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 transition-colors duration-200"
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                Create your first script
-              </button>
+          {/* Create Script Banner */}
+          <div className="mb-8">
+            <Link
+              to="/create-script"
+              className="block w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white p-6 rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all duration-200"
+            >
+              <div className="flex items-center justify-center space-x-3">
+                <FolderPlus className="w-6 h-6" />
+                <span className="text-xl font-semibold">Create New Script</span>
+              </div>
+              <p className="text-center mt-2 text-purple-100">
+                Generate AI-powered ad scripts for your campaigns
+              </p>
+            </Link>
+          </div>
+
+          {/* Scripts Section */}
+          <div className="mb-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-2xl font-bold text-gray-900">Your Scripts</h2>
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                <input
+                  type="text"
+                  placeholder="Search Script"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                />
+              </div>
             </div>
-          ) : (
-            <div className="space-y-4">
-              {Array.isArray(scripts) && scripts.slice(0, 5).map((script: Script) => (
-                <div key={script._id} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors duration-200">
-                  <div>
-                    <h3 className="font-medium text-gray-900">{script.title}</h3>
-                    <p className="text-sm text-gray-500">{script.type} • {script.industry}</p>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                      script.status === 'completed' ? 'bg-green-100 text-green-800' :
-                      script.status === 'draft' ? 'bg-yellow-100 text-yellow-800' :
-                      'bg-gray-100 text-gray-800'
-                    }`}>
-                      {script.status}
-                    </span>
-                    <span className="text-sm text-gray-500">
-                      {new Date(script.createdAt).toLocaleDateString()}
-                    </span>
-                  </div>
-                </div>
-              ))}
+          </div>
+
+          {/* Error Message */}
+          {error && (
+            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+              <p className="text-red-600">{error}</p>
             </div>
           )}
-        </div>
+
+          {/* Loading State */}
+          {isLoading && (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="w-8 h-8 animate-spin text-purple-600" />
+              <span className="ml-2 text-gray-600">Loading scripts...</span>
+            </div>
+          )}
+
+          {/* Script Grid */}
+          {!isLoading && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {filteredCampaigns.length === 0 ? (
+                <div className="col-span-full text-center py-12">
+                  <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <FolderPlus className="w-8 h-8 text-gray-400" />
+                  </div>
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">No scripts found</h3>
+                  <p className="text-gray-500 mb-4">
+                    {searchTerm ? 'Try adjusting your search terms.' : 'Get started by creating your first script.'}
+                  </p>
+                  {!searchTerm && (
+                    <Link
+                      to="/create-script"
+                      className="inline-flex items-center px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+                    >
+                      <FolderPlus className="w-4 h-4 mr-2" />
+                      Create Script
+                    </Link>
+                  )}
+                </div>
+              ) : (
+                filteredCampaigns.map((campaign) => (
+                  <Link
+                    key={campaign.id}
+                    to={`/script/${campaign.id}`}
+                    className="bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow duration-200"
+                  >
+                    <div className="p-4">
+                      <div className="flex items-center justify-between mb-3">
+                        <h3 className="font-semibold text-gray-900">{campaign.name}</h3>
+                        <div className="w-2 h-2 bg-gray-300 rounded-full"></div>
+                      </div>
+                      
+                      {/* Brand and Product Info */}
+                      {(campaign.brand_name || campaign.product) && (
+                        <div className="mb-3 space-y-1">
+                          {campaign.brand_name && (
+                            <p className="text-xs text-purple-600 font-medium">🏢 {campaign.brand_name}</p>
+                          )}
+                          {campaign.product && (
+                            <p className="text-xs text-blue-600">📦 {campaign.product}</p>
+                          )}
+                        </div>
+                      )}
+                      
+                      <div className="bg-gray-100 rounded-lg p-3 mb-3">
+                        <div className="grid grid-cols-3 gap-1">
+                          {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((index) => (
+                            <div
+                              key={index}
+                              className="w-full h-8 bg-gradient-to-br from-purple-100 to-pink-100 rounded"
+                            />
+                          ))}
+                        </div>
+                      </div>
+                      
+                      <p className="text-sm text-gray-500">{campaign.date}</p>
+                    </div>
+                  </Link>
+                ))
+              )}
+            </div>
+          )}
+        </main>
       </div>
     </div>
   );
 };
 
-export default Dashboard; 
+export default Dashboard;
