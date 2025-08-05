@@ -147,7 +147,7 @@ const ContactUs: React.FC = () => {
             <div className="flex items-center">
               <Link to="/" className="group">
                 <h1 className="text-2xl font-bold bg-gradient-to-r from-pink-600 via-purple-600 to-blue-600 bg-clip-text text-transparent transition-all duration-300 group-hover:scale-105 animate-liquid-flow">
-                  Ravya AI
+                  Leepi AI
                 </h1>
               </Link>
             </div>
@@ -259,7 +259,7 @@ const ContactUs: React.FC = () => {
             Get in Touch
           </h1>
           <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-            Have questions about Ravya AI? We're here to help! Reach out to our team and we'll get back to you soon.
+            Have questions about Leepi AI? We're here to help! Reach out to our team and we'll get back to you soon.
           </p>
         </div>
       </section>
@@ -362,8 +362,8 @@ const ContactUs: React.FC = () => {
                     </div>
                     <div>
                       <h3 className="font-semibold text-gray-900">Email Us</h3>
-                      <p className="text-gray-600">support@ravyaai.com</p>
-                      <p className="text-gray-600">hello@ravyaai.com</p>
+                      <p className="text-gray-600">support@leepiAI.com</p>
+                      <p className="text-gray-600">hello@leepiAI.com</p>
                     </div>
                   </div>
                 </div>

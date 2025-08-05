@@ -416,7 +416,7 @@ const CreateScript = () => {
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
               <h1 className="text-2xl font-bold bg-gradient-to-r from-pink-600 via-purple-600 to-blue-600 bg-clip-text text-transparent">
-                Ravya AI
+                Leepi AI
               </h1>
             </div>
             

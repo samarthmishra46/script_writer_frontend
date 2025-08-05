@@ -191,7 +191,7 @@ const LandingPage: React.FC = () => {
             <div className="flex items-center group">
               <div className="relative">
                 <h1 className="text-2xl font-bold bg-gradient-to-r from-pink-600 via-purple-600 to-blue-600 bg-clip-text text-transparent transition-all duration-300 group-hover:scale-105 animate-liquid-flow">
-                  Ravya AI
+                  Leepi AI
                 </h1>
                 <Sparkles className="absolute -top-1 -right-1 w-4 h-4 text-pink-400 opacity-0 group-hover:opacity-100 transition-opacity animate-pulse" />
               </div>
@@ -291,7 +291,7 @@ const LandingPage: React.FC = () => {
                     to="/signup"
                     className="px-6 py-2 bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 text-white rounded-lg hover:from-pink-600 hover:via-purple-600 hover:to-blue-600 transition-all duration-500 shadow-lg hover:shadow-xl hover:scale-105 transform btn-water animate-liquid-flow font-medium"
                   >
-                    Free Trial
+                    Sign Up
                   </Link>
                 </>
               )}
@@ -310,7 +310,7 @@ const LandingPage: React.FC = () => {
             </h2>
             <div className="relative inline-block">
               <h1 className="text-6xl font-bold bg-gradient-to-r from-purple-700 to-pink-600 bg-clip-text text-transparent mb-6 transition-all duration-300 hover:scale-105">
-                Ravya AI
+                Leepi AI
               </h1>
               <div className="absolute -inset-2 bg-gradient-to-r from-purple-600/20 to-pink-600/20 blur-xl opacity-0 hover:opacity-100 transition-opacity duration-500 rounded-lg"></div>
             </div>
@@ -322,7 +322,7 @@ const LandingPage: React.FC = () => {
           
           <div className="relative inline-block group mb-8">
             <Link
-              to="/signup"
+              to="/login"
               className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 text-white text-xl font-semibold rounded-lg hover:from-pink-600 hover:via-purple-600 hover:to-blue-600 transition-all duration-500 shadow-lg hover:shadow-2xl transform hover:scale-105 hover:-translate-y-1 water-effect animate-liquid-flow"
             >
               <Zap className="mr-2 w-5 h-5" />
@@ -398,7 +398,7 @@ const LandingPage: React.FC = () => {
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
             <h3 className="text-4xl font-bold mb-4 bg-gradient-to-r from-pink-600 via-purple-600 to-blue-600 bg-clip-text text-transparent animate-liquid-flow">
-              Why Choose Ravya AI?
+              Why Choose Leepi AI?
             </h3>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
               Our AI-powered platform creates winning ad scripts that convert, backed by real data and proven results.

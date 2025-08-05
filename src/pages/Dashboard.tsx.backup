@@ -4,7 +4,36 @@ import { Search, FolderPlus, Loader2, Video, X } from 'lucide-react';
 import { buildApiUrl } from '../config/api';
 import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
-import SubscriptionBanner from '../components/SubscriptionBanner';
+im          </div>
+        </main>
+      </div>
+      
+      {/* Storyboard Modal */}
+      {showStoryboard && selectedScriptId && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto">
+          <div className="bg-white rounded-xl shadow-xl max-w-6xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-2 text-right">
+              <button 
+                onClick={() => setShowStoryboard(false)}
+                className="p-2 rounded-full hover:bg-gray-100"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="px-4 pb-6">
+              <StoryboardGenerator 
+                scriptId={selectedScriptId} 
+                onClose={() => setShowStoryboard(false)}
+              />
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default Dashboard;scriptionBanner from '../components/SubscriptionBanner';
 import StoryboardGenerator from '../components/StoryboardGenerator';
 
 interface Campaign {

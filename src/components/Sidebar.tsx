@@ -118,8 +118,8 @@ const Sidebar: React.FC<SidebarProps> = ({ campaigns = [] }) => {
   return (
     <div className="w-64 bg-gray-800 h-screen flex flex-col">
       {/* Logo */}
-      <div className="p-6">
-        <h1 className="text-2xl font-bold text-purple-500">Ravya AI</h1>
+            <div className="p-4 mb-6">
+        <h1 className="text-2xl font-bold text-purple-500">Leepi AI</h1>
       </div>
 
       {/* Navigation */}

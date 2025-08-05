@@ -13,12 +13,13 @@ declare global {
 
 interface RazorpayOptions {
   key: string;
-  order_id: string;
+  order_id?: string;
+  subscription_id?: string;
   name: string;
   description: string;
   image: string;
   currency: string;
-  amount: number;
+  amount?: number;
   handler: (response: RazorpayResponse) => void;
   prefill: {
     name: string;
@@ -39,7 +40,8 @@ interface RazorpayOptions {
 
 interface RazorpayResponse {
   razorpay_payment_id: string;
-  razorpay_order_id: string;
+  razorpay_order_id?: string;
+  razorpay_subscription_id?: string;
   razorpay_signature: string;
 }
 
@@ -202,8 +204,8 @@ const Subscription: React.FC = () => {
 
       console.log('Creating subscription...');
       
-      // Get order ID from backend
-      const response = await fetch(buildApiUrl('api/subscription/create-order'), {
+      // Create subscription plan first
+      const planResponse = await fetch(buildApiUrl('api/subscription/create-plan'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -212,15 +214,36 @@ const Subscription: React.FC = () => {
         body: JSON.stringify({ plan: 'individual' })
       });
 
-      const data = await response.json();
-      console.log('Subscription creation response:', data);
+      const planData = await planResponse.json();
+      console.log('Plan creation response:', planData);
 
-      if (!response.ok) {
-        throw new Error(data.detail || data.error || 'Failed to create subscription');
+      if (!planResponse.ok) {
+        throw new Error(planData.message || planData.error || 'Failed to create subscription plan');
       }
 
-      if (!data.orderId) {
-        throw new Error('No order ID received from server');
+      if (!planData.planId) {
+        throw new Error('No plan ID received from server');
+      }
+
+      // Create subscription with the plan ID
+      const subscriptionResponse = await fetch(buildApiUrl('api/subscription/create-subscription'), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ planId: planData.planId, plan: 'individual' })
+      });
+
+      const data = await subscriptionResponse.json();
+      console.log('Subscription creation response:', data);
+
+      if (!subscriptionResponse.ok) {
+        throw new Error(data.message || data.error || 'Failed to create subscription');
+      }
+
+      if (!data.subscriptionId) {
+        throw new Error('No subscription ID received from server');
       }
 
       // Verify Razorpay is available before creating options
@@ -228,20 +251,19 @@ const Subscription: React.FC = () => {
         throw new Error('Razorpay not available');
       }
 
-      const options: RazorpayOptions = {
+      const options = {
         key: import.meta.env.VITE_RAZORPAY_KEY_ID,
-        order_id: data.orderId,
-        name: 'Ravya AI',
+        subscription_id: data.subscriptionId,
+        name: 'Leepi AI',
         description: 'Individual Plan - Monthly Subscription',
-        image: 'https://via.placeholder.com/150x50/8B5CF6/FFFFFF?text=Ravya+AI',
+        image: 'https://via.placeholder.com/150x50/8B5CF6/FFFFFF?text=Leepi+AI',
         currency: 'INR',
-        amount: 199900,
         handler: async function (response: RazorpayResponse) {
           try {
             console.log('Payment successful, verifying...', response);
             
             // Handle successful payment
-            const verifyResponse = await fetch(buildApiUrl('api/subscription/verify'), {
+            const verifyResponse = await fetch(buildApiUrl('api/subscription/verify-subscription'), {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
@@ -249,8 +271,9 @@ const Subscription: React.FC = () => {
               },
               body: JSON.stringify({
                 razorpay_payment_id: response.razorpay_payment_id,
-                razorpay_order_id: response.razorpay_order_id,
-                razorpay_signature: response.razorpay_signature
+                razorpay_subscription_id: response.razorpay_subscription_id,
+                razorpay_signature: response.razorpay_signature,
+                plan: 'individual'
               })
             });
 
@@ -264,16 +287,18 @@ const Subscription: React.FC = () => {
                 subscription: { 
                   plan: 'individual', 
                   status: 'active',
-                  updatedAt: new Date().toISOString()
+                  updatedAt: new Date().toISOString(),
+                  isRecurring: true,
+                  nextBillingDate: verifyData.subscription?.nextBillingDate
                 }
               };
               localStorage.setItem('user', JSON.stringify(updatedUserData));
               
               // Show success message and redirect
-              alert('Payment successful! Welcome to Individual Plan!');
+              alert('Recurring subscription activated successfully!');
               navigate('/dashboard');
             } else {
-              throw new Error(verifyData.detail || verifyData.error || 'Payment verification failed');
+              throw new Error(verifyData.message || verifyData.error || 'Payment verification failed');
             }
           } catch (verifyError) {
             console.error('Payment verification error:', verifyError);
@@ -286,7 +311,7 @@ const Subscription: React.FC = () => {
           contact: userData.phone || ''
         },
         notes: {
-          address: 'Ravya AI Individual Plan Subscription',
+          address: 'Leepi AI Individual Plan Subscription',
           plan: 'individual'
         },
         theme: {

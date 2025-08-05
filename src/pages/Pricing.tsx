@@ -177,7 +177,7 @@ const Pricing: React.FC = () => {
             <div className="flex items-center">
               <Link to="/" className="group">
                 <h1 className="text-2xl font-bold bg-gradient-to-r from-pink-600 via-purple-600 to-blue-600 bg-clip-text text-transparent transition-all duration-300 group-hover:scale-105 animate-liquid-flow">
-                  Ravya AI
+                  Leepi AI
                 </h1>
               </Link>
             </div>

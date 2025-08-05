@@ -187,7 +187,7 @@ const AboutUs: React.FC = () => {
             <div className="flex items-center">
               <Link to="/" className="group">
                 <h1 className="text-2xl font-bold bg-gradient-to-r from-pink-600 via-purple-600 to-blue-600 bg-clip-text text-transparent transition-all duration-300 group-hover:scale-105 animate-liquid-flow">
-                  Ravya AI
+                  Leepi AI
                 </h1>
               </Link>
             </div>
@@ -293,7 +293,7 @@ const AboutUs: React.FC = () => {
       <section className="relative z-10 py-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto text-center">
           <h1 className="text-5xl font-bold mb-6 bg-gradient-to-r from-pink-600 via-purple-600 to-blue-600 bg-clip-text text-transparent animate-liquid-flow">
-            About Ravya AI
+            About Leepi AI
           </h1>
           <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed">
             We're on a mission to democratize high-converting ad script creation through the power of artificial intelligence. 
@@ -341,7 +341,7 @@ const AboutUs: React.FC = () => {
               </h2>
               <div className="space-y-4 text-gray-600 leading-relaxed">
                 <p>
-                  Ravya AI was born from a simple observation: creating high-converting ad scripts was taking too long and costing too much. 
+                  Leepi AI was born from a simple observation: creating high-converting ad scripts was taking too long and costing too much. 
                   Our founders, who had collectively managed over ₹50 crores in ad spend, knew there had to be a better way.
                 </p>
                 <p>
@@ -349,7 +349,7 @@ const AboutUs: React.FC = () => {
                   We spent two years training our models on the most successful ad campaigns, working with top marketers and copywriters.
                 </p>
                 <p>
-                  Today, Ravya AI has helped over 10,000 businesses create compelling ad scripts that convert. From startups to Fortune 500 companies, 
+                  Today, Leepi AI has helped over 10,000 businesses create compelling ad scripts that convert. From startups to Fortune 500 companies, 
                   our AI-powered platform has become the go-to solution for marketers who want results fast.
                 </p>
               </div>
@@ -425,7 +425,7 @@ const AboutUs: React.FC = () => {
           <div className="bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 rounded-2xl p-8 text-white">
             <h2 className="text-3xl font-bold mb-4">Ready to Transform Your Advertising?</h2>
             <p className="text-xl mb-8 text-white/90">
-              Join thousands of marketers who are already creating winning ad scripts with Ravya AI.
+              Join thousands of marketers who are already creating winning ad scripts with Leepi AI.
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center">

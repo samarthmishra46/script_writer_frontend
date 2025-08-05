@@ -1,5 +1,8 @@
-import React, { useState } from 'react';
-import { Copy, Download, RefreshCw, Eye, Edit3, Save, X } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+// Import icons and StoryboardGenerator component
+import { Copy, Download, RefreshCw, Eye, Edit3, Save, X, Video } from 'lucide-react';
+import StoryboardGenerator from './StoryboardGenerator';
+import { buildApiUrl } from '../config/api';
 
 interface GeneratedScriptProps {
   script: {
@@ -29,6 +32,44 @@ const GeneratedScript: React.FC<GeneratedScriptProps> = ({
   const [isEditing, setIsEditing] = useState(false);
   const [editedContent, setEditedContent] = useState(script.content || '');
   const [showFullScript, setShowFullScript] = useState(false);
+  const [showStoryboard, setShowStoryboard] = useState(false);
+  const [hasStoryboardAccess, setHasStoryboardAccess] = useState<boolean | null>(null);
+  const [checkingAccess, setCheckingAccess] = useState(false);
+  
+  // Check if user has access to storyboard generation
+  useEffect(() => {
+    const checkStoryboardAccess = async () => {
+      setCheckingAccess(true);
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+          setHasStoryboardAccess(false);
+          return;
+        }
+        
+        const response = await fetch(buildApiUrl('api/storyboard/status'), {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+        
+        if (!response.ok) {
+          setHasStoryboardAccess(false);
+          return;
+        }
+        
+        const data = await response.json();
+        setHasStoryboardAccess(data.storyboardAccess || false);
+      } catch (error) {
+        console.error('Error checking storyboard access:', error);
+        setHasStoryboardAccess(false);
+      } finally {
+        setCheckingAccess(false);
+      }
+    };
+    
+    checkStoryboardAccess();
+  }, []);
 
   const handleCopy = async () => {
     try {
@@ -141,6 +182,41 @@ const GeneratedScript: React.FC<GeneratedScriptProps> = ({
               <Download className="w-4 h-4" />
             </button>
             
+            <button
+              onClick={() => {
+                if (hasStoryboardAccess) {
+                  setShowStoryboard(true);
+                } else if (hasStoryboardAccess === false) {
+                  // Redirect to subscription page or show a modal
+                  const confirmUpgrade = window.confirm(
+                    'Storyboard generation requires an Individual or Organization plan. Would you like to upgrade your subscription?'
+                  );
+                  
+                  if (confirmUpgrade) {
+                    window.location.href = '/subscription';
+                  }
+                }
+              }}
+              disabled={checkingAccess || hasStoryboardAccess === null}
+              className={`p-2 flex items-center ${
+                hasStoryboardAccess 
+                  ? 'text-green-600 hover:text-green-700 hover:bg-green-50' 
+                  : 'text-gray-400 hover:text-gray-600 hover:bg-gray-50'
+              } rounded-lg transition-colors`}
+              title={
+                hasStoryboardAccess === null
+                  ? 'Checking storyboard access...'
+                  : hasStoryboardAccess
+                  ? 'Generate storyboard'
+                  : 'Upgrade to generate storyboards'
+              }
+            >
+              <Video className="w-4 h-4" />
+              <span className="ml-1 text-xs">
+                {checkingAccess ? 'Checking...' : 'Storyboard'}
+              </span>
+            </button>
+            
             {onRegenerate && (
               <button
                 onClick={onRegenerate}
@@ -240,6 +316,28 @@ const GeneratedScript: React.FC<GeneratedScriptProps> = ({
               ))}
             </div>
           </details>
+        </div>
+      )}
+      
+      {/* Storyboard Modal */}
+      {showStoryboard && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto">
+          <div className="bg-white rounded-xl shadow-xl max-w-6xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-2 text-right">
+              <button 
+                onClick={() => setShowStoryboard(false)}
+                className="p-2 rounded-full hover:bg-gray-100"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="px-4 pb-6">
+              <StoryboardGenerator 
+                scriptId={script._id} 
+                onClose={() => setShowStoryboard(false)}
+              />
+            </div>
+          </div>
         </div>
       )}
     </div>
