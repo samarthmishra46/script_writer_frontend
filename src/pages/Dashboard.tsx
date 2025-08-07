@@ -7,18 +7,33 @@ import Header from '../components/Header';
 import SubscriptionBanner from '../components/SubscriptionBanner';
 import StoryboardGenerator from '../components/StoryboardGenerator';
 
-interface Campaign {
-  id: string;
-  name: string;
-  date: string;
-  preview: string;
-  status?: string;
+interface Script {
+  _id: string;
+  title: string;
+  createdAt: string;
+  metadata?: {
+    brand_name?: string;
+    product?: string;
+    [key: string]: unknown;
+  };
   brand_name?: string;
   product?: string;
 }
 
+interface ScriptGroup {
+  key: string;
+  brand_name: string;
+  product: string;
+  scriptCount: number;
+  latestDate: Date;
+  preview: string;
+  firstScriptId: string;
+  latestScriptId: string;
+}
+
 const Dashboard: React.FC = () => {
-  const [campaigns, setCampaigns] = useState<Campaign[]>([]);
+  const [scripts, setScripts] = useState<Script[]>([]);
+  const [scriptGroups, setScriptGroups] = useState<ScriptGroup[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -26,11 +41,57 @@ const Dashboard: React.FC = () => {
   const [showStoryboard, setShowStoryboard] = useState(false);
   const [hasStoryboardAccess, setHasStoryboardAccess] = useState<boolean | null>(null);
   const [checkingAccess, setCheckingAccess] = useState(false);
+  const [sidebarRefreshTrigger, setSidebarRefreshTrigger] = useState(0);
 
   useEffect(() => {
-    fetchCampaigns();
+    fetchScripts();
     checkStoryboardAccess();
   }, []);
+  
+  // Group scripts by brand_name + product
+  useEffect(() => {
+    if (scripts.length === 0) return;
+    
+    const groups = new Map<string, ScriptGroup>();
+    
+    scripts.forEach(script => {
+      const brand_name = script.brand_name || script.metadata?.brand_name as string || 'Unknown Brand';
+      const product = script.product || script.metadata?.product as string || 'Unknown Product';
+      const key = `${brand_name}-${product}`;
+      
+      const scriptDate = new Date(script.createdAt);
+      
+      if (!groups.has(key)) {
+        // Create new group
+        groups.set(key, {
+          key,
+          brand_name,
+          product,
+          scriptCount: 1,
+          latestDate: scriptDate,
+          preview: '/api/placeholder/150/100',
+          firstScriptId: script._id,
+          latestScriptId: script._id
+        });
+      } else {
+        // Update existing group
+        const group = groups.get(key)!;
+        group.scriptCount += 1;
+        
+        // Update latest script if this one is newer
+        if (scriptDate > group.latestDate) {
+          group.latestDate = scriptDate;
+          group.latestScriptId = script._id;
+        }
+      }
+    });
+    
+    // Convert Map to array and sort by latest date
+    const groupsArray = Array.from(groups.values());
+    groupsArray.sort((a, b) => b.latestDate.getTime() - a.latestDate.getTime());
+    
+    setScriptGroups(groupsArray);
+  }, [scripts]);
   
   // Check if user has access to storyboard generation
   const checkStoryboardAccess = async () => {
@@ -83,7 +144,7 @@ const Dashboard: React.FC = () => {
     }
   };
 
-  const fetchCampaigns = async () => {
+  const fetchScripts = async () => {
     try {
       setIsLoading(true);
       setError(null);
@@ -94,7 +155,6 @@ const Dashboard: React.FC = () => {
         return;
       }
 
-      // Since campaigns endpoint doesn't exist, fetch scripts instead
       const response = await fetch(buildApiUrl('api/scripts'), {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -111,57 +171,91 @@ const Dashboard: React.FC = () => {
       // Check if response is in new format with success flag
       const data = result.success ? result.data : result;
       
-      // Transform scripts to campaign format for display
-      const scriptCampaigns = data.map((script: { _id: string; title: string; createdAt: string; metadata?: Record<string, unknown>; brand_name?: string; product?: string }) => ({
-        id: script._id,
-        name: script.title,
-        date: new Date(script.createdAt).toLocaleDateString(),
-        preview: '/api/placeholder/150/100',
-        // Use enhanced fields if available, otherwise fallback to metadata
-        brand_name: script.brand_name || (script.metadata?.brand_name as string) || 'Unknown Brand',
-        product: script.product || (script.metadata?.product as string) || 'Unknown Product'
-      }));
-      
       // Sort by creation date (newest first)
-      scriptCampaigns.sort((a: Campaign, b: Campaign) => new Date(b.date).getTime() - new Date(a.date).getTime());
+      const sortedScripts = [...data].sort((a: Script, b: Script) => 
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      );
       
-      setCampaigns(scriptCampaigns || []);
+      setScripts(sortedScripts || []);
     } catch (error) {
       console.error('Error fetching scripts:', error);
       setError('Failed to load scripts. Please try again.');
       // Fallback to sample data for demo
-      setCampaigns([
+      const sampleScripts = [
         {
-          id: '1',
-          name: 'Ayush Wellness Script',
-          date: '30 Jul 2025',
-          preview: '/api/placeholder/150/100'
+          _id: '1',
+          title: 'Ayush Wellness Script',
+          createdAt: '2025-07-30',
+          metadata: {
+            brand_name: 'Ayush Wellness',
+            product: 'Herbal Supplement'
+          }
         },
         {
-          id: '2',
-          name: 'DNA Consulting Script',
-          date: '29 Jul 2025',
-          preview: '/api/placeholder/150/100'
+          _id: '2',
+          title: 'DNA Consulting Script',
+          createdAt: '2025-07-29',
+          metadata: {
+            brand_name: 'DNA Consulting',
+            product: 'Business Advisory'
+          }
         },
         {
-          id: '3',
-          name: 'Pawblaze.in Script',
-          date: '28 Jul 2025',
-          preview: '/api/placeholder/150/100'
+          _id: '3',
+          title: 'Pawblaze.in Script',
+          createdAt: '2025-07-28',
+          metadata: {
+            brand_name: 'Pawblaze',
+            product: 'Pet Food'
+          }
         }
-      ]);
+      ];
+      setScripts(sampleScripts as Script[]);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const filteredCampaigns = campaigns.filter(campaign =>
-    campaign.name.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredGroups = scriptGroups.filter(group =>
+    group.brand_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    group.product.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  // Handle script deletion
+  const handleDeleteScript = async (scriptId: string) => {
+    if (window.confirm('Are you sure you want to delete this script?')) {
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+          setError('Authentication required');
+          return;
+        }
+        
+        const response = await fetch(buildApiUrl(`api/scripts/${scriptId}`), {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        if (!response.ok) {
+          throw new Error('Failed to delete script');
+        }
+        
+        // Refresh scripts and groups
+        fetchScripts();
+        setSidebarRefreshTrigger(prev => prev + 1);
+      } catch (error) {
+        console.error('Error deleting script:', error);
+        setError('Failed to delete script. Please try again.');
+      }
+    }
+  };
 
   return (
     <div className="flex h-screen bg-gray-100">
-      <Sidebar />
+      <Sidebar refreshTrigger={sidebarRefreshTrigger} />
       
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header />
@@ -189,12 +283,12 @@ const Dashboard: React.FC = () => {
           {/* Scripts Section */}
           <div className="mb-6">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-2xl font-bold text-gray-900">Your Scripts</h2>
+              <h2 className="text-2xl font-bold text-gray-900">Your Campaigns</h2>
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                 <input
                   type="text"
-                  placeholder="Search Script"
+                  placeholder="Search Campaigns"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
@@ -214,19 +308,19 @@ const Dashboard: React.FC = () => {
           {isLoading && (
             <div className="flex items-center justify-center py-12">
               <Loader2 className="w-8 h-8 animate-spin text-purple-600" />
-              <span className="ml-2 text-gray-600">Loading scripts...</span>
+              <span className="ml-2 text-gray-600">Loading campaigns...</span>
             </div>
           )}
 
-          {/* Script Grid */}
+          {/* Script Groups Grid */}
           {!isLoading && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {filteredCampaigns.length === 0 ? (
+              {filteredGroups.length === 0 ? (
                 <div className="col-span-full text-center py-12">
                   <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                     <FolderPlus className="w-8 h-8 text-gray-400" />
                   </div>
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">No scripts found</h3>
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">No campaigns found</h3>
                   <p className="text-gray-500 mb-4">
                     {searchTerm ? 'Try adjusting your search terms.' : 'Get started by creating your first script.'}
                   </p>
@@ -241,31 +335,28 @@ const Dashboard: React.FC = () => {
                   )}
                 </div>
               ) : (
-                filteredCampaigns.map((campaign) => (
+                filteredGroups.map((group) => (
                   <div
-                    key={campaign.id}
+                    key={group.key}
                     className="bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow duration-200"
                   >
                     <Link
-                      to={`/script/${campaign.id}`}
+                      to={`/script-group/${encodeURIComponent(group.brand_name)}/${encodeURIComponent(group.product)}/${group.latestScriptId}`}
                       className="block p-4"
                     >
                       <div className="flex items-center justify-between mb-3">
-                        <h3 className="font-semibold text-gray-900">{campaign.name}</h3>
-                        <div className="w-2 h-2 bg-gray-300 rounded-full"></div>
+                        <h3 className="font-semibold text-gray-900 truncate">{group.brand_name}</h3>
+                        <div className="flex items-center">
+                          <div className="bg-purple-100 text-purple-800 text-xs font-medium px-2 py-0.5 rounded-full">
+                            {group.scriptCount} {group.scriptCount === 1 ? 'Script' : 'Scripts'}
+                          </div>
+                        </div>
                       </div>
                       
-                      {/* Brand and Product Info */}
-                      {(campaign.brand_name || campaign.product) && (
-                        <div className="mb-3 space-y-1">
-                          {campaign.brand_name && (
-                            <p className="text-xs text-purple-600 font-medium">🏢 {campaign.brand_name}</p>
-                          )}
-                          {campaign.product && (
-                            <p className="text-xs text-blue-600">📦 {campaign.product}</p>
-                          )}
-                        </div>
-                      )}
+                      {/* Product Info */}
+                      <div className="mb-3">
+                        <p className="text-sm text-blue-600 font-medium">📦 {group.product}</p>
+                      </div>
                       
                       <div className="bg-gray-100 rounded-lg p-3 mb-3">
                         <div className="grid grid-cols-3 gap-1">
@@ -278,23 +369,53 @@ const Dashboard: React.FC = () => {
                         </div>
                       </div>
                       
-                      <p className="text-sm text-gray-500">{campaign.date}</p>
+                      <p className="text-sm text-gray-500">
+                        Updated {new Date(group.latestDate).toLocaleDateString()}
+                      </p>
                     </Link>
 
                     {/* Action buttons */}
                     <div className="px-4 py-3 border-t border-gray-100 flex justify-end space-x-2">
                       <button
-                        onClick={() => handleStoryboardGeneration(campaign.id)}
+                        onClick={() => handleStoryboardGeneration(group.latestScriptId)}
                         className="flex items-center px-3 py-1 text-xs bg-green-100 text-green-700 hover:bg-green-200 rounded-full transition-colors"
                         title="Generate storyboard"
                       >
                         <Video className="w-3 h-3 mr-1" />
                         Storyboard
                       </button>
+                      <button
+                        onClick={() => handleDeleteScript(group.latestScriptId)}
+                        className="flex items-center px-3 py-1 text-xs bg-red-100 text-red-700 hover:bg-red-200 rounded-full transition-colors"
+                        title="Delete script"
+                      >
+                        <X className="w-3 h-3 mr-1" />
+                        Delete
+                      </button>
                     </div>
                   </div>
                 ))
               )}
+            </div>
+          )}
+          
+          {/* Storyboard Modal */}
+          {showStoryboard && selectedScriptId && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+              <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+                <div className="flex justify-between items-center border-b p-4">
+                  <h3 className="text-xl font-bold">Generate Storyboard</h3>
+                  <button 
+                    onClick={() => setShowStoryboard(false)} 
+                    className="p-1 hover:bg-gray-100 rounded-full"
+                  >
+                    <X className="w-6 h-6" />
+                  </button>
+                </div>
+                <div className="p-4">
+                  <StoryboardGenerator scriptId={selectedScriptId} />
+                </div>
+              </div>
             </div>
           )}
         </main>

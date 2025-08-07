@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 // Import icons and StoryboardGenerator component
-import { Copy, Download, RefreshCw, Eye, Edit3, Save, X, Video } from 'lucide-react';
+import { Copy, Download, RefreshCw, Eye, Edit3, Save, X, Video, Heart } from 'lucide-react';
 import StoryboardGenerator from './StoryboardGenerator';
 import { buildApiUrl } from '../config/api';
 
@@ -11,6 +11,7 @@ interface GeneratedScriptProps {
     title: string;
     content: string;
     createdAt: string;
+    liked: boolean;
     metadata?: {
       brand_name?: string;
       product?: string;
@@ -20,85 +21,96 @@ interface GeneratedScriptProps {
   onRegenerate?: () => void;
   onEdit?: (editedContent: string) => void;
   isRegenerating?: boolean;
+  onLikeToggle?: (scriptId: string, liked: boolean) => void;
 }
 
 const GeneratedScript: React.FC<GeneratedScriptProps> = ({
   script,
   onRegenerate,
   onEdit,
-  isRegenerating = false
+  isRegenerating = false,
+  onLikeToggle
 }) => {
-  const [copySuccess, setCopySuccess] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const [editedContent, setEditedContent] = useState(script.content || '');
-  const [showFullScript, setShowFullScript] = useState(false);
+  const [editedContent, setEditedContent] = useState(script.content);
+  const [copied, setCopied] = useState(false);
   const [showStoryboard, setShowStoryboard] = useState(false);
   const [hasStoryboardAccess, setHasStoryboardAccess] = useState<boolean | null>(null);
   const [checkingAccess, setCheckingAccess] = useState(false);
+  const [liked, setLiked] = useState(script.liked || false);
+  const [isLiking, setIsLiking] = useState(false);
   
-  // Check if user has access to storyboard generation
   useEffect(() => {
-    const checkStoryboardAccess = async () => {
-      setCheckingAccess(true);
-      try {
-        const token = localStorage.getItem('token');
-        if (!token) {
-          setHasStoryboardAccess(false);
-          return;
-        }
-        
-        const response = await fetch(buildApiUrl('api/storyboard/status'), {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
-        
-        if (!response.ok) {
-          setHasStoryboardAccess(false);
-          return;
-        }
-        
-        const data = await response.json();
-        setHasStoryboardAccess(data.storyboardAccess || false);
-      } catch (error) {
-        console.error('Error checking storyboard access:', error);
-        setHasStoryboardAccess(false);
-      } finally {
-        setCheckingAccess(false);
-      }
-    };
-    
+    setEditedContent(script.content);
+    setLiked(script.liked || false);
+  }, [script]);
+  
+  useEffect(() => {
     checkStoryboardAccess();
   }, []);
-
-  const handleCopy = async () => {
+  
+  const checkStoryboardAccess = async () => {
+    setCheckingAccess(true);
     try {
-      if (!script.content) {
-        console.error('No content to copy');
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setHasStoryboardAccess(false);
         return;
       }
-      await navigator.clipboard.writeText(script.content);
-      setCopySuccess(true);
-      setTimeout(() => setCopySuccess(false), 2000);
-    } catch (err) {
-      console.error('Failed to copy:', err);
+      
+      const response = await fetch(buildApiUrl('api/storyboard/status'), {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      
+      if (!response.ok) {
+        setHasStoryboardAccess(false);
+        return;
+      }
+      
+      const data = await response.json();
+      setHasStoryboardAccess(data.storyboardAccess || false);
+    } catch (error) {
+      console.error('Error checking storyboard access:', error);
+      setHasStoryboardAccess(false);
+    } finally {
+      setCheckingAccess(false);
     }
   };
 
+  const handleCopy = () => {
+    navigator.clipboard.writeText(script.content);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
   const handleDownload = () => {
-    if (!script.content) {
-      console.error('No content to download');
-      return;
+    const element = document.createElement('a');
+    const file = new Blob([script.content], {type: 'text/plain'});
+    element.href = URL.createObjectURL(file);
+    element.download = `${script.title.replace(/\s+/g, '_')}.txt`;
+    document.body.appendChild(element);
+    element.click();
+    document.body.removeChild(element);
+  };
+
+  const handleStoryboardClick = () => {
+    if (hasStoryboardAccess) {
+      setShowStoryboard(true);
+    } else if (hasStoryboardAccess === false) {
+      // Prompt to upgrade
+      const confirmUpgrade = window.confirm(
+        'Storyboard generation requires an Individual or Organization plan. Would you like to upgrade your subscription?'
+      );
+      
+      if (confirmUpgrade) {
+        window.location.href = '/subscription';
+      }
+    } else {
+      // Still checking access
+      alert('Please wait, checking subscription status...');
     }
-    const blob = new Blob([script.content], { type: 'text/plain' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${script.title || 'script'}_${new Date().toISOString().split('T')[0]}.txt`;
-    document.body.appendChild(a);
-    a.click();
-    window.URL.revokeObjectURL(url);
-    document.body.removeChild(a);
   };
 
   const handleSaveEdit = () => {
@@ -107,235 +119,168 @@ const GeneratedScript: React.FC<GeneratedScriptProps> = ({
     }
     setIsEditing(false);
   };
-
-  const handleCancelEdit = () => {
-    setEditedContent(script.content);
-    setIsEditing(false);
-  };
-
-  const formatContent = (content: string | undefined) => {
-    if (!content) return '';
-    return content.replace(/\\n/g, '\n');
-  };
-
-  const getPreview = (content: string | undefined, maxLength: number = 200) => {
-    if (!content) return '';
-    const formatted = formatContent(content);
-    if (formatted.length <= maxLength) return formatted;
-    return formatted.substring(0, maxLength) + '...';
+  
+  const handleLikeToggle = async () => {
+    if (isLiking) return;
+    
+    try {
+      setIsLiking(true);
+      
+      const token = localStorage.getItem('token');
+      if (!token) {
+        return;
+      }
+      
+      const response = await fetch(buildApiUrl(`api/scripts/like/${script._id}`), {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to toggle like status');
+      }
+      
+      const result = await response.json();
+      setLiked(result.liked);
+      
+      // Notify parent component if callback exists
+      if (onLikeToggle) {
+        onLikeToggle(script._id, result.liked);
+      }
+      
+    } catch (error) {
+      console.error('Error toggling like status:', error);
+      // Show error toast or notification here
+    } finally {
+      setIsLiking(false);
+    }
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+    <div className="bg-white rounded-xl shadow-lg mb-8 overflow-hidden">
       {/* Header */}
-      <div className="bg-gradient-to-r from-purple-50 to-pink-50 px-6 py-4 border-b border-gray-200">
-        <div className="flex items-center justify-between">
-          <div>
-            <h3 className="text-lg font-semibold text-gray-900">{script.title}</h3>
-            <div className="flex items-center space-x-4 mt-1">
-              <span className="text-sm text-purple-600 font-medium">
-                🏢 {script.metadata?.brand_name || 'Unknown Brand'}
-              </span>
-              <span className="text-sm text-blue-600">
-                📦 {script.metadata?.product || 'Unknown Product'}
-              </span>
-              <span className="text-sm text-gray-500">
-                📅 {new Date(script.createdAt).toLocaleDateString()}
-              </span>
-            </div>
-          </div>
+      <div className="px-6 py-4 bg-gray-50 border-b flex justify-between items-center flex-wrap gap-2">
+        <h3 className="text-lg font-semibold text-gray-900">{script.title}</h3>
+        <div className="flex items-center space-x-2">
+          {/* Like button */}
+          <button
+            onClick={handleLikeToggle}
+            className={`
+              p-2 rounded-lg flex items-center justify-center transition-colors
+              ${liked ? 'text-red-500 bg-red-50 hover:bg-red-100' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'}
+            `}
+            title={liked ? "Unlike script" : "Like script"}
+            disabled={isLiking}
+          >
+            <Heart className={`w-5 h-5 ${liked ? 'fill-current' : ''}`} />
+          </button>
           
-          <div className="flex items-center space-x-2">
+          <button
+            onClick={handleCopy}
+            className="p-2 rounded-lg hover:bg-gray-100 flex items-center justify-center text-gray-600 hover:text-gray-900"
+            title="Copy script"
+          >
+            <Copy className="w-5 h-5" />
+            {copied && <span className="ml-1 text-xs text-green-600">Copied!</span>}
+          </button>
+          
+          <button
+            onClick={handleDownload}
+            className="p-2 rounded-lg hover:bg-gray-100 flex items-center justify-center text-gray-600 hover:text-gray-900"
+            title="Download script"
+          >
+            <Download className="w-5 h-5" />
+          </button>
+          
+          {onRegenerate && (
             <button
-              onClick={() => setShowFullScript(!showFullScript)}
-              className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
-              title={showFullScript ? "Show preview" : "Show full script"}
+              onClick={onRegenerate}
+              className="p-2 rounded-lg hover:bg-gray-100 flex items-center justify-center text-gray-600 hover:text-gray-900 disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled={isRegenerating}
+              title="Regenerate script"
             >
-              <Eye className="w-4 h-4" />
+              <RefreshCw className={`w-5 h-5 ${isRegenerating ? 'animate-spin' : ''}`} />
             </button>
-            
+          )}
+          
+          {onEdit && !isEditing && (
             <button
-              onClick={() => setIsEditing(!isEditing)}
-              className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+              onClick={() => setIsEditing(true)}
+              className="p-2 rounded-lg hover:bg-gray-100 flex items-center justify-center text-gray-600 hover:text-gray-900"
               title="Edit script"
             >
-              <Edit3 className="w-4 h-4" />
+              <Edit3 className="w-5 h-5" />
             </button>
-            
-            <button
-              onClick={handleCopy}
-              className={`p-2 rounded-lg transition-colors ${
-                copySuccess 
-                  ? 'text-green-600 bg-green-100' 
-                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-              }`}
-              title="Copy to clipboard"
-            >
-              <Copy className="w-4 h-4" />
-            </button>
-            
-            <button
-              onClick={handleDownload}
-              className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
-              title="Download script"
-            >
-              <Download className="w-4 h-4" />
-            </button>
-            
-            <button
-              onClick={() => {
-                if (hasStoryboardAccess) {
-                  setShowStoryboard(true);
-                } else if (hasStoryboardAccess === false) {
-                  // Redirect to subscription page or show a modal
-                  const confirmUpgrade = window.confirm(
-                    'Storyboard generation requires an Individual or Organization plan. Would you like to upgrade your subscription?'
-                  );
-                  
-                  if (confirmUpgrade) {
-                    window.location.href = '/subscription';
-                  }
-                }
-              }}
-              disabled={checkingAccess || hasStoryboardAccess === null}
-              className={`p-2 flex items-center ${
-                hasStoryboardAccess 
-                  ? 'text-green-600 hover:text-green-700 hover:bg-green-50' 
-                  : 'text-gray-400 hover:text-gray-600 hover:bg-gray-50'
-              } rounded-lg transition-colors`}
-              title={
-                hasStoryboardAccess === null
-                  ? 'Checking storyboard access...'
-                  : hasStoryboardAccess
-                  ? 'Generate storyboard'
-                  : 'Upgrade to generate storyboards'
-              }
-            >
-              <Video className="w-4 h-4" />
-              <span className="ml-1 text-xs">
-                {checkingAccess ? 'Checking...' : 'Storyboard'}
-              </span>
-            </button>
-            
-            {onRegenerate && (
-              <button
-                onClick={onRegenerate}
-                disabled={isRegenerating}
-                className="p-2 text-purple-600 hover:text-purple-700 hover:bg-purple-50 rounded-lg transition-colors disabled:opacity-50"
-                title="Regenerate script"
-              >
-                <RefreshCw className={`w-4 h-4 ${isRegenerating ? 'animate-spin' : ''}`} />
-              </button>
-            )}
-          </div>
+          )}
+          
+          <button
+            onClick={handleStoryboardClick}
+            className={`
+              p-2 rounded-lg flex items-center justify-center
+              ${checkingAccess ? 'text-gray-400 cursor-wait' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'}
+            `}
+            disabled={checkingAccess}
+            title="Generate storyboard"
+          >
+            <Video className="w-5 h-5" />
+            <span className="ml-1 text-sm hidden md:inline">Storyboard</span>
+          </button>
         </div>
       </div>
-
-      {/* Content */}
+      
+      {/* Script content */}
       <div className="p-6">
         {isEditing ? (
           <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Edit Script Content
-              </label>
-              <textarea
-                value={editedContent}
-                onChange={(e) => setEditedContent(e.target.value)}
-                rows={15}
-                className="w-full rounded-lg border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500"
-                placeholder="Edit your script content..."
-              />
-            </div>
-            
-            <div className="flex justify-end space-x-3">
+            <textarea
+              value={editedContent}
+              onChange={(e) => setEditedContent(e.target.value)}
+              className="w-full h-64 p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent font-mono text-sm"
+            />
+            <div className="flex justify-end space-x-2">
               <button
-                onClick={handleCancelEdit}
-                className="px-4 py-2 text-gray-600 hover:text-gray-900 transition-colors"
+                onClick={() => {
+                  setEditedContent(script.content);
+                  setIsEditing(false);
+                }}
+                className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 text-gray-700 text-sm"
               >
-                <X className="w-4 h-4 inline mr-1" />
                 Cancel
               </button>
               <button
                 onClick={handleSaveEdit}
-                className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+                className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 text-sm flex items-center"
               >
-                <Save className="w-4 h-4 inline mr-1" />
-                Save Changes
+                <Save className="w-4 h-4 mr-1" />
+                Save
               </button>
             </div>
           </div>
         ) : (
-          <div>
-            <div className="bg-gray-50 rounded-lg p-4">
-              <pre className="whitespace-pre-wrap text-sm text-gray-800 font-mono leading-relaxed">
-                {showFullScript ? formatContent(script.content) : getPreview(script.content, 300)}
-              </pre>
-              
-              {!showFullScript && script.content.length > 300 && (
-                <button
-                  onClick={() => setShowFullScript(true)}
-                  className="mt-3 text-purple-600 hover:text-purple-700 text-sm font-medium"
-                >
-                  Show more...
-                </button>
-              )}
-              
-              {showFullScript && (
-                <button
-                  onClick={() => setShowFullScript(false)}
-                  className="mt-3 text-purple-600 hover:text-purple-700 text-sm font-medium"
-                >
-                  Show less
-                </button>
-              )}
-            </div>
-            
-            {copySuccess && (
-              <div className="mt-3 text-green-600 text-sm font-medium">
-                ✓ Copied to clipboard!
-              </div>
-            )}
+          <div className="whitespace-pre-wrap font-mono text-sm text-gray-800 max-h-96 overflow-y-auto">
+            {script.content}
           </div>
         )}
       </div>
-
-      {/* Metadata */}
-      {script.metadata && Object.keys(script.metadata).length > 0 && (
-        <div className="bg-gray-50 px-6 py-3 border-t border-gray-200">
-          <details className="cursor-pointer">
-            <summary className="text-sm font-medium text-gray-700 hover:text-gray-900">
-              Script Details
-            </summary>
-            <div className="mt-2 space-y-1">
-              {Object.entries(script.metadata).map(([key, value]) => (
-                <div key={key} className="text-xs text-gray-600">
-                  <span className="font-medium capitalize">{key.replace(/_/g, ' ')}:</span>{' '}
-                  {String(value)}
-                </div>
-              ))}
-            </div>
-          </details>
-        </div>
-      )}
       
       {/* Storyboard Modal */}
       {showStoryboard && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto">
-          <div className="bg-white rounded-xl shadow-xl max-w-6xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-2 text-right">
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center border-b p-4">
+              <h3 className="text-xl font-bold">Generate Storyboard</h3>
               <button 
-                onClick={() => setShowStoryboard(false)}
-                className="p-2 rounded-full hover:bg-gray-100"
+                onClick={() => setShowStoryboard(false)} 
+                className="p-1 hover:bg-gray-100 rounded-full"
               >
-                <X className="w-5 h-5" />
+                <X className="w-6 h-6" />
               </button>
             </div>
-            <div className="px-4 pb-6">
-              <StoryboardGenerator 
-                scriptId={script._id} 
-                onClose={() => setShowStoryboard(false)}
-              />
+            <div className="p-4">
+              <StoryboardGenerator scriptId={script._id} />
             </div>
           </div>
         </div>

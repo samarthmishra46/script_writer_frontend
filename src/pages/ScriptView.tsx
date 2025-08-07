@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Plus, MessageSquare } from 'lucide-react';
+import { ArrowLeft, Plus, MessageSquare, ChevronRight, Folder } from 'lucide-react';
 import { buildApiUrl } from '../config/api';
 import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
@@ -14,7 +14,7 @@ interface Script {
   updatedAt?: string;
   version?: number;
   scriptId?: string;
-  regenerationPrompt?: string; // Added for tracking regeneration instructions
+  regenerationPrompt?: string;
   metadata?: {
     brand_name?: string;
     product?: string;
@@ -29,6 +29,14 @@ interface RegenerationRequest {
   changes?: string;
 }
 
+// Add this new interface for script groups in the sidebar
+interface ScriptGroup {
+  brandName: string;
+  product: string;
+  scriptCount: number;
+  firstScriptId: string;
+}
+
 const ScriptView: React.FC = () => {
   const { scriptId } = useParams<{ scriptId: string }>();
   const navigate = useNavigate();
@@ -39,6 +47,10 @@ const ScriptView: React.FC = () => {
   const [regenerationRequests, setRegenerationRequests] = useState<RegenerationRequest[]>([]);
   const [newRequest, setNewRequest] = useState('');
   const [isRegenerating, setIsRegenerating] = useState(false);
+  // Add state for script groups in the sidebar
+  const [scriptGroups, setScriptGroups] = useState<ScriptGroup[]>([]);
+  const [isLoadingGroups, setIsLoadingGroups] = useState(true);
+  const [sidebarRefreshTrigger, setSidebarRefreshTrigger] = useState(0);
 
   useEffect(() => {
     const fetchScript = async () => {
@@ -104,6 +116,66 @@ const ScriptView: React.FC = () => {
       fetchScript();
     }
   }, [scriptId]);
+
+  // Add new effect to fetch script groups for the sidebar
+  useEffect(() => {
+    const fetchScriptGroups = async () => {
+      try {
+        setIsLoadingGroups(true);
+        
+        const token = localStorage.getItem('token');
+        if (!token) {
+          return;
+        }
+
+        const response = await fetch(buildApiUrl('api/scripts'), {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch scripts');
+        }
+
+        const result = await response.json();
+        const data = result.success ? result.data : result;
+        
+        // Group scripts by brand_name and product
+        const groups = new Map<string, ScriptGroup>();
+        
+        data.forEach((script: Script) => {
+          const brandName = script.metadata?.brand_name || 'Unknown Brand';
+          const product = script.metadata?.product || 'Unknown Product';
+          const key = `${brandName}-${product}`;
+          
+          if (!groups.has(key)) {
+            groups.set(key, {
+              brandName,
+              product,
+              scriptCount: 1,
+              firstScriptId: script._id
+            });
+          } else {
+            const group = groups.get(key)!;
+            group.scriptCount += 1;
+          }
+        });
+        
+        // Convert Map to array
+        const groupsArray = Array.from(groups.values());
+        setScriptGroups(groupsArray);
+        
+      } catch (error) {
+        console.error('Error fetching script groups:', error);
+      } finally {
+        setIsLoadingGroups(false);
+      }
+    };
+    
+    fetchScriptGroups();
+  }, []);
 
   const handleRegenerate = async () => {
     if (!newRequest.trim() || !currentScript) return;
@@ -185,6 +257,8 @@ const ScriptView: React.FC = () => {
         }
       }
       
+      // After successful regeneration
+      setSidebarRefreshTrigger(prev => prev + 1);
     } catch (error) {
       console.error('Error regenerating script:', error);
       setError(error instanceof Error ? error.message : 'Failed to regenerate script. Please try again.');
@@ -202,10 +276,18 @@ const ScriptView: React.FC = () => {
       
       // Update the script in the local state
       setCurrentScript(prev => prev ? { ...prev, content: editedContent } : null);
+      
+      // After successful edit
+      setSidebarRefreshTrigger(prev => prev + 1);
     } catch (error) {
       console.error('Error editing script:', error);
       setError('Failed to update script. Please try again.');
     }
+  };
+  
+  // Add this new function to handle script group click
+  const handleScriptGroupClick = (brandName: string, product: string, firstScriptId: string) => {
+    navigate(`/script-group/${encodeURIComponent(brandName)}/${encodeURIComponent(product)}/${firstScriptId}`);
   };
 
   if (isLoading) {
@@ -254,13 +336,55 @@ const ScriptView: React.FC = () => {
 
   return (
     <div className="flex h-screen bg-gray-100">
-      <Sidebar />
+      <Sidebar refreshTrigger={sidebarRefreshTrigger} />
       
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header />
         
         <main className="flex-1 overflow-hidden">
           <div className="h-full flex">
+            {/* Script Groups Sidebar */}
+            <div className="w-64 bg-white border-r border-gray-200 overflow-y-auto">
+              <div className="p-4 border-b border-gray-200">
+                <h2 className="text-lg font-semibold text-gray-900">Your Campaigns</h2>
+                <p className="text-sm text-gray-500">Click to view all scripts</p>
+              </div>
+              
+              <div className="p-2">
+                {isLoadingGroups ? (
+                  <div className="flex justify-center p-4">
+                    <div className="w-5 h-5 border-2 border-purple-600 border-t-transparent rounded-full animate-spin"></div>
+                  </div>
+                ) : scriptGroups.length === 0 ? (
+                  <div className="text-center p-4 text-gray-500 text-sm">
+                    No campaigns found
+                  </div>
+                ) : (
+                  <div className="space-y-1">
+                    {scriptGroups.map((group, index) => (
+                      <button
+                        key={index}
+                        onClick={() => handleScriptGroupClick(group.brandName, group.product, group.firstScriptId)}
+                        className="w-full text-left p-3 rounded-lg hover:bg-gray-100 transition-colors flex items-center justify-between group"
+                      >
+                        <div className="flex items-start">
+                          <Folder className="w-4 h-4 text-gray-500 mr-2 mt-0.5" />
+                          <div>
+                            <p className="font-medium text-gray-800 truncate">{group.brandName}</p>
+                            <p className="text-xs text-gray-500 truncate">{group.product}</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center">
+                          <span className="text-xs text-gray-500 mr-1">{group.scriptCount}</span>
+                          <ChevronRight className="w-4 h-4 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+            
             {/* Script Details */}
             <div className="flex-1 bg-white flex flex-col">
               <div className="p-6 border-b border-gray-200">
@@ -302,6 +426,44 @@ const ScriptView: React.FC = () => {
                       const isNewest = index === 0;
                       const isOriginal = index === scriptVersions.length - 1;
                       
+                      async function handleScriptLikeToggle(scriptId: string, liked: boolean): Promise<void> {
+                        try {
+                          const token = localStorage.getItem('token');
+                          if (!token) {
+                            setError('Authentication required');
+                            return;
+                          }
+                          const response = await fetch(buildApiUrl(`api/scripts/${scriptId}/like`), {
+                            method: liked ? 'POST' : 'DELETE',
+                            headers: {
+                              'Authorization': `Bearer ${token}`,
+                              'Content-Type': 'application/json'
+                            }
+                          });
+                          if (!response.ok) {
+                            const errorData = await response.json();
+                            throw new Error(errorData.message || 'Failed to update like status');
+                          }
+                          
+                          // Update the liked status in the scriptVersions state
+                          setScriptVersions(prevVersions => 
+                            prevVersions.map(version => 
+                              version._id === scriptId ? { ...version, liked } : version
+                            )
+                          );
+                          
+                          // Update currentScript if it's the one that was liked
+                          if (currentScript._id === scriptId) {
+                            setCurrentScript({ ...currentScript, liked });
+                          }
+                          
+                          console.log(`Script ${scriptId} ${liked ? 'liked' : 'unliked'}`);
+                        } catch (error) {
+                          console.error('Error updating like status:', error);
+                          setError(error instanceof Error ? error.message : 'Failed to update like status.');
+                        }
+                      }
+                      
                       return (
                         <div key={index} className={`border-l-4 ${isNewest ? 'border-purple-600' : 'border-purple-300'} pl-4`}>
                           <div className="mb-3 flex items-center justify-between">
@@ -321,8 +483,9 @@ const ScriptView: React.FC = () => {
                             )}
                           </div>
                           <GeneratedScript 
-                            script={scriptVersion}
+                            script={{ ...scriptVersion, liked: (scriptVersion as any).liked ?? false }}
                             onEdit={isNewest ? handleEditScript : undefined}
+                            onLikeToggle={handleScriptLikeToggle} 
                           />
                         </div>
                       );

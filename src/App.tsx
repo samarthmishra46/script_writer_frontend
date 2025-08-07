@@ -14,6 +14,7 @@ import ContactUs from './pages/ContactUs';
 import AboutUs from './pages/AboutUs';
 import GoogleAuthTestPage from './pages/GoogleAuthTestPage';
 import ProtectedRoute from './components/ProtectedRoute';
+import ScriptGroup from './pages/ScriptGroup';
 
 function App() {
   // Use environment variable for client ID
@@ -70,6 +71,11 @@ function App() {
           <Route path="/subscription" element={
             <ProtectedRoute>
               <Subscription />
+            </ProtectedRoute>
+          } />
+          <Route path="/script-group/:brandName/:product/:scriptId" element={
+            <ProtectedRoute>
+              <ScriptGroup />
             </ProtectedRoute>
           } />
           

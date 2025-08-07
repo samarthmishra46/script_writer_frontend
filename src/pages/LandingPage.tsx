@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ChevronRight, Sparkles, Star, Zap, ChevronDown, User, LogOut, Home } from 'lucide-react';
-
 interface User {
   id: string;
   name: string;
@@ -317,17 +316,37 @@ const LandingPage: React.FC = () => {
           </div>
           
           <h2 className="text-4xl font-bold text-gray-900 mb-8 leading-tight hover:text-purple-700 transition-colors duration-300">
-            You are just one Winning Ad away from exploding your revenue.
+            Get ROAS Exploding Ad Ideas <div className="inline text-purple-700 hover:text-grey-900 transition-colors duration-300">With</div> Angles, Hooks Scripts, & Storyboards For Meta Ads in Minutes
           </h2>
+          <h4 className="text-2xl text-gray-900 mb-8 leading-tight hover:text-purple-700 transition-colors duration-300">
+            Your Dream ROAS, Dream Revenue Milestone Might Just Be One Winning Ad Script Away!
+          </h4>
+          
+          {/* Added storyboard image */}
+          <div className="mb-10">
+            <img 
+              src="../../dist/assets/landingPage1.png"
+              alt="Storyboard and Final Ad Example" 
+              className="mx-auto rounded-lg shadow-xl max-w-full h-auto border border-purple-100"
+              
+            />
+            <p className="text-sm text-gray-500 mt-3">
+              From storyboard to final ad: See how Leepi AI helps create compelling visual content
+            </p>
+          </div>
           
           <div className="relative inline-block group mb-8">
             <Link
               to="/login"
-              className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 text-white text-xl font-semibold rounded-lg hover:from-pink-600 hover:via-purple-600 hover:to-blue-600 transition-all duration-500 shadow-lg hover:shadow-2xl transform hover:scale-105 hover:-translate-y-1 water-effect animate-liquid-flow"
+              className="relative inline-flex items-center px-8 py-4 bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 text-white text-xl font-semibold rounded-lg hover:from-pink-600 hover:via-purple-600 hover:to-blue-600 transition-all duration-500 shadow-lg hover:shadow-2xl transform hover:scale-105 hover:-translate-y-1 water-effect animate-liquid-flow"
+              style={{ zIndex: 1 }}
             >
+              <span className="absolute inset-0" style={{ zIndex: 2 }}></span>
+              <span className="flex items-center relative z-10 pointer-events-auto">
               <Zap className="mr-2 w-5 h-5" />
-              Get Your Winning Ad Scripts Now
+              Try For 30 Days At Just Rs.1999
               <ChevronRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              </span>
             </Link>
             <div className="absolute -inset-3 bg-gradient-to-r from-pink-500/30 via-purple-500/30 to-blue-500/30 blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-lg animate-water-wave"></div>
           </div>
@@ -342,6 +361,72 @@ const LandingPage: React.FC = () => {
           <p className="text-lg text-gray-600 max-w-2xl mx-auto leading-relaxed">
             Wrote 1000+ Winning Ads For Meta, Trained On Rs. 50Cr+ Of Ad Spend Data!
           </p>
+        </div>
+      </section>
+
+      
+
+      {/* NEW: "Is Not Just A ChatGPT Wrapper" Section */}
+      <section className="relative z-10 py-16 px-4 sm:px-6 lg:px-8">
+        
+        <div className="max-w-5xl mx-auto bg-white rounded-xl shadow-xl p-8 border border-purple-100">
+          <div className="text-center mb-10">
+            <div className="relative inline-block">
+              <h1 className="text-6xl font-bold bg-gradient-to-r from-purple-700 to-pink-600 bg-clip-text text-transparent mb-6 transition-all duration-300 hover:scale-105">
+                Leepi AI
+              </h1>
+              <div className="absolute -inset-2 bg-gradient-to-r from-purple-600/20 to-pink-600/20 blur-xl opacity-0 hover:opacity-100 transition-opacity duration-500 rounded-lg"></div>
+            </div>
+            <h3 className="px-2 text-3xl font-bold   text-center leading-snug">
+              Is Not Just A ChatGPT Wrapper,<br />
+              It's Trained On<br />
+              Rs. 50Cr Of Meta Ad Spend
+            </h3>
+
+            <p className="text-gray-600 mt-4 max-w-2xl mx-auto">
+              It Understands
+            </p>
+          </div>
+          
+            <div className="space-y-4 mb-9">
+            <div className="flex flex-wrap gap-4 justify-center">
+              {["Copywriting", "Performance Marketing", "Video Ads"].map((tag, index) => (
+              <div key={index} className="bg-purple-50 rounded-full px-4 py-2 text-center text-l text-purple-700 font-medium">
+                {tag}
+              </div>
+              ))}
+            </div>
+            <div className="flex flex-wrap gap-4 justify-center">
+              {["Conversion Optimization", "Creative Strategy"].map((tag, index) => (
+              <div key={index} className="bg-purple-50 rounded-full px-4 py-2 text-center text-l text-purple-700 font-medium">
+                {tag}
+              </div>
+              ))}
+            </div>
+            <div className="flex flex-wrap gap-4 justify-center">
+              {["Brand Storytelling", "Ad Angles", "Hook Ideas"].map((tag, index) => (
+              <div key={index} className="bg-purple-50 rounded-full px-4 py-2 text-center text-l text-purple-700 font-medium">
+                {tag}
+              </div>
+              ))}
+            </div>
+            <div className="flex flex-wrap gap-4 justify-center">
+              {["Consumer psychology"].map((tag, index) => (
+              <div key={index} className="bg-purple-50 rounded-full px-4 py-2 text-center text-l text-purple-700 font-medium">
+                {tag}
+              </div>
+              ))}
+            </div>
+            </div>
+          
+          <div className="flex justify-center my-8">
+            <Link
+              to="/signup"
+              className="px-8 py-3 bg-gradient-to-r from-pink-500 to-purple-500 text-white rounded-lg hover:from-pink-600 hover:to-purple-600 transition-all duration-300 shadow-lg text-lg font-medium"
+            >
+              Try For Free (No Credit Card)
+            </Link>
+          </div>
         </div>
       </section>
 
@@ -389,6 +474,215 @@ const LandingPage: React.FC = () => {
                 </div>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* NEW: "Leepi AI Has Written & Ideated 1000+ Ads" Section */}
+      <section className="relative z-10 py-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-purple-50 to-pink-50">
+        <div className="max-w-5xl mx-auto text-center">
+          <h3 className="text-3xl font-bold mb-8 bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+            Leepi AI Has Written & Ideated 1000+ Ads For Dozens of Brands
+          </h3>
+          
+          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-6 mb-12">
+            {[...Array(12)].map((_, i) => (
+              <div key={i} className="flex items-center justify-center p-4 bg-white rounded-lg shadow-sm">
+                <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center text-gray-500 text-xs">Logo {i+1}</div>
+              </div>
+            ))}
+          </div>
+          
+          <div className="mt-10">
+            <Link
+              to="/signup"
+              className="px-8 py-3 bg-gradient-to-r from-pink-500 to-purple-500 text-white rounded-lg hover:from-pink-600 hover:to-purple-600 transition-all duration-300 shadow-lg text-lg font-medium"
+            >
+              Try Leepi AI Today For Free
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* NEW: "Ads Written by Leepi AI That Break Writer's Block" Section */}
+      <section className="relative z-10 py-16 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-12">
+            <h3 className="text-3xl font-bold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent mb-4">
+              Ads Written by Leepi AI That Break Writer's Block
+            </h3>
+          </div>
+          
+          <div className="grid md:grid-cols-2 gap-8">
+            {/* Ad Example 1 */}
+            <div className="bg-white rounded-xl shadow-lg p-6 border border-purple-100">
+              <div className="flex mb-4">
+                <div className="w-14 h-14 bg-gray-200 rounded-full flex items-center justify-center text-gray-500">
+                  IMG
+                </div>
+                <div className="ml-4">
+                  <h4 className="font-semibold text-lg">Brand Example One</h4>
+                  <p className="text-gray-500 text-sm">Sponsored</p>
+                </div>
+              </div>
+              <p className="mb-4 text-gray-700">
+                "To break records while losing focus is self-
+                sabotage, but achieving what feels like unsustainable results is the only way to succeed."
+              </p>
+              <div className="mt-6">
+                <p className="text-xs text-gray-500 italic">
+                  Generated using Leepi AI in less than 1 minute
+                </p>
+              </div>
+            </div>
+            
+            {/* Ad Example 2 */}
+            <div className="bg-white rounded-xl shadow-lg p-6 border border-purple-100">
+              <div className="flex mb-4">
+                <div className="w-14 h-14 bg-gray-200 rounded-full flex items-center justify-center text-gray-500">
+                  IMG
+                </div>
+                <div className="ml-4">
+                  <h4 className="font-semibold text-lg">Brand Example Two</h4>
+                  <p className="text-gray-500 text-sm">Sponsored</p>
+                </div>
+              </div>
+              <p className="mb-4 text-gray-700">
+                "You don't need to work 80 hours, it creates
+                imbalance which makes ads perform..."
+              </p>
+              <div className="mt-6">
+                <p className="text-xs text-gray-500 italic">
+                  Generated using Leepi AI in less than 1 minute
+                </p>
+              </div>
+            </div>
+          </div>
+          
+          <div className="text-center mt-12">
+            <Link
+              to="/signup"
+              className="px-8 py-3 bg-gradient-to-r from-pink-500 to-purple-500 text-white rounded-lg hover:from-pink-600 hover:to-purple-600 transition-all duration-300 shadow-lg text-lg font-medium"
+            >
+              Try for Free (No Credit Card)
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* NEW: How Leepi AI Works */}
+      <section className="relative z-10 py-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-blue-50 to-purple-50">
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-12">
+            <h3 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+              How Leepi AI Works
+            </h3>
+          </div>
+          
+          <div className="space-y-12">
+            {/* Step 1 */}
+            <div className="flex flex-col md:flex-row items-start bg-white rounded-xl shadow-lg p-6 border border-purple-100">
+              <div className="md:w-1/4 mb-4 md:mb-0">
+                <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center text-purple-600 font-bold text-xl">
+                  1
+                </div>
+              </div>
+              <div className="md:w-3/4">
+                <h4 className="text-xl font-semibold mb-2">Step 1: Tell us about your product or offer</h4>
+                <p className="text-gray-600 mb-4">
+                  Provide details about your product, service, or offer. The more details you provide, the better the results.
+                </p>
+                <div className="bg-gray-100 rounded-lg p-4">
+                  <div className="h-12 bg-gray-200 rounded mb-2"></div>
+                  <div className="h-8 w-20 bg-purple-500 rounded"></div>
+                </div>
+              </div>
+            </div>
+            
+            {/* Step 2 */}
+            <div className="flex flex-col md:flex-row items-start bg-white rounded-xl shadow-lg p-6 border border-purple-100">
+              <div className="md:w-1/4 mb-4 md:mb-0">
+                <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center text-purple-600 font-bold text-xl">
+                  2
+                </div>
+              </div>
+              <div className="md:w-3/4">
+                <h4 className="text-xl font-semibold mb-2">Step 2: That's it, simply wait for your ad scripts</h4>
+                <p className="text-gray-600 mb-4">
+                  Our AI generates high-converting ad scripts based on your input and our database of successful ads.
+                </p>
+                <div className="grid grid-cols-4 gap-2">
+                  <div className="h-6 bg-gray-200 rounded"></div>
+                  <div className="h-6 bg-gray-200 rounded"></div>
+                  <div className="h-6 bg-gray-200 rounded"></div>
+                  <div className="h-6 bg-gray-200 rounded"></div>
+                </div>
+              </div>
+            </div>
+            
+            {/* Step 3 */}
+            <div className="flex flex-col md:flex-row items-start bg-white rounded-xl shadow-lg p-6 border border-purple-100">
+              <div className="md:w-1/4 mb-4 md:mb-0">
+                <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center text-purple-600 font-bold text-xl">
+                  3
+                </div>
+              </div>
+              <div className="md:w-3/4">
+                <h4 className="text-xl font-semibold mb-2">Step 3: Use the scripts in your ad campaigns</h4>
+                <p className="text-gray-600 mb-4">
+                  Copy the generated scripts directly into your Facebook or Instagram ad campaigns and watch your conversions grow.
+                </p>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="h-24 bg-gray-100 rounded-lg"></div>
+                  <div className="h-24 bg-gray-100 rounded-lg"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div className="text-center mt-12">
+            <Link
+              to="/signup"
+              className="px-8 py-3 bg-gradient-to-r from-pink-500 to-purple-500 text-white rounded-lg hover:from-pink-600 hover:to-purple-600 transition-all duration-300 shadow-lg text-lg font-medium"
+            >
+              Try Now For Free
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* NEW: 100% Money Back Guarantee */}
+      <section className="relative z-10 py-16 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-4xl mx-auto">
+          <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl shadow-2xl p-8 text-center relative overflow-hidden">
+            <div className="absolute top-0 right-0 transform translate-x-1/2 -translate-y-1/2">
+              <div className="w-40 h-40 bg-yellow-400 rounded-full opacity-20"></div>
+            </div>
+            
+            <h3 className="text-3xl font-bold text-white mb-6 relative z-10">
+              The Promise
+            </h3>
+            
+            <div className="mb-8 relative z-10">
+              <div className="w-32 h-32 mx-auto bg-yellow-500 rounded-full flex items-center justify-center border-4 border-yellow-400">
+                <div className="text-center">
+                  <p className="text-lg font-bold text-gray-900">100%</p>
+                  <p className="text-sm font-bold text-gray-900">Money Back</p>
+                  <p className="text-xs font-bold text-gray-900">Guarantee</p>
+                </div>
+              </div>
+            </div>
+            
+            <p className="text-white text-lg mb-8 max-w-xl mx-auto relative z-10">
+              We stand behind our AI script generator. If it doesn't help you create better ads in less time, we'll refund your subscription. No questions asked.
+            </p>
+            
+            <Link
+              to="/signup"
+              className="px-8 py-3 bg-yellow-500 text-gray-900 rounded-lg hover:bg-yellow-400 transition-all duration-300 shadow-lg text-lg font-bold relative z-10"
+            >
+              Try For Free (No Credit Card)
+            </Link>
           </div>
         </div>
       </section>
@@ -443,8 +737,33 @@ const LandingPage: React.FC = () => {
           </div>
         </div>
       </section>
+      
+      {/* Final CTA Section */}
+      <section className="relative z-10 py-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-purple-100 to-pink-100">
+        <div className="max-w-4xl mx-auto text-center">
+          <h3 className="text-3xl font-bold mb-6 bg-gradient-to-r from-purple-700 to-pink-600 bg-clip-text text-transparent">
+            Ready to Create Winning Ad Scripts?
+          </h3>
+          <p className="text-xl text-gray-700 mb-8">
+            Join thousands of marketers who are saving time and getting better results with Leepi AI.
+          </p>
+          <div className="relative inline-block group">
+            <Link
+              to="/signup"
+              className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 text-white text-xl font-semibold rounded-lg hover:from-pink-600 hover:via-purple-600 hover:to-blue-600 transition-all duration-500 shadow-lg hover:shadow-2xl transform hover:scale-105 hover:-translate-y-1 water-effect animate-liquid-flow"
+            >
+              Get Started For Free
+              <ChevronRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+            </Link>
+            <div className="absolute -inset-3 bg-gradient-to-r from-pink-500/30 via-purple-500/30 to-blue-500/30 blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-lg animate-water-wave"></div>
+          </div>
+          <p className="mt-4 text-gray-500">
+            No credit card required • Free plan available
+          </p>
+        </div>
+      </section>
     </div>
   );
 };
 
-export default LandingPage; 
+export default LandingPage;
