@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Search, FolderPlus, Loader2, Video, X } from 'lucide-react';
+import { Search, FolderPlus, Loader2, Video, X, Menu, Plus } from 'lucide-react';
 import { buildApiUrl } from '../config/api';
 import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
@@ -42,6 +42,8 @@ const Dashboard: React.FC = () => {
   const [hasStoryboardAccess, setHasStoryboardAccess] = useState<boolean | null>(null);
   const [checkingAccess, setCheckingAccess] = useState(false);
   const [sidebarRefreshTrigger, setSidebarRefreshTrigger] = useState(0);
+  const [showMobileSidebar, setShowMobileSidebar] = useState(false);
+  const [sortOption, setSortOption] = useState('newest');
 
   useEffect(() => {
     fetchScripts();
@@ -254,54 +256,89 @@ const Dashboard: React.FC = () => {
   };
 
   return (
-    <div className="flex h-screen bg-gray-100">
-      <Sidebar refreshTrigger={sidebarRefreshTrigger} />
+    <div className="flex flex-col md:flex-row h-screen bg-gray-100">
+      {/* Mobile Header - Only visible on mobile */}
+      <div className="md:hidden bg-gray-800 text-white p-4 flex items-center justify-between">
+        <h1 className="text-xl font-bold text-purple-500">Leepi AI</h1>
+        <button 
+          onClick={() => setShowMobileSidebar(prev => !prev)} 
+          className="text-white focus:outline-none"
+        >
+          <Menu className="w-6 h-6" />
+        </button>
+      </div>
+      
+      {/* Sidebar - Conditionally shown on mobile */}
+      <div className={`${showMobileSidebar ? 'block' : 'hidden'} md:block fixed inset-0 z-40 md:relative md:z-0 md:w-64`}>
+        {showMobileSidebar && (
+          <div 
+            className="absolute inset-0 bg-black opacity-50 md:hidden"
+            onClick={() => setShowMobileSidebar(false)}
+          ></div>
+        )}
+        <div className="relative h-full z-10">
+          <Sidebar refreshTrigger={sidebarRefreshTrigger} onCloseMobile={() => setShowMobileSidebar(false)} />
+        </div>
+      </div>
       
       <div className="flex-1 flex flex-col overflow-hidden">
-        <Header />
+        {/* Regular header - Hidden on mobile */}
+        <div className="hidden md:block">
+          <Header />
+        </div>
         
-        <main className="flex-1 overflow-y-auto p-6">
+        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 p-3 md:p-6">
           {/* Subscription Banner */}
           <SubscriptionBanner />
-          
-          {/* Create Script Banner */}
-          <div className="mb-8">
-            <Link
-              to="/create-script"
-              className="block w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white p-6 rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all duration-200"
-            >
-              <div className="flex items-center justify-center space-x-3">
-                <FolderPlus className="w-6 h-6" />
-                <span className="text-xl font-semibold">Create New Script</span>
-              </div>
-              <p className="text-center mt-2 text-purple-100">
-                Generate AI-powered ad scripts for your campaigns
-              </p>
-            </Link>
-          </div>
 
-          {/* Scripts Section */}
-          <div className="mb-6">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-2xl font-bold text-gray-900">Your Campaigns</h2>
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                <input
+
+          {filteredGroups.length !== 0 && (
+            <>
+              {/* Search bar - Make responsive */}
+              <div className="mb-6">
+                <div className="flex flex-col md:flex-row md:items-center space-y-3 md:space-y-0 md:space-x-4">
+                  <div className="relative flex-grow">
+                    <input
                   type="text"
-                  placeholder="Search Campaigns"
+                  placeholder="Search scripts..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  className="w-full px-4 py-2 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent"
                 />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+              </div>
+              
+              <div className="flex space-x-2">
+                <select
+                  value={sortOption}
+                  onChange={(e) => setSortOption(e.target.value)}
+                  className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-600 focus:border-transparent bg-white"
+                >
+                  <option value="newest">Newest First</option>
+                  <option value="oldest">Oldest First</option>
+                  <option value="a-z">A-Z</option>
+                  <option value="z-a">Z-A</option>
+                </select>
+                
+                <button
+                  onClick={() => navigate('/create-script')}
+                  className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 flex items-center transition-colors"
+                >
+                  <Plus className="w-4 h-4 mr-1" />
+                  <span className="hidden md:inline">Create Script</span>
+                  <span className="md:hidden">New</span>
+                </button>
               </div>
             </div>
           </div>
-
+          
           {/* Error Message */}
           {error && (
             <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
               <p className="text-red-600">{error}</p>
             </div>
+          )}
+</>
           )}
 
           {/* Loading State */}
@@ -314,25 +351,36 @@ const Dashboard: React.FC = () => {
 
           {/* Script Groups Grid */}
           {!isLoading && (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {filteredGroups.length === 0 ? (
                 <div className="col-span-full text-center py-12">
-                  <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <FolderPlus className="w-8 h-8 text-gray-400" />
+                  <div className="w-45 items-center justify-center mx-auto mb-4">
+                    <h1 className="text-3xl font-bold text-gray-700 ">
+                      Start With Giving Us <br />
+                      Your Product Info
+                      </h1>
                   </div>
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">No campaigns found</h3>
-                  <p className="text-gray-500 mb-4">
-                    {searchTerm ? 'Try adjusting your search terms.' : 'Get started by creating your first script.'}
-                  </p>
+
+                  <div></div>
                   {!searchTerm && (
                     <Link
                       to="/create-script"
-                      className="inline-flex items-center px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+                      className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purplr-700 hover:to-pink-700 transition-all duration-300"
                     >
                       <FolderPlus className="w-4 h-4 mr-2" />
-                      Create Script
+                      Share Product Info
                     </Link>
                   )}
+
+                  <div className="w-45 h-40 flex flex-col items-center justify-center mx-auto">
+                    <h1 className="text-lg font-medium text-gray-700 text-center">
+                      One Time Effort,Just Answer
+                       A Few Questions<br />
+                      About Your Product. Takes Only 15 Minutes
+                    </h1>
+                  </div>
+                  
+                  
                 </div>
               ) : (
                 filteredGroups.map((group) => (

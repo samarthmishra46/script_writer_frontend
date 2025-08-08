@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { FolderPlus, Search, ChevronDown, ChevronRight, Building2, LogOut, Package } from 'lucide-react';
+import { FolderPlus, Search, ChevronDown, ChevronRight, Building2, LogOut, Package, X, Settings, ChevronUp } from 'lucide-react';
 import { buildApiUrl } from '../config/api';
 
 interface Product {
@@ -21,7 +21,8 @@ interface SidebarProps {
     id: string;
     name: string;
   }>;
-  refreshTrigger?: number; // Optional prop to trigger refresh
+  refreshTrigger?: number;
+  onCloseMobile?: () => void; // Add this prop for mobile close functionality
 }
 
 // Create a cache outside the component to persist between renders
@@ -35,13 +36,14 @@ const companiesCache: {
 
 const CACHE_TTL = 5 * 60 * 1000; // 5 minutes in milliseconds
 
-const Sidebar: React.FC<SidebarProps> = ({ campaigns = [], refreshTrigger = 0 }) => {
+const Sidebar: React.FC<SidebarProps> = ({ campaigns = [], refreshTrigger = 0, onCloseMobile }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem('user') || '{}');
   const [companies, setCompanies] = useState<Company[]>([]);
   const [isLoadingCompanies, setIsLoadingCompanies] = useState(false);
   const [expandedBrands, setExpandedBrands] = useState<Record<string, boolean>>({});
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const initialLoadComplete = useRef(false);
 
   // Toggle brand expansion
@@ -188,15 +190,28 @@ const Sidebar: React.FC<SidebarProps> = ({ campaigns = [], refreshTrigger = 0 })
   };
 
   return (
-    <div className="w-64 bg-gray-800 h-screen flex flex-col">
+    <div className="w-full md:w-64 bg-gray-800 h-screen flex flex-col overflow-y-auto">
+      {/* Mobile close button - only on mobile */}
+      {onCloseMobile && (
+        <div className="md:hidden flex justify-end p-2">
+          <button 
+            onClick={onCloseMobile}
+            className="p-2 text-gray-400 hover:text-white rounded-full hover:bg-gray-700"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+      )}
+    
       {/* Logo */}
-      <div className="p-4 mb-6">
+      <div className="p-4 mb-4 md:mb-6 flex items-center">
         <h1 className="text-2xl font-bold text-purple-500">Leepi AI</h1>
       </div>
 
       {/* Navigation */}
-      <div className="flex-1 px-4 overflow-y-auto">
-        <div className="space-y-2">
+      <div className="flex-1 px-2 md:px-4 overflow-y-auto">
+        {/* Navigation items */}
+        <div className="space-y-1">
           <Link
             to="/create-script"
             className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
@@ -223,8 +238,8 @@ const Sidebar: React.FC<SidebarProps> = ({ campaigns = [], refreshTrigger = 0 })
         </div>
 
         {/* Companies/Brands with expandable product lists */}
-        <div className="mt-8">
-          <div className="flex items-center justify-between px-4 mb-3">
+        <div className="mt-6 md:mt-8">
+          <div className="flex items-center justify-between px-2 md:px-4 mb-2 md:mb-3">
             <h3 className="text-sm font-medium text-gray-400">
               Your Brands
             </h3>
@@ -236,16 +251,17 @@ const Sidebar: React.FC<SidebarProps> = ({ campaigns = [], refreshTrigger = 0 })
             </Link>
           </div>
           
+          {/* Brand list - ensure touch friendly sizes */}
           <div className="space-y-1 max-h-96 overflow-y-auto pr-2">
             {isLoadingCompanies ? (
               <div className="px-4 py-2 text-gray-400 text-sm">Loading...</div>
             ) : companies.length > 0 ? (
               companies.map((company) => (
                 <div key={company.brand_name} className="mb-2">
-                  {/* Brand header - clickable to expand/collapse */}
+                  {/* Brand header - make touch friendly */}
                   <button
                     onClick={() => toggleBrandExpansion(company.brand_name)}
-                    className="w-full text-left px-3 py-3 text-gray-300 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200 group relative flex items-center justify-between"
+                    className="w-full text-left px-3 py-4 md:py-3 text-gray-300 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200 group relative flex items-center justify-between"
                   >
                     <div className="flex items-start space-x-3 flex-1">
                       <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center flex-shrink-0">
@@ -285,14 +301,14 @@ const Sidebar: React.FC<SidebarProps> = ({ campaigns = [], refreshTrigger = 0 })
                     <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-purple-500 to-pink-500 rounded-r opacity-0 group-hover:opacity-100 transition-opacity"></div>
                   </button>
                   
-                  {/* Product list - shown when brand is expanded */}
+                  {/* Product list - make touch friendly */}
                   {expandedBrands[company.brand_name] && company.products.length > 0 && (
-                    <div className="ml-10 mt-1 space-y-1">
+                    <div className="ml-8 md:ml-10 mt-1 space-y-1">
                       {company.products.map((product) => (
                         <button
                           key={`${company.brand_name}-${product.name}`}
                           onClick={() => handleProductClick(company.brand_name, product.name, product.firstScriptId)}
-                          className="w-full text-left px-3 py-2 text-gray-400 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200 flex items-center space-x-2 group"
+                          className="w-full text-left px-3 py-3 md:py-2 text-gray-400 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200 flex items-center space-x-2 group"
                         >
                           <Package className="w-3 h-3 text-gray-500 group-hover:text-gray-300" />
                           <div>
@@ -325,17 +341,25 @@ const Sidebar: React.FC<SidebarProps> = ({ campaigns = [], refreshTrigger = 0 })
         </div>
       </div>
 
-      {/* Footer */}
-      <div className="p-4 border-t border-gray-700">
-        {/* User Information */}
-        <div className="bg-gray-700 rounded-lg p-3">
-          <div className="flex items-center space-x-3">
+
+
+
+      {/* Footer - User information */}
+      <div className="p-4 border-t border-gray-700 relative">
+        {/* User info */}
+        <div className="bg-gray-700 rounded-lg p-3 flex items-center justify-between">
+          <button
+            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+            className="flex items-center space-x-3 focus:outline-none flex-grow"
+            aria-haspopup="true"
+            aria-expanded={isDropdownOpen}
+          >
             <div className="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center">
               <span className="text-white font-bold text-sm">
                 {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
               </span>
             </div>
-            <div className="flex-1 min-w-0">
+            <div className="flex-1 min-w-0 text-left">
               <p className="text-white text-sm font-medium truncate">
                 {user?.name || 'User'}
               </p>
@@ -343,15 +367,53 @@ const Sidebar: React.FC<SidebarProps> = ({ campaigns = [], refreshTrigger = 0 })
                 {user?.email || 'user@example.com'}
               </p>
             </div>
-            <button 
-              onClick={handleLogout} 
-              className="p-2 text-gray-400 hover:text-white hover:bg-gray-600 rounded-full transition-colors"
-              title="Logout"
-            >
-              <LogOut className="w-4 h-4" />
-            </button>
-          </div>
+            <ChevronUp className="w-4 h-4 text-gray-400" />
+          </button>
+          
         </div>
+        
+        {isDropdownOpen && (
+          <div className="absolute left-4 right-4 bottom-full mb-2 bg-white border border-gray-200 rounded-lg shadow-lg z-20">
+            <div className="p-2 border-b border-gray-100">
+              <p className="text-sm font-medium text-gray-900 truncate">{user?.name || 'User'}</p>
+              <p className="text-xs text-gray-500 truncate">{user?.email || 'user@example.com'}</p>
+            </div>
+            <div className="py-1">
+              <Link
+                to="/dashboard"
+                className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                onClick={() => setIsDropdownOpen(false)}
+              >
+                Dashboard
+              </Link>
+              <Link
+                to="/subscription"
+                className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                onClick={() => setIsDropdownOpen(false)}
+              >
+                Subscription
+              </Link>
+              <Link
+                to="/settings"
+                className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                onClick={() => setIsDropdownOpen(false)}
+              >
+                <Settings className="w-4 h-4 mr-2" />
+                Settings
+              </Link>
+              <button
+                onClick={() => {
+                  handleLogout();
+                  setIsDropdownOpen(false);
+                }}
+                className="flex items-center w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+              >
+                <LogOut className="w-4 h-4 mr-2" />
+                Logout
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

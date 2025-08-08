@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Plus, MessageSquare, ChevronRight, Folder } from 'lucide-react';
+import { ArrowLeft, Plus, MessageSquare, ChevronRight, Folder, Loader2, Menu, ChevronUp, ChevronDown } from 'lucide-react';
 import { buildApiUrl } from '../config/api';
 import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
@@ -51,6 +51,8 @@ const ScriptView: React.FC = () => {
   const [scriptGroups, setScriptGroups] = useState<ScriptGroup[]>([]);
   const [isLoadingGroups, setIsLoadingGroups] = useState(true);
   const [sidebarRefreshTrigger, setSidebarRefreshTrigger] = useState(0);
+  const [showMobileSidebar, setShowMobileSidebar] = useState(false);
+  const [showScriptGroups, setShowScriptGroups] = useState(true);
 
   useEffect(() => {
     const fetchScript = async () => {
@@ -292,10 +294,22 @@ const ScriptView: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="flex h-screen bg-gray-100">
-        <Sidebar />
+      <div className="flex flex-col md:flex-row h-screen bg-gray-100">
+        {/* Mobile Header */}
+        <div className="md:hidden bg-gray-800 text-white p-4 flex items-center justify-between">
+          <h1 className="text-xl font-bold text-purple-500">Leepi AI</h1>
+          <button className="text-white focus:outline-none">
+            <Loader2 className="w-6 h-6 animate-spin" />
+          </button>
+        </div>
+        
+        {/* Desktop layout */}
+        <div className="hidden md:block md:w-64">
+          <Sidebar />
+        </div>
+        
         <div className="flex-1 flex flex-col overflow-hidden">
-          <Header />
+          <Header className="hidden md:block" />
           <main className="flex-1 flex items-center justify-center">
             <div className="text-center">
               <div className="w-8 h-8 border-4 border-purple-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
@@ -335,22 +349,52 @@ const ScriptView: React.FC = () => {
   }
 
   return (
-    <div className="flex h-screen bg-gray-100">
-      <Sidebar refreshTrigger={sidebarRefreshTrigger} />
+    <div className="flex flex-col md:flex-row h-screen bg-gray-100">
+      {/* Mobile Header */}
+      <div className="md:hidden bg-gray-800 text-white p-4 flex items-center justify-between">
+        <h1 className="text-xl font-bold text-purple-500">Leepi AI</h1>
+        <button 
+          onClick={() => setShowMobileSidebar(prev => !prev)} 
+          className="text-white focus:outline-none"
+        >
+          <Menu className="w-6 h-6" />
+        </button>
+      </div>
+      
+      {/* Sidebar - responsive */}
+      <div className={`${showMobileSidebar ? 'block' : 'hidden'} md:block fixed inset-0 z-40 md:relative md:z-0 md:w-64`}>
+        {showMobileSidebar && (
+          <div 
+            className="absolute inset-0 bg-black opacity-50 md:hidden"
+            onClick={() => setShowMobileSidebar(false)}
+          ></div>
+        )}
+        <div className="relative h-full z-10">
+          <Sidebar refreshTrigger={sidebarRefreshTrigger} onCloseMobile={() => setShowMobileSidebar(false)} />
+        </div>
+      </div>
       
       <div className="flex-1 flex flex-col overflow-hidden">
-        <Header />
+        {/* Regular header - Hidden on mobile */}
+        <div className="hidden md:block">
+          <Header />
+        </div>
         
         <main className="flex-1 overflow-hidden">
-          <div className="h-full flex">
-            {/* Script Groups Sidebar */}
-            <div className="w-64 bg-white border-r border-gray-200 overflow-y-auto">
-              <div className="p-4 border-b border-gray-200">
+          <div className="h-full flex flex-col md:flex-row">
+            {/* Script Groups Sidebar - collapsible on mobile */}
+            <div className="w-full md:w-64 bg-white border-b md:border-r border-gray-200 overflow-y-auto">
+              <div className="p-4 border-b border-gray-200 flex items-center justify-between">
                 <h2 className="text-lg font-semibold text-gray-900">Your Campaigns</h2>
-                <p className="text-sm text-gray-500">Click to view all scripts</p>
+                <button 
+                  className="md:hidden text-gray-500"
+                  onClick={() => setShowScriptGroups(prev => !prev)}
+                >
+                  {showScriptGroups ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+                </button>
               </div>
               
-              <div className="p-2">
+              <div className={`${showScriptGroups ? 'block' : 'hidden'} md:block p-2`}>
                 {isLoadingGroups ? (
                   <div className="flex justify-center p-4">
                     <div className="w-5 h-5 border-2 border-purple-600 border-t-transparent rounded-full animate-spin"></div>
@@ -385,8 +429,8 @@ const ScriptView: React.FC = () => {
               </div>
             </div>
             
-            {/* Script Details */}
-            <div className="flex-1 bg-white flex flex-col">
+            {/* Script Details - full width on mobile */}
+            <div className="flex-1 bg-white flex flex-col overflow-y-auto">
               <div className="p-6 border-b border-gray-200">
                 <div className="flex items-center justify-between mb-4">
                   <button

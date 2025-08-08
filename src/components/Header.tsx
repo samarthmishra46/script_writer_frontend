@@ -1,50 +1,50 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Link, useNavigate ,useLocation} from 'react-router-dom';
+import { ChevronDown } from 'lucide-react';
+import { Settings } from 'lucide-react'; // Import Settings icon
 
 interface HeaderProps {
-  campaignName?: string;
-  onCampaignNameChange?: (name: string) => void;
+  className?: string;
 }
 
-const Header: React.FC<HeaderProps> = () => {
-  // Get user data to check subscription status
+const Header: React.FC<HeaderProps> = ({ className = '' }) => {
+  
+  const navigate = useNavigate();
+  const location = useLocation();
   const user = JSON.parse(localStorage.getItem('user') || '{}');
-  const hasActiveSubscription = user?.subscription?.status === 'active';
+
+  
+
+  const currentPage = location.pathname.substring(1);
+  let capitalizeFirst = currentPage.charAt(0).toUpperCase() + currentPage.slice(1); 
+  if(capitalizeFirst!=='Dashboard' && capitalizeFirst!=='Settings'){
+    capitalizeFirst="";}
+// "My-profile-page"
+
+  
 
   return (
-    <div className="px-6 py-4">
-      <div className="flex items-center justify-between">
-        {/* Left side - empty or can be used for breadcrumbs */}
-        <div className="flex items-center space-x-6">
-          {/* Removed Untitled dropdown as requested */}
-        </div>
-
-        {/* Navigation Links */}
-        <div className="flex items-center space-x-6">
-          {/* Show subscription link only for non-subscribers */}
-          {!hasActiveSubscription && (
-            <Link
-              to="/subscription"
-              className="text-gray-600 hover:text-gray-900 transition-colors"
+    <header className={`bg-white border-b border-gray-200 ${className}`}>
+      <div className="px-4 sm:px-6 lg:px-8 py-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center">
+            {/* Logo for larger screens */}
+            <h1 className="text-lg md:text-xl font-bold text-gray-900">{capitalizeFirst}</h1>
+          </div>
+          
+          <div className="flex items-center space-x-3">
+            <Link 
+              to="/subscription" 
+              className="text-sm text-gray-600 hover:text-gray-900 hidden md:block"
             >
-              Subscription
+              Book a
             </Link>
-          )}
-          <Link
-            to="/support"
-            className="text-gray-600 hover:text-gray-900 transition-colors"
-          >
-            Contact Support
-          </Link>
-          <button className="px-4 py-2 bg-blue-500/20 text-blue-600 rounded-full hover:bg-blue-500/30 transition-colors backdrop-blur-sm">
-            Book A Shoot
-          </button>
-          <button className="px-4 py-2 bg-blue-500/20 text-blue-600 rounded-full hover:bg-blue-500/30 transition-colors backdrop-blur-sm">
-            Request Expert Intervention
-          </button>
+            
+            
+          </div>
         </div>
       </div>
-    </div>
+    </header>
   );
 };
 

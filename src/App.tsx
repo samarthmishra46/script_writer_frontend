@@ -15,6 +15,7 @@ import AboutUs from './pages/AboutUs';
 import GoogleAuthTestPage from './pages/GoogleAuthTestPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import ScriptGroup from './pages/ScriptGroup';
+import Settings from './pages/Settings';
 
 function App() {
   // Use environment variable for client ID
@@ -78,6 +79,7 @@ function App() {
               <ScriptGroup />
             </ProtectedRoute>
           } />
+          <Route path="/settings" element={<Settings />} />
           
           {/* Redirect unknown routes to dashboard */}
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
