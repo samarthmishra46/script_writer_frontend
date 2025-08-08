@@ -225,7 +225,7 @@ const Sidebar: React.FC<SidebarProps> = ({ campaigns = [], refreshTrigger = 0, o
           </Link>
           
           <Link
-            to="/dashboard"
+            to="/dashboard#search-input"
             className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
               location.pathname === '/dashboard'
                 ? 'bg-gray-700 text-white'

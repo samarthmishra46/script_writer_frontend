@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link,useLocation } from 'react-router-dom';
 import { Search, FolderPlus, Loader2, Video, X, Menu, Plus } from 'lucide-react';
 import { buildApiUrl } from '../config/api';
 import Sidebar from '../components/Sidebar';
@@ -44,6 +44,28 @@ const Dashboard: React.FC = () => {
   const [sidebarRefreshTrigger, setSidebarRefreshTrigger] = useState(0);
   const [showMobileSidebar, setShowMobileSidebar] = useState(false);
   const [sortOption, setSortOption] = useState('newest');
+  const location = useLocation();
+
+   useEffect(() => {
+    const hash = location.hash;
+    if (hash) {
+      // Wait for the page to fully render
+      setTimeout( () => {
+        const element =  document.querySelector(hash) as HTMLElement;
+        
+        if (element) {
+          element.scrollIntoView({ behavior: "smooth" });
+
+          if ("focus" in element) {
+            (element as HTMLInputElement).focus();
+            
+          }
+          
+        }
+      }, 200); // small delay ensures element exists
+    }
+  }, [location]);
+
 
   useEffect(() => {
     fetchScripts();
@@ -298,7 +320,7 @@ const Dashboard: React.FC = () => {
               <div className="mb-6">
                 <div className="flex flex-col md:flex-row md:items-center space-y-3 md:space-y-0 md:space-x-4">
                   <div className="relative flex-grow">
-                    <input
+                    <input id='search-input'
                   type="text"
                   placeholder="Search scripts..."
                   value={searchTerm}
