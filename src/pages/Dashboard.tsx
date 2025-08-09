@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Link,useLocation } from 'react-router-dom';
+import React, { useState, useEffect,} from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Search, FolderPlus, Loader2, Video, X, Menu, Plus } from 'lucide-react';
 import { buildApiUrl } from '../config/api';
 import Sidebar from '../components/Sidebar';
@@ -45,6 +45,7 @@ const Dashboard: React.FC = () => {
   const [showMobileSidebar, setShowMobileSidebar] = useState(false);
   const [sortOption, setSortOption] = useState('newest');
   const location = useLocation();
+  const navigate = useNavigate();
 
    useEffect(() => {
     const hash = location.hash;
@@ -331,16 +332,7 @@ const Dashboard: React.FC = () => {
               </div>
               
               <div className="flex space-x-2">
-                <select
-                  value={sortOption}
-                  onChange={(e) => setSortOption(e.target.value)}
-                  className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-600 focus:border-transparent bg-white"
-                >
-                  <option value="newest">Newest First</option>
-                  <option value="oldest">Oldest First</option>
-                  <option value="a-z">A-Z</option>
-                  <option value="z-a">Z-A</option>
-                </select>
+
                 
                 <button
                   onClick={() => navigate('/create-script')}

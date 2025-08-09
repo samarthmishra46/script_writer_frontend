@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, Loader2, ChevronDown, ChevronUp, AlertCircle } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Loader2, ChevronDown, ChevronUp, AlertCircle, Menu } from 'lucide-react';
 import { buildApiUrl } from '../config/api';
 import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
@@ -1509,12 +1509,40 @@ const CreateScriptWizard: React.FC = () => {
     </div>
   );
 
+  // State for mobile sidebar visibility
+  const [showMobileSidebar, setShowMobileSidebar] = useState(false);
+
   return (
-    <div className="flex h-screen bg-gray-100">
-      <Sidebar />
+    <div className="flex flex-col md:flex-row h-screen bg-gray-100">
+      {/* Mobile header */}
+      <div className="md:hidden bg-gray-800 text-white p-4 flex items-center justify-between">
+        <h1 className="text-xl font-bold text-purple-500">Leepi AI</h1>
+        <button 
+          onClick={() => setShowMobileSidebar(prev => !prev)} 
+          className="text-white focus:outline-none"
+        >
+          <Menu className="w-6 h-6" />
+        </button>
+      </div>
+      
+      {/* Sidebar - responsive */}
+      <div className={`${showMobileSidebar ? 'block' : 'hidden'} md:block fixed inset-0 z-40 md:static md:inset-auto md:z-0 md:w-64`}>
+        {showMobileSidebar && (
+          <div 
+            className="absolute inset-0 bg-black opacity-50 md:hidden"
+            onClick={() => setShowMobileSidebar(false)}
+          ></div>
+        )}
+        <div className="relative h-full z-10">
+          <Sidebar onCloseMobile={() => setShowMobileSidebar(false)} />
+        </div>
+      </div>
       
       <div className="flex-1 flex flex-col overflow-hidden">
-        <Header />
+        {/* Regular header - Hidden on mobile */}
+        <div className="hidden md:block">
+          <Header />
+        </div>
         
         <main className="flex-1 overflow-y-auto p-6">
           <div className="max-w-4xl mx-auto">
