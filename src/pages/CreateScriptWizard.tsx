@@ -1556,15 +1556,15 @@ const CreateScriptWizard: React.FC = () => {
               renderGeneratedScript()
               
             ) : (
-              <div className="bg-white rounded-lg shadow-sm p-6">
+              <div className="bg-[#474747] rounded-lg shadow-sm p-6">
                 <div className="mb-6">
                   <h2 className="text-2xl font-bold text-gray-900 mb-2">Create New Script</h2>
                   <div className="flex items-center space-x-4">
-                    <div className={`flex items-center ${currentStep >= 1 ? 'text-purple-600' : 'text-gray-400'}`}>
+                    <div className={`flex items-center ${currentStep >= 1 ? 'text-purple-600' : 'text-white'}`}>
                       <div className={`w-8 h-8 rounded-full flex items-center justify-center ${currentStep >= 1 ? 'bg-purple-600 text-white' : 'bg-gray-200'}`}>
                         1
                       </div>
-                      <span className="ml-2">Basic Info</span>
+                      <span className=" text-whiteml-2">Basic Info</span>
                     </div>
                     <div className={`w-8 h-1 ${currentStep >= 2 ? 'bg-purple-600' : 'bg-gray-200'}`}></div>
                     <div className={`flex items-center ${currentStep >= 2 ? 'text-purple-600' : 'text-gray-400'}`}>
