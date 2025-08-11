@@ -24,7 +24,7 @@ const Header: React.FC<HeaderProps> = ({ className = '' }) => {
   
 
   return (
-    <header className={`bg-white border-b border-gray-200 ${className}`}>
+    <header className={`bg-white border-b  ${className}`}>
       <div className="px-4 sm:px-6 lg:px-8 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center">
@@ -34,14 +34,14 @@ const Header: React.FC<HeaderProps> = ({ className = '' }) => {
           
             <div className="flex items-center space-x-3">
             <Link
-              to="/subscription"
-              className="text-sm rounded border-3 border-blue-500 p-[2px] hidden md:block"
-              style={{ display: 'inline-block' }}
-            >
-              <span className="block bg-white bg-opacity-0 text-gray-700 font-semibold px-4 py-2 rounded hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 transition-colors duration-200">
-              Book A Shoot With Us
-              </span>
-            </Link>
+  to="/subscription"
+  className="hidden md:inline-block rounded-full p-[2px] bg-gradient-to-r from-purple-500 via-pink-500 to-red-500"
+>
+  <span className="block rounded-full bg-white text-gray-700 font-semibold px-4 py-2 hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 transition-colors duration-200">
+    Book A Shoot
+  </span>
+</Link>
+
             </div>
         </div>
       </div>

@@ -190,13 +190,13 @@ const Sidebar: React.FC<SidebarProps> = ({ campaigns = [], refreshTrigger = 0, o
   };
 
   return (
-    <div className="w-full md:w-64 bg-gray-800 h-screen flex flex-col overflow-y-auto">
+    <div className="w-full md:w-64 bg-[#F4F4F4] border h-screen flex flex-col overflow-y-auto">
       {/* Mobile close button - only on mobile */}
       {onCloseMobile && (
         <div className="md:hidden flex justify-end p-2">
           <button 
             onClick={onCloseMobile}
-            className="p-2 text-gray-400 hover:text-white rounded-full hover:bg-gray-700"
+            className="p-2 text-black hover:text-white rounded-full hover:bg-[#474747]"
           >
             <X className="w-5 h-5" />
           </button>
@@ -212,32 +212,35 @@ const Sidebar: React.FC<SidebarProps> = ({ campaigns = [], refreshTrigger = 0, o
       </div>
 
       {/* Navigation */}
-      <div className="flex-1 px-2 md:px-4 overflow-y-auto">
+      <div className="flex-1 px-2 md:px-4 rounded-lg overflow-y-auto">
         {/* Navigation items */}
         <div className="space-y-1">
+
           <Link
             to="/create-script"
             className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
               location.pathname === '/create-script'
-                ? 'bg-gray-700 text-white'
-                : 'text-gray-300 hover:bg-gray-700 hover:text-white'
+                ? 'bg-[#474747] text-white'
+                : 'text-[#272727] hover:bg-[#474747] hover:text-white'
             }`}
           >
             <FolderPlus className="w-5 h-5" />
-            <span>Create Script</span>
+            <span>Create Campaign</span>
           </Link>
-          
           <Link
             to="/dashboard#search-input"
             className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
               location.pathname === '/dashboard'
-                ? 'bg-gray-700 text-white'
-                : 'text-gray-300 hover:bg-gray-700 hover:text-white'
+                ? 'bg-[#474747] text-white'
+                : 'text-[#272727] hover:bg-[#474747] hover:text-white'
             }`}
           >
             <Search className="w-5 h-5" />
-            <span>Search Script</span>
+            <span>Search Campaign</span>
           </Link>
+          
+          
+          
         </div>
 
         {/* Companies/Brands with expandable product lists */}
@@ -264,7 +267,7 @@ const Sidebar: React.FC<SidebarProps> = ({ campaigns = [], refreshTrigger = 0, o
                   {/* Brand header - make touch friendly */}
                   <button
                     onClick={() => toggleBrandExpansion(company.brand_name)}
-                    className="w-full text-left px-3 py-4 md:py-3 text-gray-300 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200 group relative flex items-center justify-between"
+                    className="w-full text-left px-3 py-4 md:py-3 text-[#272727] hover:text-white hover:bg-[#474747] rounded-lg transition-all duration-200 group relative flex items-center justify-between"
                   >
                     <div className="flex items-start space-x-3 flex-1">
                       <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center flex-shrink-0">
@@ -277,7 +280,7 @@ const Sidebar: React.FC<SidebarProps> = ({ campaigns = [], refreshTrigger = 0, o
                         <p className="text-sm font-medium truncate group-hover:text-white">
                           {company.brand_name}
                         </p>
-                        <p className="text-xs text-gray-400 group-hover:text-gray-300 mt-1">
+                        <p className="text-xs text-gray-400 group-hover:text-[#272727] mt-1">
                           {company.scriptCount} script{company.scriptCount !== 1 ? 's' : ''} • {' '}
                           {new Date(company.lastUsed).toLocaleDateString()}
                         </p>
@@ -290,7 +293,7 @@ const Sidebar: React.FC<SidebarProps> = ({ campaigns = [], refreshTrigger = 0, o
                         className="w-6 h-6 rounded-full hover:bg-gray-600 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
                         title={`Create script for ${company.brand_name}`}
                       >
-                        <FolderPlus className="w-3 h-3 text-gray-300" />
+                        <FolderPlus className="w-3 h-3 text-[#272727]" />
                       </button>
                       
                       {expandedBrands[company.brand_name] ? (
@@ -311,9 +314,9 @@ const Sidebar: React.FC<SidebarProps> = ({ campaigns = [], refreshTrigger = 0, o
                         <button
                           key={`${company.brand_name}-${product.name}`}
                           onClick={() => handleProductClick(company.brand_name, product.name, product.firstScriptId)}
-                          className="w-full text-left px-3 py-3 md:py-2 text-gray-400 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-200 flex items-center space-x-2 group"
+                          className="w-full text-left px-3 py-3 md:py-2 text-gray-400 hover:text-white hover:bg-[#474747] rounded-lg transition-all duration-200 flex items-center space-x-2 group"
                         >
-                          <Package className="w-3 h-3 text-gray-500 group-hover:text-gray-300" />
+                          <Package className="w-3 h-3 text-gray-500 group-hover:text-[#272727]" />
                           <div>
                             <p className="text-xs truncate group-hover:text-white">{product.name}</p>
                             <p className="text-xs text-gray-500">
@@ -328,7 +331,7 @@ const Sidebar: React.FC<SidebarProps> = ({ campaigns = [], refreshTrigger = 0, o
               ))
             ) : (
               <div className="px-4 py-8 text-center">
-                <div className="w-12 h-12 bg-gray-700 rounded-lg flex items-center justify-center mx-auto mb-3">
+                <div className="w-12 h-12 bg-[#474747] rounded-lg flex items-center justify-center mx-auto mb-3">
                   <Building2 className="w-6 h-6 text-gray-400" />
                 </div>
                 <p className="text-gray-400 text-sm mb-2">No brands yet</p>
@@ -348,9 +351,9 @@ const Sidebar: React.FC<SidebarProps> = ({ campaigns = [], refreshTrigger = 0, o
 
 
       {/* Footer - User information */}
-      <div className="p-4 border-t border-gray-700 relative">
+      <div className="p-4 border-t border-[#474747] relative">
         {/* User info */}
-        <div className="bg-gray-700 rounded-lg p-3 flex items-center justify-between">
+        <div className="bg-[#474747] rounded-lg p-3 flex items-center justify-between">
           <button
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
             className="flex items-center space-x-3 focus:outline-none flex-grow"
@@ -366,7 +369,7 @@ const Sidebar: React.FC<SidebarProps> = ({ campaigns = [], refreshTrigger = 0, o
               <p className="text-white text-sm font-medium truncate">
                 {user?.name || 'User'}
               </p>
-              <p className="text-gray-300 text-xs truncate">
+              <p className="text-white text-xs truncate">
                 {user?.email || 'user@example.com'}
               </p>
             </div>
@@ -384,21 +387,21 @@ const Sidebar: React.FC<SidebarProps> = ({ campaigns = [], refreshTrigger = 0, o
             <div className="py-1">
               <Link
                 to="/dashboard"
-                className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                className="flex items-center px-4 py-2 text-sm text-[#474747] hover:bg-gray-100"
                 onClick={() => setIsDropdownOpen(false)}
               >
                 Dashboard
               </Link>
               <Link
                 to="/subscription"
-                className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                className="flex items-center px-4 py-2 text-sm text-[#474747] hover:bg-gray-100"
                 onClick={() => setIsDropdownOpen(false)}
               >
                 Subscription
               </Link>
               <Link
                 to="/settings"
-                className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                className="flex items-center px-4 py-2 text-sm text-[#474747] hover:bg-gray-100"
                 onClick={() => setIsDropdownOpen(false)}
               >
                 <Settings className="w-4 h-4 mr-2" />
@@ -409,7 +412,7 @@ const Sidebar: React.FC<SidebarProps> = ({ campaigns = [], refreshTrigger = 0, o
                   handleLogout();
                   setIsDropdownOpen(false);
                 }}
-                className="flex items-center w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                className="flex items-center w-full text-left px-4 py-2 text-sm text-[#474747] hover:bg-gray-100"
               >
                 <LogOut className="w-4 h-4 mr-2" />
                 Logout

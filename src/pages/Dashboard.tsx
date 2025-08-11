@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect,} from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Search, FolderPlus, Loader2, Video, X, Menu, Plus } from 'lucide-react';
@@ -279,13 +280,13 @@ const Dashboard: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col md:flex-row h-screen bg-gray-100">
+    <div className="flex flex-col md:flex-row h-screen bg-white">
       {/* Mobile Header - Only visible on mobile */}
-      <div className="md:hidden bg-gray-800 text-white p-4 flex items-center justify-between">
+      <div className="md:hidden bg-white text-black p-4 flex items-center justify-between">
         <h1 className="text-xl font-bold text-purple-500">Leepi AI</h1>
         <button 
           onClick={() => setShowMobileSidebar(prev => !prev)} 
-          className="text-white focus:outline-none"
+          className="text-[#474747] focus:outline-none"
         >
           <Menu className="w-6 h-6" />
         </button>
@@ -299,7 +300,7 @@ const Dashboard: React.FC = () => {
             onClick={() => setShowMobileSidebar(false)}
           ></div>
         )}
-        <div className="relative h-full z-10">
+        <div className="relative h-full rounded-2xl border border-gray-300 overflow-hidden z-10 mt-2 mb-2 ml-2">
           <Sidebar refreshTrigger={sidebarRefreshTrigger} onCloseMobile={() => setShowMobileSidebar(false)} />
         </div>
       </div>
@@ -310,7 +311,7 @@ const Dashboard: React.FC = () => {
           <Header />
         </div>
         
-        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 p-3 md:p-6">
+        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-white p-3 md:p-6">
           {/* Subscription Banner */}
           <SubscriptionBanner />
 
@@ -340,7 +341,7 @@ const Dashboard: React.FC = () => {
                 >
                   <Plus className="w-4 h-4 mr-1" />
                   <span className="hidden md:inline">Create Script</span>
-                  <span className="md:hidden">New</span>
+                  <span className="md:hidden">Create Script</span>
                 </button>
               </div>
             </div>
@@ -369,7 +370,7 @@ const Dashboard: React.FC = () => {
               {filteredGroups.length === 0 ? (
                 <div className="col-span-full text-center py-12">
                   <div className="w-45 items-center justify-center mx-auto mb-4">
-                    <h1 className="text-3xl font-bold text-gray-700 ">
+                    <h1 className="text-3xl font-bold text-[#474747] ">
                       Start With Giving Us <br />
                       Your Product Info
                       </h1>
@@ -387,7 +388,7 @@ const Dashboard: React.FC = () => {
                   )}
 
                   <div className="w-45 h-40 flex flex-col items-center justify-center mx-auto">
-                    <h1 className="text-lg font-medium text-gray-700 text-center">
+                    <h1 className="text-lg font-medium text-[#474747] text-center">
                       One Time Effort,Just Answer
                        A Few Questions<br />
                       About Your Product. Takes Only 15 Minutes
@@ -420,15 +421,13 @@ const Dashboard: React.FC = () => {
                         <p className="text-sm text-blue-600 font-medium">📦 {group.product}</p>
                       </div>
                       
-                      <div className="bg-gray-100 rounded-lg p-3 mb-3">
-                        <div className="grid grid-cols-3 gap-1">
-                          {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((index) => (
-                            <div
-                              key={index}
-                              className="w-full h-8 bg-gradient-to-br from-purple-100 to-pink-100 rounded"
-                            />
-                          ))}
-                        </div>
+                      <div className=" text-center flex items-center bg-white rounded-lg  p-3 mb-3">
+                        <img
+  src="https://png.pngtree.com/png-vector/20230412/ourmid/pngtree-script-writing-line-icon-vector-png-image_6703231.png"
+  alt=""
+  className='w-16 items-center'
+/>
+
                       </div>
                       
                       <p className="text-sm text-gray-500">
@@ -437,7 +436,7 @@ const Dashboard: React.FC = () => {
                     </Link>
 
                     {/* Action buttons */}
-                    <div className="px-4 py-3 border-t border-gray-100 flex justify-end space-x-2">
+                    <div className="px-4 py-3 border-t border-white flex justify-end space-x-2">
                       <button
                         onClick={() => handleStoryboardGeneration(group.latestScriptId)}
                         className="flex items-center px-3 py-1 text-xs bg-green-100 text-green-700 hover:bg-green-200 rounded-full transition-colors"
@@ -469,7 +468,7 @@ const Dashboard: React.FC = () => {
                   <h3 className="text-xl font-bold">Generate Storyboard</h3>
                   <button 
                     onClick={() => setShowStoryboard(false)} 
-                    className="p-1 hover:bg-gray-100 rounded-full"
+                    className="p-1 hover:bg-white rounded-full"
                   >
                     <X className="w-6 h-6" />
                   </button>

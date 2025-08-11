@@ -1,16 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import {
-  ChevronRight,
-  Sparkles,
-  Star,
-  Zap,
-  ChevronDown,
-  User,
-  LogOut,
-  Home,
-} from "lucide-react";
+import {  useNavigate } from "react-router-dom";
+import { User } from "lucide-react";
 import Header from "../components/HeaderLanding";
+import { Brandcompo } from "../components/BrandWorked";
+import { NoCommit } from "../components/Nocommit";
+import { TryButton } from "../components/TryButton";
 interface User {
   id: string;
   name: string;
@@ -116,7 +110,7 @@ const LandingPage: React.FC = () => {
       />
 
       {/* Hero Section */}
-      <section className="relative z-10 py-11 px-4 sm:px-6 lg:px-8" >
+      <section className="relative z-10 py-11 px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto text-center">
           <div className="mb-8 text-center">
             <div className="backdrop-blur  px-12 py-1 rounded-lg">
@@ -173,17 +167,7 @@ const LandingPage: React.FC = () => {
               />
             </div>
           </div>
-          <div className="relative group mb-4 text-base sm:text-lg px-2">
-            <Link
-              to="/login"
-              className="relative inline-flex items-center px-6 py-3 bg-[#9F6AEA] text-white font-semibold rounded-lg text-sm sm:text-base md:text-lg"
-            >
-              <span className="flex items-center relative z-10 pointer-events-auto">
-                Try For 30 Days At Just Rs.1999
-                <ChevronRight className="ml-2 w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform" />
-              </span>
-            </Link>
-          </div>
+          <TryButton />
 
           <p className="relative group  text-base sm:text-lg px-2 leading-relaxed ml-10 mr-10">
             Generate Unlimited Winning Ad Scripts, If at least 3 ad scripts
@@ -191,30 +175,10 @@ const LandingPage: React.FC = () => {
           </p>
         </div>
       </section>
-      <div className="relative overflow-hidden bg-[#E7E8F8] h-8 flex items-center">
-        <div className="flex animate-marquee whitespace-nowrap">
-          {/* First set */}
-          {Array(4)
-            .fill("No Commitments · Cancel Anytime")
-            .map((text, i) => (
-              <span key={`set1-${i}`} className="mx-8 text-xs font-medium">
-                {text}
-              </span>
-            ))}
-
-          {/* Duplicate set for seamless loop */}
-          {Array(4)
-            .fill("No Commitments · Cancel Anytime")
-            .map((text, i) => (
-              <span key={`set2-${i}`} className="mx-8 text-xs font-medium">
-                {text}
-              </span>
-            ))}
-        </div>
-      </div>
+      <NoCommit />
 
       {/* NEW: "Is Not Just A ChatGPT Wrapper" Section */}
-      <section className="relative z-10 py-11 px-4 sm:px-6 lg:px-8" >
+      <section className="relative z-10 py-11 px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto text-center">
           <div className="text-center mb-6">
             <div className="relative inline-block">
@@ -298,183 +262,84 @@ const LandingPage: React.FC = () => {
             </div>
           </div>
 
-          <div className="relative group mb-4 text-base sm:text-lg px-2">
-            <Link
-              to="/login"
-              className="relative inline-flex items-center px-6 py-3 bg-[#9F6AEA] text-white font-semibold rounded-lg text-sm sm:text-base md:text-lg"
-            >
-              <span className="flex items-center relative z-10 pointer-events-auto">
-                Try For 30 Days At Just Rs.1999
-                <ChevronRight className="ml-2 w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform" />
-              </span>
-            </Link>
-          </div>
+          <TryButton />
 
           <p className="relative group  text-base sm:text-lg px-2 leading-relaxed ml-10 mr-10">
             Generate Unlimited Winning Ad Scripts, If at least 3 ad scripts
             don’t work, 100% money back
           </p>
-           
         </div>
       </section>
-      <div className="relative overflow-hidden bg-[#E7E8F8] h-8 flex items-center">
-        <div className="flex animate-marquee whitespace-nowrap">
-          {/* First set */}
-          {Array(4)
-            .fill("No Commitments · Cancel Anytime")
-            .map((text, i) => (
-              <span key={`set1-${i}`} className="mx-8 text-xs font-medium">
-                {text}
-              </span>
-            ))}
-
-          {/* Duplicate set for seamless loop */}
-          {Array(4)
-            .fill("No Commitments · Cancel Anytime")
-            .map((text, i) => (
-              <span key={`set2-${i}`} className="mx-8 text-xs font-medium">
-                {text}
-              </span>
-            ))}
-        </div>
-      </div>
+      <NoCommit />
 
       {/* NEW: "Leepi AI Has Written & Ideated 1000+ Ads" Section */}
-<section className="relative z-10 py-11 px-4 sm:px-6 lg:px-8">
-  <div className="max-w-4xl mx-auto text-center">
-    
-    {/* Title */}
-    <div className="relative inline-block">
-      <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold bg-gradient-to-r from-[#CB6CE6] to-[#2D65F5] bg-clip-text text-transparent mb-2 transition-all duration-300 hover:scale-105">
-        Leepi AI
-      </h1>
-    </div>
+      <section className="relative z-10 py-11 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-4xl mx-auto text-center">
+          {/* Title */}
+          <div className="relative inline-block">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold bg-gradient-to-r from-[#CB6CE6] to-[#2D65F5] bg-clip-text text-transparent mb-2 transition-all duration-300 hover:scale-105">
+              Leepi AI
+            </h1>
+          </div>
 
-    {/* Subtitle */}
-    <h3 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-8 px-4">
-      Has Written & Ideated 1000+ Ads For Dozens of Brands
-    </h3>
+          {/* Subtitle */}
+          <h3 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-8 px-4">
+            Has Written & Ideated 1000+ Ads For Dozens of Brands
+          </h3>
 
-    {/* Image */}
-    <div className="flex justify-center mb-8">
-      <img
-        src="../../dist/assets/image 274 (1).png"
-        alt="Leepi AI Ads Example"
-        className="w-full max-w-[700px] h-auto"
-      />
-    </div>
+          {/* Image */}
+          <div className="flex justify-center mb-8">
+            <img
+              src="../../dist/assets/image 274 (1).png"
+              alt="Leepi AI Ads Example"
+              className="w-full max-w-[700px] h-auto"
+            />
+          </div>
 
-    {/* CTA Button */}
-    <div className="relative group mb-4 text-sm sm:text-base px-2">
-      <Link
-        to="/login"
-        className="relative inline-flex items-center px-5 py-2.5 sm:px-6 sm:py-3 bg-[#9F6AEA] text-white font-semibold rounded-lg text-sm sm:text-base md:text-lg"
-      >
-        <span className="flex items-center relative z-10 pointer-events-auto">
-          Try For 30 Days At Just Rs.1999
-          <ChevronRight className="ml-2 w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform" />
-        </span>
-      </Link>
-    </div>
-    
-  </div>
-</section>
-
+          {/* CTA Button */}
+          <TryButton />
+        </div>
+      </section>
 
       {/* NEW: "Ads Written by Leepi AI" Section */}
-    <section className="relative z-10 py-16 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-6xl mx-auto">
-        {/* Header */}
-        <div className="text-center mb-12">
-          <h2 className="text-3xl sm:text-4xl font-bold">
-            <span className="bg-gradient-to-r from-purple-600 to-pink-500 bg-clip-text text-transparent">
-              Ads Written by Leepi AI{" "}
-            </span>
-            <span className="text-gray-700">That Broke Meta Ads</span>
-          </h2>
-        </div>
-
-        {/* Card with gradient border */}
-        <div className="bg-gradient-to-br from-[#1653F5] via-[#3CA8E3] via-[#BA63D3] via-[#FAAEA5] to-[#1449F9] p-[2px] rounded-xl shadow-lg">
-          <div className="bg-white rounded-xl p-6 sm:p-8">
-            {/* Brand */}
-            <div className="text-center mb-6">
-              <h3 className="text-xl sm:text-2xl md:text-3xl font-extrabold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                Brand: Arabian Aroma
-              </h3>
-            </div>
-
-            <div className="flex gap-4 justify-center items-start flex-wrap sm:flex-nowrap">
-  {/* Final Ad */}
-  <div className="flex flex-col items-center gap-2 w-1/3 max-w-[120px] sm:max-w-[180px] md:max-w-[220px]">
-    <h4 className="text-xs sm:text-sm md:text-lg font-bold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent text-center">
-      Final Ad
-    </h4>
-    <iframe
-      src="https://drive.google.com/file/d/1K_ekJGfkPtujOE2_9GVHmzVyNk2RI4Ik/preview"
-      className="w-full aspect-[3/4] rounded-lg shadow"
-      allow="autoplay"
-    ></iframe>
-  </div>
-
-  {/* Ad Script */}
-  <div className="flex flex-col items-center gap-2 w-1/3 max-w-[120px] sm:max-w-[180px] md:max-w-[220px]">
-    <h4 className="text-xs sm:text-sm md:text-lg font-bold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent text-center">
-      Ad Script
-    </h4>
-    <img
-      src="../../dist/assets/Screenshot from 2025-08-10 02-32-43.png"
-      alt="Ad Script"
-      className="w-full aspect-[3/4] rounded-lg shadow"
-    />
-  </div>
-
-  {/* Results */}
-  <div className="flex flex-col items-center gap-2 w-1/3 max-w-[120px] sm:max-w-[180px] md:max-w-[220px]">
-    <h4 className="text-xs sm:text-sm md:text-lg font-bold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent text-center">
-      Results
-    </h4>
-    <img
-      src="../../dist/assets/Screenshot from 2025-08-10 02-32-43.png"
-      alt="Results"
-      className="w-full aspect-[3/4] rounded-lg shadow"
-    />
-  </div>
-</div>
-
-
-            {/* Quote */}
-            <p className="mt-8 text-center italic text-gray-700 max-w-2xl mx-auto">
-              “It knows exactly which hooks work in which industries, what angles to use, what formats convert”
-            </p>
-
-            {/* CTA Button */}
-            <div className="text-center mt-8">
-      <Link
-        to="/login"
-        className="relative inline-flex items-center px-5 py-2.5 sm:px-6 sm:py-3 bg-[#9F6AEA] text-white font-semibold rounded-lg text-sm sm:text-base md:text-lg"
-      >
-        <span className="flex items-center relative z-10 pointer-events-auto">
-          Try For 30 Days At Just Rs.1999
-          <ChevronRight className="ml-2 w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform" />
-        </span>
-      </Link>
-    </div>
-
-            {/* Footer Note */}
-            <p className="mt-4 text-center text-sm text-gray-500 max-w-3xl mx-auto">
-              Generate Unlimited Winning Ad Scripts. If at least 3 ad scripts don’t work, 100% money back.
-            </p>
+      <section className="relative z-10 py-16 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-6xl mx-auto">
+          {/* Header */}
+          <div className="text-center mb-12">
+            <h2 className="text-3xl sm:text-4xl font-bold">
+              <span className="bg-gradient-to-r from-[#CB6CE6] to-[#2D65F5] bg-clip-text text-transparent">
+                Ads Written by Leepi AI
+              </span>
+              <br />
+              <span className="bg-gradient-to-r from-[#CB6CE6] to-[#2D65F5] bg-clip-text text-transparent">
+                That Broke Meta Ads
+              </span>
+            </h2>
           </div>
+
+          <Brandcompo
+            brandname="Arabian Aroma"
+            videadd="https://drive.google.com/file/d/1K_ekJGfkPtujOE2_9GVHmzVyNk2RI4Ik/preview"
+            scriptadd="../../dist/assets/Screenshot from 2025-08-10 02-32-43.png"
+            resultadd="../../dist/assets/Screenshot from 2025-08-10 02-32-43.png"
+          />
+          <br />
+          <Brandcompo
+            brandname="Arabian Aroma"
+            videadd="https://drive.google.com/file/d/1K_ekJGfkPtujOE2_9GVHmzVyNk2RI4Ik/preview"
+            scriptadd="../../dist/assets/Screenshot from 2025-08-10 02-32-43.png"
+            resultadd="../../dist/assets/Screenshot from 2025-08-10 02-32-43.png"
+          />
+          <br />
+          <Brandcompo
+            brandname="Arabian Aroma"
+            videadd="https://drive.google.com/file/d/1K_ekJGfkPtujOE2_9GVHmzVyNk2RI4Ik/preview"
+            scriptadd="../../dist/assets/Screenshot from 2025-08-10 02-32-43.png"
+            resultadd="../../dist/assets/Screenshot from 2025-08-10 02-32-43.png"
+          />
         </div>
-      </div>
-    </section>
-  
-
-
-
-
-
+      </section>
+      <NoCommit />
       {/* NEW: How Leepi AI Works */}
       <section className="relative z-10 py-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-blue-50 to-purple-50">
         <div className="max-w-5xl mx-auto">
@@ -554,29 +419,20 @@ const LandingPage: React.FC = () => {
             </div>
           </div>
 
-          <div className="text-center mt-12">
-            <Link
-              to="/signup"
-              className="px-8 py-3 bg-gradient-to-r from-pink-500 to-purple-500 text-white rounded-lg hover:from-pink-600 hover:to-purple-600 transition-all duration-300 shadow-lg text-lg font-medium"
-            >
-              Try For 30 Days At Just Rs.1999
-            </Link>
-          </div>
+          <TryButton />
         </div>
       </section>
-
+      <NoCommit />
       {/* NEW: 100% Money Back Guarantee */}
       <section className="relative z-10 py-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-              Our Promise
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-[#CB6CE6] to-[#2D65F5] bg-clip-text text-transparent">
+              <span className="text-[#474747]">The</span> Promise
             </h1>
           </div>
-          <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl shadow-2xl p-8 text-center relative overflow-hidden">
-            <div className="absolute top-0 right-0 transform translate-x-1/2 -translate-y-1/2">
-              <div className="w-40 h-40 bg-yellow-400 rounded-full opacity-20"></div>
-            </div>
+          <div className="bg-[#3D353F] rounded-2xl shadow-2xl p-8 text-center relative overflow-hidden mb-6">
+            <div className="absolute top-0 right-0 transform translate-x-1/2 -translate-y-1/2"></div>
 
             <h3 className="text-3xl font-bold text-white mb-6 relative z-10">
               100% Money Back Guarantee
@@ -597,95 +453,17 @@ const LandingPage: React.FC = () => {
               have a plug-and-play creative strategy that can change your
               business."
             </p>
-
-            <Link
-              to="/signup"
-              className="px-8 py-3 bg-yellow-500 text-gray-900 rounded-lg hover:bg-yellow-400 transition-all duration-300 shadow-lg text-lg font-bold relative z-10"
-            >
-              Try For 30 Days
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* Features Section */}
-      <section className="relative z-10 py-20 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
-            <h3 className="text-4xl font-bold mb-4 bg-gradient-to-r from-pink-600 via-purple-600 to-blue-600 bg-clip-text text-transparent animate-liquid-flow">
-              Why Choose Leepi AI?
-            </h3>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Our AI-powered platform creates winning ad scripts that convert,
-              backed by real data and proven results.
-            </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
-            {[
-              {
-                icon: "🚀",
-                title: "Lightning Fast",
-                description:
-                  "Generate high-converting ad scripts in seconds, not hours",
-              },
-              {
-                icon: "🎯",
-                title: "Data-Driven",
-                description: "Trained on Rs. 50Cr+ of successful ad spend data",
-              },
-              {
-                icon: "✨",
-                title: "Proven Results",
-                description: "1000+ winning ads created for leading brands",
-              },
-            ].map((feature, index) => (
-              <div
-                key={index}
-                className="group bg-white/70 backdrop-blur-custom rounded-xl p-8 shadow-lg border border-pink-100 hover:shadow-2xl transition-all duration-700 hover:-translate-y-3 cursor-pointer water-effect hover-lift"
-              >
-                <div className="text-center">
-                  <div className="w-16 h-16 bg-gradient-to-r from-pink-100 via-purple-100 to-blue-100 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-500 group-hover:animate-glow">
-                    <span className="text-3xl">{feature.icon}</span>
-                  </div>
-                  <h4 className="text-xl font-bold mb-4 text-gray-900 group-hover:bg-gradient-to-r group-hover:from-pink-600 group-hover:via-purple-600 group-hover:to-blue-600 group-hover:bg-clip-text group-hover:text-transparent transition-all duration-500">
-                    {feature.title}
-                  </h4>
-                  <p className="text-gray-600 leading-relaxed group-hover:text-gray-700 transition-colors duration-300">
-                    {feature.description}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Final CTA Section */}
-      <section className="relative z-10 py-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-purple-100 to-pink-100">
-        <div className="max-w-4xl mx-auto text-center">
-          <h3 className="text-3xl font-bold mb-6 bg-gradient-to-r from-purple-700 to-pink-600 bg-clip-text text-transparent">
-            Ready to Create Winning Ad Scripts?
-          </h3>
-          <p className="text-xl text-gray-700 mb-8">
-            Join thousands of marketers who are saving time and getting better
-            results with Leepi AI.
-          </p>
-          <div className="relative inline-block group">
-            <Link
-              to="/signup"
-              className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 text-white text-xl font-semibold rounded-lg hover:from-pink-600 hover:via-purple-600 hover:to-blue-600 transition-all duration-500 shadow-lg hover:shadow-2xl transform hover:scale-105 hover:-translate-y-1 water-effect animate-liquid-flow"
-            >
-              Get Started
-              <ChevronRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-            </Link>
-            <div className="absolute -inset-3 bg-gradient-to-r from-pink-500/30 via-purple-500/30 to-blue-500/30 blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-lg animate-water-wave"></div>
-          </div>
-          <p className="mt-4 text-gray-500">
-            No credit card required • Free plan available
+          <TryButton />
+          <p className="relative group  text-center text-sm sm:text-sm px-2 leading-relaxed ml-10 mr-10">
+            Generate Unlimited Winning Ad Scripts, If at least 3 ad scripts
+            don’t work, 100% money back
           </p>
         </div>
       </section>
+
+      <NoCommit />
     </div>
   );
 };
