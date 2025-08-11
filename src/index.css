@@ -1,6 +1,10 @@
+@import url('https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+
 
 /* Mac Dock-like Navigation Effect */
 nav {
@@ -8,7 +12,18 @@ nav {
   display: flex;
   align-items: center;
 }
+@keyframes marquee {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
 
+.animate-marquee {
+  animation: marquee 15s linear infinite;
+}
 .nav-item {
   transform-origin: center bottom;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);

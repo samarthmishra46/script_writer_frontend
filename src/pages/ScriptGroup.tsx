@@ -541,7 +541,7 @@ const ScriptGroup: React.FC = () => {
                       >
                         <RefreshCw className="w-4 h-4 mr-1" />
                         <span className="text-sm hidden md:inline">Regenerate</span>
-                        <span className="text-sm md:hidden">Regen</span>
+                        <span className="text-sm md:hidden">Regenerate</span>
                       </button>
                       
                       <button
@@ -724,29 +724,7 @@ const ScriptGroup: React.FC = () => {
       )}
       
       {/* Regeneration Loading Overlay with Siri-like animation */}
-      {isRegenerating && (
-        <div className="fixed inset-0 bg-black bg-opacity-70 backdrop-blur-sm z-[60] flex flex-col items-center justify-center">
-          <div className="relative w-32 h-32">
-            {/* Circular animation similar to Siri */}
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-28 h-28 rounded-full border-t-4 border-b-4 border-purple-500 animate-spin"></div>
-            </div>
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-24 h-24 rounded-full border-l-4 border-r-4 border-blue-500 animate-spin" style={{ animationDirection: 'reverse', animationDuration: '1.5s' }}></div>
-            </div>
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-20 h-20 rounded-full border-t-4 border-pink-500 animate-spin" style={{ animationDuration: '2s' }}></div>
-            </div>
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-12 h-12 rounded-full bg-gradient-to-r from-purple-600 to-blue-600 opacity-80 animate-pulse"></div>
-            </div>
-          </div>
-          <p className="mt-6 text-white text-lg font-medium">Generating new script...</p>
-          <p className="mt-2 text-gray-300 text-sm max-w-md text-center">
-            AI is working on your instructions to create a new version of this script.
-          </p>
-        </div>
-      )}
+      
     </div>
   );
 };
