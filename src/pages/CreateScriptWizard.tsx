@@ -1601,13 +1601,13 @@ const CreateScriptWizard: React.FC = () => {
   }, []);
 
   return (
-    <div className="flex flex-col md:flex-row h-screen bg-gray-100">
+    <div className="flex flex-col md:flex-row h-screen bg-gwhite">
       {/* Mobile header */}
-      <div className="md:hidden bg-gray-800 text-white p-4 flex items-center justify-between">
+      <div className="md:hidden bg-white text-black p-4 flex items-center justify-between">
         <h1 className="text-xl font-bold text-purple-500">Leepi AI</h1>
         <button 
           onClick={() => setShowMobileSidebar(prev => !prev)} 
-          className="text-white focus:outline-none"
+          className="text-black focus:outline-none"
         >
           <Menu className="w-6 h-6" />
         </button>

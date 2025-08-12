@@ -77,16 +77,14 @@ const Sidebar: React.FC<SidebarProps> = ({
   const effectiveBrandsError = source === 'dashboard' ? brandsError : brandsContext.error;
   
   // Debug logs for brands data
-  console.log("Context brands:", brandsContext.brands);
-  console.log("Props brands:", brandsData);
-  console.log("Effective brands:", effectiveBrandsData);
+ 
   
   // Save brands data from dashboard to context
   useEffect(() => {
-    console.log(`Sidebar useEffect - Source: ${source}, Brands data length: ${brandsData?.length || 0}`);
+    
     
     if (source === 'dashboard' && brandsData && brandsData.length > 0 && !brandsLoading) {
-      console.log("Dashboard is updating brands context with:", brandsData);
+     
       brandsContext.updateBrands(brandsData);
     }
   }, [source, brandsData, brandsLoading, brandsContext]);
