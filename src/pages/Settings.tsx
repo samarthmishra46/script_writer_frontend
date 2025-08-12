@@ -338,7 +338,7 @@ const Settings: React.FC = () => {
   }
 
   return (
-    <div className="flex flex-col md:flex-row h-screen bg-gray-100">
+    <div className="flex flex-col md:flex-row h-screen bg-white">
       {/* Mobile Header */}
       <div className="md:hidden bg-gray-800 text-white p-4 flex items-center justify-between">
         <h1 className="text-xl font-bold text-purple-500">Leepi AI</h1>

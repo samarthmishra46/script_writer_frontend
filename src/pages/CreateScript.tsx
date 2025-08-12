@@ -543,10 +543,10 @@ const CreateScript: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col md:flex-row h-screen bg-gray-100">
+    <div className="flex flex-col md:flex-row h-screen bg-white">
       {/* Mobile Header */}
-      <div className="md:hidden bg-gray-800 text-white p-4 flex items-center justify-between">
-        <h1 className="text-xl font-bold text-purple-500">Leepi AI</h1>
+      <div className="md:hidden bg-white text-black p-4 flex items-center justify-between">
+        <h1 className="text-xl font-bold text-black">Leepi AI</h1>
         <button 
           onClick={() => setShowMobileSidebar(prev => !prev)} 
           className="text-white focus:outline-none"
@@ -559,7 +559,7 @@ const CreateScript: React.FC = () => {
       <div className={`${showMobileSidebar ? 'block' : 'hidden'} md:block fixed inset-0 z-40 md:relative md:z-0 md:w-64`}>
         {showMobileSidebar && (
           <div 
-            className="absolute inset-0 bg-black opacity-50 md:hidden"
+            className="absolute inset-0 bg-white opacity-50 md:hidden"
             onClick={() => setShowMobileSidebar(false)}
           ></div>
         )}

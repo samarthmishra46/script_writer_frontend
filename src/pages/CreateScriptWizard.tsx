@@ -6,20 +6,25 @@ import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
 import GeneratedScript from '../components/GeneratedScript';
 
-interface User {
-  id: string;
-  name: string;
-  email: string;
-  subscription?: {
-    plan: string;
-    status: string;
-  };
-}
-
 interface Brand {
   name: string;
   products: string[];
   id: string;
+}
+
+interface Script {
+  _id: string;
+  title: string;
+  content?: string;
+  createdAt: string;
+  updatedAt?: string;
+  metadata?: {
+    brand_name?: string;
+    product?: string;
+    [key: string]: unknown;
+  };
+  brand_name?: string;
+  product?: string;
 }
 
 // Step 1: Basic Brand Info
@@ -105,6 +110,7 @@ interface ScriptResponse {
     createdAt: string;
     updatedAt: string;
     __v: number;
+    liked: boolean;
   };
   message: string;
 }
@@ -112,7 +118,6 @@ interface ScriptResponse {
 const CreateScriptWizard: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [user, setUser] = useState<User | null>(null);
   const [currentStep, setCurrentStep] = useState(1);
   const totalSteps = 9;
   const [isLoading, setIsLoading] = useState(false);
@@ -201,13 +206,7 @@ const CreateScriptWizard: React.FC = () => {
     }));
   };
 
-  // Load user data
-  useEffect(() => {
-    const userData = localStorage.getItem('user');
-    if (userData) {
-      setUser(JSON.parse(userData));
-    }
-  }, []);
+  // No need to load user data anymore
 
   // Handle prefilled brand name from sidebar
   useEffect(() => {
@@ -519,11 +518,11 @@ const CreateScriptWizard: React.FC = () => {
   const renderStepOne = () => (
     <div className="space-y-6">
       <div>
-        <h3 className="text-lg font-medium text-gray-900 mb-4">Basic Information</h3>
+        <h3 className="text-lg font-medium text-white mb-4">Basic Information</h3>
       </div>
       
       <div>
-        <label htmlFor="product" className="block text-sm font-medium text-gray-700 mb-2">
+        <label htmlFor="product" className="block text-sm font-medium text-white mb-2">
           Product/Service Name *
         </label>
         <input
@@ -539,7 +538,7 @@ const CreateScriptWizard: React.FC = () => {
       </div>
 
       <div>
-        <label htmlFor="brand_name" className="block text-sm font-medium text-gray-700 mb-2">
+        <label htmlFor="brand_name" className="block text-sm font-medium text-white mb-2">
           Company/Brand Name *
         </label>
         <input
@@ -555,7 +554,7 @@ const CreateScriptWizard: React.FC = () => {
       </div>
 
       <div className="text-center py-4">
-        <p className="text-md italic text-gray-600">
+        <p className="text-md italic text-white">
           "Don't tell us what the ad should sound like. Just tell us the truth about your product. We'll take it from there."
         </p>
       </div>
@@ -578,10 +577,10 @@ const CreateScriptWizard: React.FC = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-2">
-          <h3 className="text-lg font-medium text-gray-900">1. 🧱 THE OFFER</h3>
+          <h3 className="text-lg font-medium text-white">1. 🧱 THE OFFER</h3>
           <button 
             onClick={() => toggleSection('offer')}
-            className="text-gray-500 hover:text-gray-700 focus:outline-none"
+            className="text-white hover:text-white focus:outline-none"
           >
             {expandedSections.offer ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
           </button>
@@ -589,7 +588,7 @@ const CreateScriptWizard: React.FC = () => {
         <button
           type="button"
           onClick={handlePreviousStep}
-          className="inline-flex items-center px-4 py-2 text-gray-600 hover:text-gray-900 transition-colors"
+          className="inline-flex items-center px-4 py-2 text-white hover:text-white transition-colors"
         >
           <ArrowLeft className="mr-2 w-4 h-4" />
           Back
@@ -600,7 +599,7 @@ const CreateScriptWizard: React.FC = () => {
         <>
           <div className="space-y-6">
             <div>
-              <label htmlFor="selling_what" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="selling_what" className="block text-sm font-medium text-white mb-2">
                 What exactly are you selling? *
               </label>
               <input
@@ -613,11 +612,11 @@ const CreateScriptWizard: React.FC = () => {
                 placeholder="e.g., Hydrating Face Serum, GMAT Prep Course, All-in-one CRM Tool"
                 required
               />
-              <p className="mt-1 text-xs text-gray-500">Name, product type, category</p>
+              <p className="mt-1 text-xs text-white">Name, product type, category</p>
             </div>
 
             <div>
-              <label htmlFor="target_audience" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="target_audience" className="block text-sm font-medium text-white mb-2">
                 Who is it meant for? *
               </label>
               <textarea
@@ -630,11 +629,11 @@ const CreateScriptWizard: React.FC = () => {
                 placeholder="e.g., Women 28-45 with dry, sensitive skin who are concerned about anti-aging but prefer natural ingredients. They're somewhat knowledgeable about skincare and willing to invest in quality products."
                 required
               />
-              <p className="mt-1 text-xs text-gray-500">Age, gender, role, lifestyle, stage of awareness — go deep</p>
+              <p className="mt-1 text-xs text-white">Age, gender, role, lifestyle, stage of awareness — go deep</p>
             </div>
 
             <div>
-              <label htmlFor="price_point" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="price_point" className="block text-sm font-medium text-white mb-2">
                 What's the price point? *
               </label>
               <input
@@ -647,11 +646,11 @@ const CreateScriptWizard: React.FC = () => {
                 placeholder="e.g., $49.99 one-time, $19.99/month subscription, $5-10 per usage"
                 required
               />
-              <p className="mt-1 text-xs text-gray-500">One-time / subscription / pay-per-use</p>
+              <p className="mt-1 text-xs text-white">One-time / subscription / pay-per-use</p>
             </div>
 
             <div>
-              <label htmlFor="desired_action" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="desired_action" className="block text-sm font-medium text-white mb-2">
                 What action do you want the viewer to take after seeing the ad? *
               </label>
               <input
@@ -664,7 +663,7 @@ const CreateScriptWizard: React.FC = () => {
                 placeholder="e.g., Purchase directly from our website, Book a free consultation call, Sign up for 7-day trial"
                 required
               />
-              <p className="mt-1 text-xs text-gray-500">Buy now / Book a call / Sign up / Download / DM us / WhatsApp us</p>
+              <p className="mt-1 text-xs text-white">Buy now / Book a call / Sign up / Download / DM us / WhatsApp us</p>
             </div>
           </div>
         </>
@@ -688,10 +687,10 @@ const CreateScriptWizard: React.FC = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-2">
-          <h3 className="text-lg font-medium text-gray-900">2. 💡 THE CORE VALUE</h3>
+          <h3 className="text-lg font-medium text-white">2. 💡 THE CORE VALUE</h3>
           <button 
             onClick={() => toggleSection('core')}
-            className="text-gray-500 hover:text-gray-700 focus:outline-none"
+            className="text-white hover:text-white focus:outline-none"
           >
             {expandedSections.core ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
           </button>
@@ -699,7 +698,7 @@ const CreateScriptWizard: React.FC = () => {
         <button
           type="button"
           onClick={handlePreviousStep}
-          className="inline-flex items-center px-4 py-2 text-gray-600 hover:text-gray-900 transition-colors"
+          className="inline-flex items-center px-4 py-2 text-white hover:text-white transition-colors"
         >
           <ArrowLeft className="mr-2 w-4 h-4" />
           Back
@@ -709,7 +708,7 @@ const CreateScriptWizard: React.FC = () => {
       {expandedSections.core && (
         <div className="space-y-6">
           <div>
-            <label htmlFor="main_problem" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="main_problem" className="block text-sm font-medium text-white mb-2">
               What's the #1 problem this solves for your ideal customer? *
             </label>
             <textarea
@@ -725,7 +724,7 @@ const CreateScriptWizard: React.FC = () => {
           </div>
 
           <div>
-            <label htmlFor="emotional_desire" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="emotional_desire" className="block text-sm font-medium text-white mb-2">
               What does your customer really want? (Emotionally, not just functionally.) *
             </label>
             <textarea
@@ -741,7 +740,7 @@ const CreateScriptWizard: React.FC = () => {
           </div>
 
           <div>
-            <label htmlFor="transformation" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="transformation" className="block text-sm font-medium text-white mb-2">
               In one sentence, what transformation does your product offer? *
             </label>
             <textarea
@@ -754,7 +753,7 @@ const CreateScriptWizard: React.FC = () => {
               placeholder="e.g., From dry, irritated skin that needs constant reapplication of moisturizers → To naturally radiant skin that stays hydrated all day without any irritation."
               required
             />
-            <p className="mt-1 text-xs text-gray-500">Before → After</p>
+            <p className="mt-1 text-xs text-white">Before → After</p>
           </div>
         </div>
       )}
@@ -777,10 +776,10 @@ const CreateScriptWizard: React.FC = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-2">
-          <h3 className="text-lg font-medium text-gray-900">3. 🔨 THE PROOF</h3>
+          <h3 className="text-lg font-medium text-white">3. 🔨 THE PROOF</h3>
           <button 
             onClick={() => toggleSection('proof')}
-            className="text-gray-500 hover:text-gray-700 focus:outline-none"
+            className="text-white hover:text-white focus:outline-none"
           >
             {expandedSections.proof ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
           </button>
@@ -788,7 +787,7 @@ const CreateScriptWizard: React.FC = () => {
         <button
           type="button"
           onClick={handlePreviousStep}
-          className="inline-flex items-center px-4 py-2 text-gray-600 hover:text-gray-900 transition-colors"
+          className="inline-flex items-center px-4 py-2 text-white hover:text-white transition-colors"
         >
           <ArrowLeft className="mr-2 w-4 h-4" />
           Back
@@ -798,7 +797,7 @@ const CreateScriptWizard: React.FC = () => {
       {expandedSections.proof && (
         <div className="space-y-6">
           <div>
-            <label htmlFor="credibility_proof" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="credibility_proof" className="block text-sm font-medium text-white mb-2">
               Why should people believe your product works? *
             </label>
             <textarea
@@ -811,11 +810,11 @@ const CreateScriptWizard: React.FC = () => {
               placeholder="e.g., Our serum contains clinically-proven 3% hyaluronic acid, organic aloe vera, and our patented HydraLock™ technology which binds moisture to skin cells for 24+ hours."
               required
             />
-            <p className="mt-1 text-xs text-gray-500">List ingredients, features, frameworks, tech, or methods that make it credible</p>
+            <p className="mt-1 text-xs text-white">List ingredients, features, frameworks, tech, or methods that make it credible</p>
           </div>
 
           <div>
-            <label htmlFor="main_reason_to_buy" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="main_reason_to_buy" className="block text-sm font-medium text-white mb-2">
               What's the single most undeniable reason someone should buy this? *
             </label>
             <textarea
@@ -831,7 +830,7 @@ const CreateScriptWizard: React.FC = () => {
           </div>
 
           <div>
-            <label htmlFor="guarantees" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="guarantees" className="block text-sm font-medium text-white mb-2">
               Do you offer any guarantees or risk-reversal mechanisms?
             </label>
             <textarea
@@ -843,11 +842,11 @@ const CreateScriptWizard: React.FC = () => {
               className="block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 p-3"
               placeholder="e.g., 60-day empty bottle money-back guarantee, 14-day free trial, Free consultation before purchase"
             />
-            <p className="mt-1 text-xs text-gray-500">Refunds, trials, etc.</p>
+            <p className="mt-1 text-xs text-white">Refunds, trials, etc.</p>
           </div>
 
           <div>
-            <label htmlFor="social_proof" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="social_proof" className="block text-sm font-medium text-white mb-2">
               Have you won awards, appeared on media, or been funded?
             </label>
             <textarea
@@ -881,10 +880,10 @@ const CreateScriptWizard: React.FC = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-2">
-          <h3 className="text-lg font-medium text-gray-900">4. 🧠 INSIDE THE CUSTOMER'S HEAD</h3>
+          <h3 className="text-lg font-medium text-white">4. 🧠 INSIDE THE CUSTOMER'S HEAD</h3>
           <button 
             onClick={() => toggleSection('customer')}
-            className="text-gray-500 hover:text-gray-700 focus:outline-none"
+            className="text-white hover:text-white focus:outline-none"
           >
             {expandedSections.customer ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
           </button>
@@ -892,7 +891,7 @@ const CreateScriptWizard: React.FC = () => {
         <button
           type="button"
           onClick={handlePreviousStep}
-          className="inline-flex items-center px-4 py-2 text-gray-600 hover:text-gray-900 transition-colors"
+          className="inline-flex items-center px-4 py-2 text-white hover:text-white transition-colors"
         >
           <ArrowLeft className="mr-2 w-4 h-4" />
           Back
@@ -902,7 +901,7 @@ const CreateScriptWizard: React.FC = () => {
       {expandedSections.customer && (
         <div className="space-y-6">
           <div>
-            <label htmlFor="objections" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="objections" className="block text-sm font-medium text-white mb-2">
               What doubts or objections do customers usually have before buying? *
             </label>
             <textarea
@@ -915,11 +914,11 @@ const CreateScriptWizard: React.FC = () => {
               placeholder="e.g., 'It's too expensive for such a small bottle', 'Natural products don't work as well as chemical ones', 'I've tried other serums that claimed the same thing'"
               required
             />
-            <p className="mt-1 text-xs text-gray-500">List all objections</p>
+            <p className="mt-1 text-xs text-white">List all objections</p>
           </div>
 
           <div>
-            <label htmlFor="testimonials" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="testimonials" className="block text-sm font-medium text-white mb-2">
               What do your best customers say about you?
             </label>
             <textarea
@@ -931,11 +930,11 @@ const CreateScriptWizard: React.FC = () => {
               className="block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 p-3"
               placeholder="e.g., 'I've struggled with dry, sensitive skin for years and this is the ONLY product that's worked without causing irritation.' - Sarah K."
             />
-            <p className="mt-1 text-xs text-gray-500">Paste actual reviews if possible</p>
+            <p className="mt-1 text-xs text-white">Paste actual reviews if possible</p>
           </div>
 
           <div>
-            <label htmlFor="myths_misconceptions" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="myths_misconceptions" className="block text-sm font-medium text-white mb-2">
               What myths or misconceptions exist in your market that your product crushes?
             </label>
             <textarea
@@ -950,7 +949,7 @@ const CreateScriptWizard: React.FC = () => {
           </div>
 
           <div>
-            <label htmlFor="alternatives" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="alternatives" className="block text-sm font-medium text-white mb-2">
               What are they currently using instead? *
             </label>
             <textarea
@@ -963,7 +962,7 @@ const CreateScriptWizard: React.FC = () => {
               placeholder="e.g., Department store moisturizers, Drugstore creams, DIY olive oil + honey masks, CeraVe and La Roche Posay products"
               required
             />
-            <p className="mt-1 text-xs text-gray-500">Alternative products, DIY methods, etc.</p>
+            <p className="mt-1 text-xs text-white">Alternative products, DIY methods, etc.</p>
           </div>
         </div>
       )}
@@ -986,10 +985,10 @@ const CreateScriptWizard: React.FC = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-2">
-          <h3 className="text-lg font-medium text-gray-900">5. 🔍 COMPETITION & CONTEXT</h3>
+          <h3 className="text-lg font-medium text-white">5. 🔍 COMPETITION & CONTEXT</h3>
           <button 
             onClick={() => toggleSection('competition')}
-            className="text-gray-500 hover:text-gray-700 focus:outline-none"
+            className="text-white hover:text-white focus:outline-none"
           >
             {expandedSections.competition ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
           </button>
@@ -997,7 +996,7 @@ const CreateScriptWizard: React.FC = () => {
         <button
           type="button"
           onClick={handlePreviousStep}
-          className="inline-flex items-center px-4 py-2 text-gray-600 hover:text-gray-900 transition-colors"
+          className="inline-flex items-center px-4 py-2 text-white hover:text-white transition-colors"
         >
           <ArrowLeft className="mr-2 w-4 h-4" />
           Back
@@ -1007,7 +1006,7 @@ const CreateScriptWizard: React.FC = () => {
       {expandedSections.competition && (
         <div className="space-y-6">
           <div>
-            <label htmlFor="competitors" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="competitors" className="block text-sm font-medium text-white mb-2">
               Who are your 2 biggest competitors? *
             </label>
             <textarea
@@ -1023,7 +1022,7 @@ const CreateScriptWizard: React.FC = () => {
           </div>
 
           <div>
-            <label htmlFor="competitor_ads" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="competitor_ads" className="block text-sm font-medium text-white mb-2">
               What kind of ads do they run?
             </label>
             <textarea
@@ -1035,11 +1034,11 @@ const CreateScriptWizard: React.FC = () => {
               className="block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 p-3"
               placeholder="e.g., Before and after transformations, Ingredient-focused educational content, Minimalist aesthetic with scientific claims"
             />
-            <p className="mt-1 text-xs text-gray-500">If you don't know, you can skip this</p>
+            <p className="mt-1 text-xs text-white">If you don't know, you can skip this</p>
           </div>
 
           <div>
-            <label htmlFor="unique_advantage" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="unique_advantage" className="block text-sm font-medium text-white mb-2">
               What's the one thing you do better than anyone else? *
             </label>
             <textarea
@@ -1074,10 +1073,10 @@ const CreateScriptWizard: React.FC = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-2">
-          <h3 className="text-lg font-medium text-gray-900">6. 📦 PRODUCT EXPERIENCE</h3>
+          <h3 className="text-lg font-medium text-white">6. 📦 PRODUCT EXPERIENCE</h3>
           <button 
             onClick={() => toggleSection('product')}
-            className="text-gray-500 hover:text-gray-700 focus:outline-none"
+            className="text-white hover:text-white focus:outline-none"
           >
             {expandedSections.product ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
           </button>
@@ -1085,7 +1084,7 @@ const CreateScriptWizard: React.FC = () => {
         <button
           type="button"
           onClick={handlePreviousStep}
-          className="inline-flex items-center px-4 py-2 text-gray-600 hover:text-gray-900 transition-colors"
+          className="inline-flex items-center px-4 py-2 text-white hover:text-white transition-colors"
         >
           <ArrowLeft className="mr-2 w-4 h-4" />
           Back
@@ -1095,18 +1094,18 @@ const CreateScriptWizard: React.FC = () => {
       {expandedSections.product && (
         <div className="space-y-6">
           <div>
-            <p className="text-sm text-gray-500 mb-2">
+            <p className="text-sm text-white mb-2">
               Upload product images (or packaging shots if physical)
             </p>
             <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-              <p className="text-gray-500">
+              <p className="text-white">
                 In the full version, you would upload images here. For now, please provide links or descriptions.
               </p>
             </div>
           </div>
 
           <div>
-            <label htmlFor="user_experience" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="user_experience" className="block text-sm font-medium text-white mb-2">
               What's the unboxing or user experience like? *
             </label>
             <textarea
@@ -1119,11 +1118,11 @@ const CreateScriptWizard: React.FC = () => {
               placeholder="e.g., Elegant frosted glass bottle with a premium pump that dispenses the perfect amount. Serum absorbs quickly without stickiness. First results visible in 3-7 days."
               required
             />
-            <p className="mt-1 text-xs text-gray-500">Any wow moments?</p>
+            <p className="mt-1 text-xs text-white">Any wow moments?</p>
           </div>
 
           <div>
-            <label htmlFor="media_links" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="media_links" className="block text-sm font-medium text-white mb-2">
               Do you have video footage, demos, or testimonials we can use?
             </label>
             <textarea
@@ -1135,7 +1134,7 @@ const CreateScriptWizard: React.FC = () => {
               className="block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 p-3"
               placeholder="e.g., Link to product demonstration video, Before/after photos, Video testimonials from customers"
             />
-            <p className="mt-1 text-xs text-gray-500">Optional but powerful</p>
+            <p className="mt-1 text-xs text-white">Optional but powerful</p>
           </div>
         </div>
       )}
@@ -1158,10 +1157,10 @@ const CreateScriptWizard: React.FC = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-2">
-          <h3 className="text-lg font-medium text-gray-900">7. 📖 FOUNDER'S MIND</h3>
+          <h3 className="text-lg font-medium text-white">7. 📖 FOUNDER'S MIND</h3>
           <button 
             onClick={() => toggleSection('founder')}
-            className="text-gray-500 hover:text-gray-700 focus:outline-none"
+            className="text-white hover:text-white focus:outline-none"
           >
             {expandedSections.founder ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
           </button>
@@ -1169,7 +1168,7 @@ const CreateScriptWizard: React.FC = () => {
         <button
           type="button"
           onClick={handlePreviousStep}
-          className="inline-flex items-center px-4 py-2 text-gray-600 hover:text-gray-900 transition-colors"
+          className="inline-flex items-center px-4 py-2 text-white hover:text-white transition-colors"
         >
           <ArrowLeft className="mr-2 w-4 h-4" />
           Back
@@ -1179,7 +1178,7 @@ const CreateScriptWizard: React.FC = () => {
       {expandedSections.founder && (
         <div className="space-y-6">
           <div>
-            <label htmlFor="creation_story" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="creation_story" className="block text-sm font-medium text-white mb-2">
               Why did you create this product or offer in the first place? *
             </label>
             <textarea
@@ -1195,7 +1194,7 @@ const CreateScriptWizard: React.FC = () => {
           </div>
 
           <div>
-            <label htmlFor="founder_belief" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="founder_belief" className="block text-sm font-medium text-white mb-2">
               What makes you deeply believe in it? *
             </label>
             <textarea
@@ -1208,11 +1207,11 @@ const CreateScriptWizard: React.FC = () => {
               placeholder="e.g., I've seen thousands of customers transform not just their skin but their confidence after using our product. The letters we receive about how it's changed people's lives keep me going even during tough times."
               required
             />
-            <p className="mt-1 text-xs text-gray-500">Tell us your why</p>
+            <p className="mt-1 text-xs text-white">Tell us your why</p>
           </div>
 
           <div>
-            <label htmlFor="key_insight" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="key_insight" className="block text-sm font-medium text-white mb-2">
               Finish this sentence: "If my ideal customer just understood this one thing, they'd buy instantly." *
             </label>
             <textarea
@@ -1248,20 +1247,20 @@ const CreateScriptWizard: React.FC = () => {
       <div className="flex items-center justify-between">
         <div>
           <div className="flex items-center space-x-2">
-            <h3 className="text-lg font-medium text-gray-900">8. 📈 PERFORMANCE & 🔥 BRANDING</h3>
+            <h3 className="text-lg font-medium text-white">8. 📈 PERFORMANCE & 🔥 BRANDING</h3>
             <button 
               onClick={() => toggleSection('performance')}
-              className="text-gray-500 hover:text-gray-700 focus:outline-none"
+              className="text-white hover:text-white focus:outline-none"
             >
               {expandedSections.performance ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
             </button>
           </div>
-          <p className="text-sm text-gray-500 mt-1">Final details about your ad preferences</p>
+          <p className="text-sm text-white mt-1">Final details about your ad preferences</p>
         </div>
         <button
           type="button"
           onClick={handlePreviousStep}
-          className="inline-flex items-center px-4 py-2 text-gray-600 hover:text-gray-900 transition-colors"
+          className="inline-flex items-center px-4 py-2 text-white hover:text-white transition-colors"
         >
           <ArrowLeft className="mr-2 w-4 h-4" />
           Back
@@ -1271,10 +1270,10 @@ const CreateScriptWizard: React.FC = () => {
       {expandedSections.performance && (
         <>
           <div className="bg-gray-50 p-4 rounded-lg border border-gray-100 mb-4">
-            <h4 className="font-medium text-gray-900 mb-3">📈 PERFORMANCE CONTEXT (Optional)</h4>
+            <h4 className="font-medium text-black mb-3">📈 PERFORMANCE CONTEXT (Optional)</h4>
             <div className="space-y-4">
               <div>
-                <label htmlFor="previous_ads" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="previous_ads" className="block text-sm font-medium text-black mb-2">
                   Have you run ads before? If yes, what worked and what flopped?
                 </label>
                 <textarea
@@ -1283,13 +1282,13 @@ const CreateScriptWizard: React.FC = () => {
                   value={stepNineData.previous_ads}
                   onChange={handleStepNineChange}
                   rows={3}
-                  className="block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 p-3"
+                  className="block w-full rounded-md border-black shadow-sm focus:border-purple-500 focus:ring-purple-500 p-3"
                   placeholder="e.g., We've tested testimonial-based ads which performed okay. Scientific explanation videos flopped. Before/after images with minimal text worked best."
                 />
               </div>
 
               <div>
-                <label htmlFor="audience_type" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="audience_type" className="block text-sm font-medium text-black mb-2">
                   Do you want these ads to be cold audience, warm retargeting, or both?
                 </label>
                 <select
@@ -1309,10 +1308,10 @@ const CreateScriptWizard: React.FC = () => {
           </div>
 
           <div className="bg-gray-50 p-4 rounded-lg border border-gray-100 mb-4">
-            <h4 className="font-medium text-gray-900 mb-3">🔥 BRANDING STYLE</h4>
+            <h4 className="font-medium text-white mb-3">🔥 BRANDING STYLE</h4>
             <div className="space-y-4">
               <div>
-                <label htmlFor="admired_brand" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="admired_brand" className="block text-sm font-medium text-black mb-2">
                   One brand you admire in your space?
                 </label>
                 <input
@@ -1327,7 +1326,7 @@ const CreateScriptWizard: React.FC = () => {
               </div>
 
               <div>
-                <label htmlFor="brand_tone" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="brand_tone" className="block text-sm font-medium text-black mb-2">
                   Three adjectives to describe your brand tone?
                 </label>
                 <input
@@ -1339,11 +1338,11 @@ const CreateScriptWizard: React.FC = () => {
                   className="block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 p-3"
                   placeholder="e.g., trustworthy, cheeky, premium"
                 />
-                <p className="mt-1 text-xs text-gray-500">e.g., trustworthy, cheeky, premium — or skip</p>
+                <p className="mt-1 text-xs text-white">e.g., trustworthy, cheeky, premium — or skip</p>
               </div>
 
               <div>
-                <label htmlFor="forbidden_words" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="forbidden_words" className="block text-sm font-medium text-black mb-2">
                   Any words or claims we must NOT use?
                 </label>
                 <textarea
@@ -1360,10 +1359,10 @@ const CreateScriptWizard: React.FC = () => {
           </div>
 
           <div className="bg-gray-50 p-4 rounded-lg border border-gray-100">
-            <h4 className="font-medium text-gray-900 mb-3">AD FORMAT PREFERENCES</h4>
+            <h4 className="font-medium text-white mb-3">AD FORMAT PREFERENCES</h4>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label htmlFor="ad_format" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="ad_format" className="block text-sm font-medium text-black mb-2">
                   Preferred Format *
                 </label>
                 <select
@@ -1383,7 +1382,7 @@ const CreateScriptWizard: React.FC = () => {
               </div>
 
               <div>
-                <label htmlFor="ad_duration" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="ad_duration" className="block text-sm font-medium text-black mb-2">
                   Ad Duration (seconds)
                 </label>
                 <select
@@ -1401,7 +1400,7 @@ const CreateScriptWizard: React.FC = () => {
               </div>
 
               <div>
-                <label htmlFor="language" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="language" className="block text-sm font-medium text-black mb-2">
                   Language
                 </label>
                 <select
@@ -1471,7 +1470,7 @@ const CreateScriptWizard: React.FC = () => {
   const renderGeneratedScript = () => (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-medium text-gray-900">Generated Script</h3>
+        <h3 className="text-lg font-medium text-white">Generated Script</h3>
         <div className="space-x-3">
           <button
             onClick={() => navigate('/dashboard')}
@@ -1495,7 +1494,7 @@ const CreateScriptWizard: React.FC = () => {
           </button>
           <button
             onClick={handleNewScript}
-            className="inline-flex items-center px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
+            className="inline-flex items-center px-4 py-2 bg-text-white text-white rounded-lg hover:bg-gray-700 transition-colors"
           >
             New Script
           </button>
@@ -1523,7 +1522,7 @@ const CreateScriptWizard: React.FC = () => {
   const [brandsLoading, setBrandsLoading] = useState(false);
   const [brandsError, setBrandsError] = useState<string | null>(null);
 
-  // Fetch brands for sidebar
+  // Fetch scripts and extract brands data for sidebar
   const fetchBrands = async () => {
     setBrandsLoading(true);
     setBrandsError(null);
@@ -1534,33 +1533,71 @@ const CreateScriptWizard: React.FC = () => {
         return;
       }
 
-      const response = await fetch(buildApiUrl('api/brands/all'), {
+      const response = await fetch(buildApiUrl('api/scripts'), {
         headers: {
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
         }
       });
 
       if (!response.ok) {
-        throw new Error('Failed to fetch brands');
+        throw new Error('Failed to fetch scripts');
       }
 
-      const data = await response.json();
-      if (data.success && Array.isArray(data.brands)) {
-        setBrands(data.brands);
-      } else {
-        throw new Error(data.message || 'Invalid response format');
-      }
+      const result = await response.json();
+      
+      // Check if response is in new format with success flag
+      const scripts = result.success ? result.data : result;
+      
+      // Extract brands from scripts
+      extractBrandsFromScripts(scripts || []);
     } catch (error) {
-      console.error('Error fetching brands:', error);
+      console.error('Error fetching scripts for brands:', error);
       setBrandsError(error instanceof Error ? error.message : 'An error occurred');
     } finally {
       setBrandsLoading(false);
     }
   };
 
+  // Helper function to extract brand and product information from scripts
+  const extractBrandsFromScripts = (scripts: Script[]) => {
+    try {
+      const brandsMap = new Map<string, Brand>();
+      
+      scripts.forEach(script => {
+        const brandName = script.brand_name || script.metadata?.brand_name as string || 'Unknown Brand';
+        const product = script.product || script.metadata?.product as string || 'Unknown Product';
+        
+        if (!brandsMap.has(brandName)) {
+          // Create new brand with this product
+          brandsMap.set(brandName, {
+            name: brandName,
+            products: [product],
+            id: brandName.toLowerCase().replace(/\s+/g, '-')
+          });
+        } else {
+          // Add product to existing brand if it's not already in the list
+          const brand = brandsMap.get(brandName)!;
+          if (!brand.products.includes(product)) {
+            brand.products.push(product);
+          }
+        }
+      });
+      
+      // Convert map to array
+      const brandsArray = Array.from(brandsMap.values());
+      setBrands(brandsArray);
+      setBrandsError(null);
+    } catch (error) {
+      console.error('Error extracting brands from scripts:', error);
+      setBrandsError('Failed to process brand information');
+    }
+  };
+
   // Fetch brands on component mount
   useEffect(() => {
     fetchBrands();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -1590,7 +1627,7 @@ const CreateScriptWizard: React.FC = () => {
             brandsLoading={brandsLoading}
             brandsError={brandsError}
             onCloseMobile={() => setShowMobileSidebar(false)}
-            source="createScriptWizard" 
+            source="other" 
           />
         </div>
       </div>
@@ -1613,9 +1650,9 @@ const CreateScriptWizard: React.FC = () => {
               renderGeneratedScript()
               
             ) : (
-              <div className="bg-[#474747] rounded-lg shadow-sm p-6">
+              <div className="bg-[#0F0616] rounded-lg shadow-sm p-6">
                 <div className="mb-6">
-                  <h2 className="text-2xl font-bold text-gray-900 mb-2">Create New Script</h2>
+                  <h2 className="text-2xl font-bold text-white mb-2">Create New Script</h2>
                   <div className="flex items-center space-x-4">
                     <div className={`flex items-center ${currentStep >= 1 ? 'text-purple-600' : 'text-white'}`}>
                       <div className={`w-8 h-8 rounded-full flex items-center justify-center ${currentStep >= 1 ? 'bg-purple-600 text-white' : 'bg-gray-200'}`}>
