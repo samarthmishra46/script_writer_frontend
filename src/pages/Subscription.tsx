@@ -206,14 +206,17 @@ const Subscription: React.FC = () => {
       
       // Request subscription order from the server
       // The server will handle plan creation internally
-      const orderResponse = await fetch(buildApiUrl('api/subscription/'), {
-        method: 'PUT',
+      const orderResponse = await fetch(buildApiUrl('api/subscription/create-subscription'), {
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({ 
-          plan: 'individual',
+          plan_id:"plan_R4SFKEBxNe5eoE", // The ID of your recurring plan (must be pre-created in Razorpay dashboard)
+      customer_notify: 1 , // 1 to notify customer via email/SMS
+      quantity: 1, // Usually 1 unless you bill per unit
+      total_count: 1, // Number of billing cycles (e.g., 12 months),
           callbackUrl: `${window.location.origin}/subscription/callback`
         })
       });
@@ -225,7 +228,7 @@ const Subscription: React.FC = () => {
         throw new Error(orderData.message || orderData.error || 'Failed to create subscription order');
       }
 
-      if (!orderData.order) {
+      if (!orderData.subscription) {
         throw new Error('No order data received from server');
       }
 
