@@ -206,8 +206,8 @@ const Subscription: React.FC = () => {
       
       // Request subscription order from the server
       // The server will handle plan creation internally
-      const orderResponse = await fetch(buildApiUrl('api/subscription/webhook'), {
-        method: 'POST',
+      const orderResponse = await fetch(buildApiUrl('api/subscription/'), {
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
