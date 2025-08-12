@@ -17,12 +17,12 @@ interface User {
 
 const LandingPage: React.FC = () => {
   const navigate = useNavigate();
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-  const [ripples, setRipples] = useState<
-    Array<{ id: number; x: number; y: number; timestamp: number }>
-  >([]);
+ // const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  // const [ripples, setRipples] = useState<
+  //   Array<{ id: number; x: number; y: number; timestamp: number }>
+  // >([]);
   const [user, setUser] = useState<User | null>(null);
-  const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
+ const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Load user data
@@ -70,35 +70,7 @@ const LandingPage: React.FC = () => {
     return "User";
   };
 
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      setMousePosition({ x: e.clientX, y: e.clientY });
-
-      // Create ripple effect on mouse move
-      const newRipple = {
-        id: Date.now() + Math.random(),
-        x: e.clientX,
-        y: e.clientY,
-        timestamp: Date.now(),
-      };
-
-      setRipples((prev) => [...prev.slice(-5), newRipple]); // Keep only last 5 ripples
-    };
-
-    window.addEventListener("mousemove", handleMouseMove);
-
-    // Clean up old ripples
-    const cleanup = setInterval(() => {
-      setRipples((prev) =>
-        prev.filter((ripple) => Date.now() - ripple.timestamp < 2000)
-      );
-    }, 100);
-
-    return () => {
-      window.removeEventListener("mousemove", handleMouseMove);
-      clearInterval(cleanup);
-    };
-  }, []);
+ 
 
   return (
     <div className="min-h-screen relative overflow-hidden">
@@ -126,7 +98,7 @@ const LandingPage: React.FC = () => {
                 Product Of
               </p>
               <img
-                src="../../dist/assets/Yuvichar_Funnels_LOGO.png"
+                src="https://res.cloudinary.com/dvxqb1wge/image/upload/v1754980416/Yuvichaar_Funnels_1_g37b0q.png"
                 alt="Yuvichaar Funnels Logo"
                 className="relative mx-auto max-w-[210px] sm:max-w-[215px] md:max-w-[275px] h-auto "
               />
@@ -161,7 +133,7 @@ const LandingPage: React.FC = () => {
           <div className="mb-6 inline-block rounded-lg bg-gradient-to-r from-[#1653F5] via-[#3CA8E3] via-[#BA63D3] via-[#FAAEA5] to-[#1449F9] p-[1px]">
             <div className="bg-white rounded-lg p-4">
               <img
-                src="../../dist/assets/landingPage1.png"
+                src="https://res.cloudinary.com/dvxqb1wge/image/upload/v1754980416/landingPage1_fjahft.png"
                 alt="Storyboard and Final Ad Example"
                 className="rounded-lg"
               />
@@ -290,7 +262,7 @@ const LandingPage: React.FC = () => {
           {/* Image */}
           <div className="flex justify-center mb-8">
             <img
-              src="../../dist/assets/image 274 (1).png"
+              src="https://res.cloudinary.com/dvxqb1wge/image/upload/v1754980415/image_274_1_xcnssg.png"
               alt="Leepi AI Ads Example"
               className="w-full max-w-[700px] h-auto"
             />
@@ -320,22 +292,22 @@ const LandingPage: React.FC = () => {
           <Brandcompo
             brandname="Arabian Aroma"
             videadd="https://drive.google.com/file/d/1K_ekJGfkPtujOE2_9GVHmzVyNk2RI4Ik/preview"
-            scriptadd="../../dist/assets/Screenshot from 2025-08-10 02-32-43.png"
-            resultadd="../../dist/assets/Screenshot from 2025-08-10 02-32-43.png"
+            scriptadd="https://res.cloudinary.com/dvxqb1wge/image/upload/v1754980416/Screenshot_from_2025-08-10_02-32-43_umhnri.png"
+            resultadd="https://res.cloudinary.com/dvxqb1wge/image/upload/v1754980416/Screenshot_from_2025-08-10_02-32-43_umhnri.png"
           />
           <br />
           <Brandcompo
             brandname="Arabian Aroma"
             videadd="https://drive.google.com/file/d/1K_ekJGfkPtujOE2_9GVHmzVyNk2RI4Ik/preview"
-            scriptadd="../../dist/assets/Screenshot from 2025-08-10 02-32-43.png"
-            resultadd="../../dist/assets/Screenshot from 2025-08-10 02-32-43.png"
+            scriptadd="https://res.cloudinary.com/dvxqb1wge/image/upload/v1754980416/Screenshot_from_2025-08-10_02-32-43_umhnri.png"
+            resultadd="https://res.cloudinary.com/dvxqb1wge/image/upload/v1754980416/Screenshot_from_2025-08-10_02-32-43_umhnri.png"
           />
           <br />
           <Brandcompo
             brandname="Arabian Aroma"
             videadd="https://drive.google.com/file/d/1K_ekJGfkPtujOE2_9GVHmzVyNk2RI4Ik/preview"
-            scriptadd="../../dist/assets/Screenshot from 2025-08-10 02-32-43.png"
-            resultadd="../../dist/assets/Screenshot from 2025-08-10 02-32-43.png"
+            scriptadd="https://res.cloudinary.com/dvxqb1wge/image/upload/v1754980416/Screenshot_from_2025-08-10_02-32-43_umhnri.png"
+            resultadd="https://res.cloudinary.com/dvxqb1wge/image/upload/v1754980416/Screenshot_from_2025-08-10_02-32-43_umhnri.png"
           />
         </div>
       </section>
@@ -441,7 +413,7 @@ const LandingPage: React.FC = () => {
             <div className="mb-8 relative z-10">
               <div className="w-42 h-42 mx-auto  rounded-full flex items-center justify-center ">
                 <div className="text-center">
-                  <img src="../../dist/assets/image_90.png" alt="" />
+                  <img src="https://res.cloudinary.com/dvxqb1wge/image/upload/v1754980416/image_90_ngk8ls.png" alt="" />
                 </div>
               </div>
             </div>

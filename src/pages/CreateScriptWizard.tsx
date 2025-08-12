@@ -16,6 +16,12 @@ interface User {
   };
 }
 
+interface Brand {
+  name: string;
+  products: string[];
+  id: string;
+}
+
 // Step 1: Basic Brand Info
 interface StepOneData {
   product: string;
@@ -1511,6 +1517,51 @@ const CreateScriptWizard: React.FC = () => {
 
   // State for mobile sidebar visibility
   const [showMobileSidebar, setShowMobileSidebar] = useState(false);
+  
+  // State for brands data to be passed to sidebar
+  const [brands, setBrands] = useState<Brand[]>([]);
+  const [brandsLoading, setBrandsLoading] = useState(false);
+  const [brandsError, setBrandsError] = useState<string | null>(null);
+
+  // Fetch brands for sidebar
+  const fetchBrands = async () => {
+    setBrandsLoading(true);
+    setBrandsError(null);
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setBrandsError('Authentication required');
+        return;
+      }
+
+      const response = await fetch(buildApiUrl('api/brands/all'), {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch brands');
+      }
+
+      const data = await response.json();
+      if (data.success && Array.isArray(data.brands)) {
+        setBrands(data.brands);
+      } else {
+        throw new Error(data.message || 'Invalid response format');
+      }
+    } catch (error) {
+      console.error('Error fetching brands:', error);
+      setBrandsError(error instanceof Error ? error.message : 'An error occurred');
+    } finally {
+      setBrandsLoading(false);
+    }
+  };
+
+  // Fetch brands on component mount
+  useEffect(() => {
+    fetchBrands();
+  }, []);
 
   return (
     <div className="flex flex-col md:flex-row h-screen bg-gray-100">
@@ -1526,15 +1577,21 @@ const CreateScriptWizard: React.FC = () => {
       </div>
       
       {/* Sidebar - responsive */}
-      <div className={`${showMobileSidebar ? 'block' : 'hidden'} md:block fixed inset-0 z-40 md:static md:inset-auto md:z-0 md:w-64`}>
+      <div className={`${showMobileSidebar ? 'block' : 'hidden'} md:block fixed inset-0 z-40 md:relative md:z-0 md:w-64`}>
         {showMobileSidebar && (
           <div 
             className="absolute inset-0 bg-black opacity-50 md:hidden"
             onClick={() => setShowMobileSidebar(false)}
           ></div>
         )}
-        <div className="relative h-full z-10">
-          <Sidebar onCloseMobile={() => setShowMobileSidebar(false)} />
+        <div className="relative h-full rounded-2xl border border-gray-300 overflow-hidden z-10 mt-2 mb-2 ml-2">
+          <Sidebar 
+            brandsData={brands}
+            brandsLoading={brandsLoading}
+            brandsError={brandsError}
+            onCloseMobile={() => setShowMobileSidebar(false)}
+            source="createScriptWizard" 
+          />
         </div>
       </div>
       

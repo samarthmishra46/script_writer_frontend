@@ -1,7 +1,14 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { FolderPlus, Search, ChevronDown, ChevronRight, Building2, LogOut, Package, X, Settings, ChevronUp } from 'lucide-react';
-import { buildApiUrl } from '../config/api';
+import { useBrands } from '../context/useBrands';
+
+// Define user interface to fix TypeScript errors
+interface UserData {
+  name?: string;
+  email?: string;
+  [key: string]: any;
+}
 
 interface Product {
   name: string;
@@ -16,35 +23,89 @@ interface Company {
   products: Product[];
 }
 
-interface SidebarProps {
-  campaigns?: Array<{
-    id: string;
-    name: string;
-  }>;
-  refreshTrigger?: number;
-  onCloseMobile?: () => void; // Add this prop for mobile close functionality
+// Define the structure for the brand data passed from parent components
+interface Brand {
+  name: string;
+  products: string[];
+  id: string;
 }
 
-// Create a cache outside the component to persist between renders
-const companiesCache: {
-  data: Company[];
-  timestamp: number;
-} = {
-  data: [],
-  timestamp: 0
-};
+interface SidebarProps {
+  refreshTrigger?: number;
+  onCloseMobile?: () => void;
+  brandsData?: Brand[];
+  brandsLoading?: boolean;
+  brandsError?: string | null;
+  // Add a source prop to identify which component is rendering the sidebar
+  source?: 'dashboard' | 'scriptGroup' | 'other';
+}
 
-const CACHE_TTL = 5 * 60 * 1000; // 5 minutes in milliseconds
-
-const Sidebar: React.FC<SidebarProps> = ({ campaigns = [], refreshTrigger = 0, onCloseMobile }) => {
+const Sidebar: React.FC<SidebarProps> = ({
+  onCloseMobile,
+  brandsData = [],
+  brandsLoading = false,
+  brandsError = null,
+  source = 'other'
+}) => {
   const location = useLocation();
   const navigate = useNavigate();
-  const user = JSON.parse(localStorage.getItem('user') || '{}');
-  const [companies, setCompanies] = useState<Company[]>([]);
-  const [isLoadingCompanies, setIsLoadingCompanies] = useState(false);
+  // Add a try-catch block to handle potential JSON parsing errors
+  let user: UserData = { name: '', email: '' };
+  try {
+    const userString = localStorage.getItem('user');
+    if (userString) {
+      const parsedUser = JSON.parse(userString);
+      user = {
+        name: parsedUser.name || '',
+        email: parsedUser.email || '',
+        ...parsedUser
+      };
+    }
+    console.log("User data loaded:", user); // Debug log
+  } catch (err) {
+    console.error("Error parsing user data from localStorage:", err);
+  }
   const [expandedBrands, setExpandedBrands] = useState<Record<string, boolean>>({});
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const initialLoadComplete = useRef(false);
+  
+  // Use shared context when available
+  const brandsContext = useBrands();
+  
+  // Use context data if available, otherwise use props
+  const effectiveBrandsData = brandsContext.brands && brandsContext.brands.length > 0 ? brandsContext.brands : brandsData;
+  const effectiveBrandsLoading = source === 'dashboard' ? brandsLoading : brandsContext.loading;
+  const effectiveBrandsError = source === 'dashboard' ? brandsError : brandsContext.error;
+  
+  // Debug logs for brands data
+  console.log("Context brands:", brandsContext.brands);
+  console.log("Props brands:", brandsData);
+  console.log("Effective brands:", effectiveBrandsData);
+  
+  // Save brands data from dashboard to context
+  useEffect(() => {
+    console.log(`Sidebar useEffect - Source: ${source}, Brands data length: ${brandsData?.length || 0}`);
+    
+    if (source === 'dashboard' && brandsData && brandsData.length > 0 && !brandsLoading) {
+      console.log("Dashboard is updating brands context with:", brandsData);
+      brandsContext.updateBrands(brandsData);
+    }
+  }, [source, brandsData, brandsLoading, brandsContext]);
+
+  // Convert brandsData to the format used by the component
+  const companies: Company[] = (effectiveBrandsData || []).map(brand => {
+    if (!brand) return null;
+    
+    return {
+      brand_name: brand.name || "Unknown Brand",
+      scriptCount: brand.products ? brand.products.length : 0,
+      lastUsed: new Date().toISOString(), // This data isn't provided in brandsData
+      products: (brand.products || []).map(product => ({
+        name: product || "Unknown Product",
+        scriptCount: 1, // We don't have this information from brandsData
+        firstScriptId: brand.id || "" // Using brand ID as fallback
+      }))
+    };
+  }).filter(Boolean) as Company[];
 
   // Toggle brand expansion
   const toggleBrandExpansion = (brandName: string) => {
@@ -52,118 +113,6 @@ const Sidebar: React.FC<SidebarProps> = ({ campaigns = [], refreshTrigger = 0, o
       ...prev,
       [brandName]: !prev[brandName]
     }));
-  };
-
-  // Fetch companies/brands from scripts with their products
-  useEffect(() => {
-    const shouldFetchFresh = 
-      !initialLoadComplete.current || 
-      refreshTrigger > 0 || 
-      (Date.now() - companiesCache.timestamp > CACHE_TTL);
-
-    if (shouldFetchFresh) {
-      fetchCompanies();
-    } else if (companiesCache.data.length > 0) {
-      // Use cached data
-      setCompanies(companiesCache.data);
-      initialLoadComplete.current = true;
-    } else {
-      fetchCompanies();
-    }
-  }, [refreshTrigger]);
-
-  const fetchCompanies = async () => {
-    try {
-      setIsLoadingCompanies(true);
-      const token = localStorage.getItem('token');
-      if (!token) return;
-
-      // Fetch all scripts to group by brand and product
-      const response = await fetch(buildApiUrl('api/scripts'), {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      if (response.ok) {
-        const result = await response.json();
-        const scripts = result.success ? result.data : result;
-        
-        // Group scripts by brand_name and then by product
-        const brandMap = new Map<string, {
-          count: number;
-          lastUsed: string;
-          products: Map<string, {
-            count: number;
-            firstScriptId: string;
-          }>;
-        }>();
-        
-        scripts.forEach((script: any) => {
-          const brandName = script.metadata?.brand_name || script.brand_name || 'Unknown Brand';
-          const productName = script.metadata?.product || script.product || 'Unknown Product';
-          
-          if (!brandMap.has(brandName)) {
-            brandMap.set(brandName, {
-              count: 1,
-              lastUsed: script.createdAt,
-              products: new Map([[
-                productName, 
-                { count: 1, firstScriptId: script._id }
-              ]])
-            });
-          } else {
-            const brand = brandMap.get(brandName)!;
-            brand.count += 1;
-            
-            if (new Date(script.createdAt) > new Date(brand.lastUsed)) {
-              brand.lastUsed = script.createdAt;
-            }
-            
-            if (!brand.products.has(productName)) {
-              brand.products.set(productName, {
-                count: 1,
-                firstScriptId: script._id
-              });
-            } else {
-              brand.products.get(productName)!.count += 1;
-            }
-          }
-        });
-
-        // Convert the nested maps to arrays
-        const companiesData: Company[] = Array.from(brandMap.entries()).map(([brandName, data]) => ({
-          brand_name: brandName,
-          scriptCount: data.count,
-          lastUsed: data.lastUsed,
-          products: Array.from(data.products.entries()).map(([productName, productData]) => ({
-            name: productName,
-            scriptCount: productData.count,
-            firstScriptId: productData.firstScriptId
-          }))
-        }));
-
-        // Sort companies by last used date (most recent first)
-        companiesData.sort((a, b) => new Date(b.lastUsed).getTime() - new Date(a.lastUsed).getTime());
-        
-        // For each company, sort products by script count (most scripts first)
-        companiesData.forEach(company => {
-          company.products.sort((a, b) => b.scriptCount - a.scriptCount);
-        });
-        
-        // Update the cache
-        companiesCache.data = companiesData;
-        companiesCache.timestamp = Date.now();
-        
-        // Update state
-        setCompanies(companiesData);
-        initialLoadComplete.current = true;
-      }
-    } catch (error) {
-      console.error('Error fetching companies and products:', error);
-    } finally {
-      setIsLoadingCompanies(false);
-    }
   };
 
   const handleProductClick = (brandName: string, productName: string, firstScriptId: string) => {
@@ -183,8 +132,6 @@ const Sidebar: React.FC<SidebarProps> = ({ campaigns = [], refreshTrigger = 0, o
     if (confirmLogout) {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
-      companiesCache.data = []; // Clear cache on logout
-      companiesCache.timestamp = 0;
       navigate('/login');
     }
   };
@@ -259,7 +206,7 @@ const Sidebar: React.FC<SidebarProps> = ({ campaigns = [], refreshTrigger = 0, o
           
           {/* Brand list - ensure touch friendly sizes */}
           <div className="space-y-1 max-h-96 overflow-y-auto pr-2">
-            {isLoadingCompanies ? (
+            {effectiveBrandsLoading ? (
               <div className="px-4 py-2 text-gray-400 text-sm">Loading...</div>
             ) : companies.length > 0 ? (
               companies.map((company) => (
@@ -272,13 +219,15 @@ const Sidebar: React.FC<SidebarProps> = ({ campaigns = [], refreshTrigger = 0, o
                     <div className="flex items-start space-x-3 flex-1">
                       <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center flex-shrink-0">
                         <span className="text-white font-bold text-xs">
-                          {company.brand_name.charAt(0).toUpperCase()}
+                          {company.brand_name && company.brand_name.length > 0 
+                            ? company.brand_name.charAt(0).toUpperCase() 
+                            : "?"}
                         </span>
                       </div>
                       
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium truncate group-hover:text-white">
-                          {company.brand_name}
+                          {company.brand_name || "Unknown Brand"}
                         </p>
                         <p className="text-xs text-gray-400 group-hover:text-[#272727] mt-1">
                           {company.scriptCount} script{company.scriptCount !== 1 ? 's' : ''} • {' '}
@@ -334,7 +283,11 @@ const Sidebar: React.FC<SidebarProps> = ({ campaigns = [], refreshTrigger = 0, o
                 <div className="w-12 h-12 bg-[#474747] rounded-lg flex items-center justify-center mx-auto mb-3">
                   <Building2 className="w-6 h-6 text-gray-400" />
                 </div>
-                <p className="text-gray-400 text-sm mb-2">No brands yet</p>
+                {effectiveBrandsError ? (
+                  <p className="text-red-400 text-sm mb-2">{effectiveBrandsError}</p>
+                ) : (
+                  <p className="text-gray-400 text-sm mb-2">No brands yet</p>
+                )}
                 <Link
                   to="/create-script"
                   className="text-xs text-purple-400 hover:text-purple-300 transition-colors"
@@ -362,15 +315,15 @@ const Sidebar: React.FC<SidebarProps> = ({ campaigns = [], refreshTrigger = 0, o
           >
             <div className="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center">
               <span className="text-white font-bold text-sm">
-                {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
+                {user && user.name ? user.name.charAt(0).toUpperCase() : 'U'}
               </span>
             </div>
             <div className="flex-1 min-w-0 text-left">
               <p className="text-white text-sm font-medium truncate">
-                {user?.name || 'User'}
+                {user && user.name ? user.name : 'User'}
               </p>
               <p className="text-white text-xs truncate">
-                {user?.email || 'user@example.com'}
+                {user && user.email ? user.email : 'user@example.com'}
               </p>
             </div>
             <ChevronUp className="w-4 h-4 text-gray-400" />
@@ -381,8 +334,8 @@ const Sidebar: React.FC<SidebarProps> = ({ campaigns = [], refreshTrigger = 0, o
         {isDropdownOpen && (
           <div className="absolute left-4 right-4 bottom-full mb-2 bg-white border border-gray-200 rounded-lg shadow-lg z-20">
             <div className="p-2 border-b border-gray-100">
-              <p className="text-sm font-medium text-gray-900 truncate">{user?.name || 'User'}</p>
-              <p className="text-xs text-gray-500 truncate">{user?.email || 'user@example.com'}</p>
+              <p className="text-sm font-medium text-gray-900 truncate">{user && user.name ? user.name : 'User'}</p>
+              <p className="text-xs text-gray-500 truncate">{user && user.email ? user.email : 'user@example.com'}</p>
             </div>
             <div className="py-1">
               <Link
@@ -425,4 +378,23 @@ const Sidebar: React.FC<SidebarProps> = ({ campaigns = [], refreshTrigger = 0, o
   );
 };
 
-export default Sidebar;
+// Wrap with React.memo and implement custom comparison
+export default React.memo(Sidebar, (prevProps, nextProps) => {
+  // Always re-render if coming from Dashboard or ScriptGroup
+  if (nextProps.source === 'dashboard' || nextProps.source === 'scriptGroup') {
+    return false; // Don't prevent re-render
+  }
+  
+  // For other components, only re-render if specific props change
+  const brandsChanged = 
+    prevProps.brandsData?.length !== nextProps.brandsData?.length ||
+    JSON.stringify(prevProps.brandsData) !== JSON.stringify(nextProps.brandsData);
+    
+  const loadingChanged = prevProps.brandsLoading !== nextProps.brandsLoading;
+  const errorChanged = prevProps.brandsError !== nextProps.brandsError;
+  const triggerChanged = prevProps.refreshTrigger !== nextProps.refreshTrigger;
+  
+  // Return true to prevent re-render, false to allow it
+  // If anything changed, we want to re-render, so return false
+  return !(brandsChanged || loadingChanged || errorChanged || triggerChanged);
+});

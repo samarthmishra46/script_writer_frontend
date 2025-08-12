@@ -8,6 +8,7 @@ import { buildApiUrl } from '../config/api';
 import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
 import StoryboardGenerator from '../components/StoryboardGenerator';
+import { useBrands } from '../context/useBrands';
 
 interface Script {
   _id: string;
@@ -51,6 +52,14 @@ const ScriptGroup: React.FC = () => {
   // New states for mobile responsiveness
   const [showMobileSidebar, setShowMobileSidebar] = useState(false);
   const [showScriptSelector, setShowScriptSelector] = useState(false);
+  
+  // Brand data for sidebar
+  const [brands, setBrands] = useState<{name: string; products: string[]; id: string;}[]>([]);
+  const [brandsLoading, setBrandsLoading] = useState(false);
+  const [brandsError, setBrandsError] = useState<string | null>(null);
+  
+  // Use brands context
+  const brandsContext = useBrands();
 
   // Add new state for dropdown
   const [isScriptDropdownOpen, setIsScriptDropdownOpen] = useState(false);
@@ -96,10 +105,57 @@ const ScriptGroup: React.FC = () => {
     }
   }, [scripts, scriptId]);
 
+  // Helper function to extract brand and product information from scripts
+  const extractBrandsFromScripts = (scripts: Script[]) => {
+    setBrandsLoading(true);
+    try {
+      const brandsMap = new Map<string, {name: string; products: string[]; id: string;}>();
+      
+      scripts.forEach(script => {
+        const brandName = script.brand_name || script.metadata?.brand_name as string || 'Unknown Brand';
+        const product = script.product || script.metadata?.product as string || 'Unknown Product';
+        
+        if (!brandsMap.has(brandName)) {
+          // Create new brand with this product
+          brandsMap.set(brandName, {
+            name: brandName,
+            products: [product],
+            id: brandName.toLowerCase().replace(/\s+/g, '-')
+          });
+        } else {
+          // Add product to existing brand if it's not already in the list
+          const brand = brandsMap.get(brandName)!;
+          if (!brand.products.includes(product)) {
+            brand.products.push(product);
+          }
+        }
+      });
+      
+      // Convert map to array
+      const brandsArray = Array.from(brandsMap.values());
+      
+      // Update local state
+      setBrands(brandsArray);
+      
+      // Update context state if we have new brands
+      if (brandsArray.length > 0) {
+        brandsContext.updateBrands(brandsArray);
+      }
+      
+      setBrandsError(null);
+    } catch (error) {
+      console.error('Error extracting brands from scripts:', error);
+      setBrandsError('Failed to process brand information');
+    } finally {
+      setBrandsLoading(false);
+    }
+  };
+  
   const fetchScripts = async () => {
     try {
       setIsLoading(true);
       setError(null);
+      setBrandsLoading(true);
       
       const token = localStorage.getItem('token');
       if (!token) {
@@ -121,6 +177,9 @@ const ScriptGroup: React.FC = () => {
 
       const result = await response.json();
       const data = result.success ? result.data : result;
+      
+      // Extract brand data from all scripts
+      extractBrandsFromScripts(data);
       
       // Filter scripts by brand_name and product
       const decodedBrandName = decodeURIComponent(brandName || '');
@@ -194,6 +253,9 @@ const ScriptGroup: React.FC = () => {
       
       // After successful regeneration, refresh the sidebar
       setSidebarRefreshTrigger(prev => prev + 1);
+      
+      // Also refresh the global context
+      brandsContext.refreshSidebar();
       
       // Close the regenerate modal
       setShowRegenerateModal(false);
@@ -279,6 +341,12 @@ const ScriptGroup: React.FC = () => {
       if (selectedScript && selectedScript._id === script._id) {
         setSelectedScript({ ...selectedScript, liked: result.liked });
       }
+      
+      // Refresh sidebar
+      setSidebarRefreshTrigger(prev => prev + 1);
+      
+      // Also refresh the global context
+      brandsContext.refreshSidebar();
       
       setSidebarRefreshTrigger(prev => prev + 1);
     } catch (error) {
@@ -377,7 +445,14 @@ const ScriptGroup: React.FC = () => {
           ></div>
         )}
         <div className="relative h-full z-10">
-          <Sidebar refreshTrigger={sidebarRefreshTrigger} onCloseMobile={() => setShowMobileSidebar(false)} />
+          <Sidebar 
+            brandsData={brands} 
+            brandsLoading={brandsLoading} 
+            brandsError={brandsError} 
+            refreshTrigger={sidebarRefreshTrigger} 
+            onCloseMobile={() => setShowMobileSidebar(false)}
+            source="scriptGroup" 
+          />
         </div>
       </div>
       

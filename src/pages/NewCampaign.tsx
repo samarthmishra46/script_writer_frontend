@@ -107,7 +107,7 @@ const NewCampaign: React.FC = () => {
 
   return (
     <div className="flex h-screen bg-gray-100">
-      <Sidebar />
+      <Sidebar brandsData={[]} brandsLoading={false} brandsError={null} source="other" />
       
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header />

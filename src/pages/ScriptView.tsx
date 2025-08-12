@@ -305,7 +305,7 @@ const ScriptView: React.FC = () => {
         
         {/* Desktop layout */}
         <div className="hidden md:block md:w-64">
-          <Sidebar />
+          <Sidebar brandsData={[]} brandsLoading={true} brandsError={null} source="other" />
         </div>
         
         <div className="flex-1 flex flex-col overflow-hidden">
@@ -324,7 +324,7 @@ const ScriptView: React.FC = () => {
   if (error && !currentScript) {
     return (
       <div className="flex h-screen bg-gray-100">
-        <Sidebar />
+        <Sidebar brandsData={[]} brandsLoading={false} brandsError={null} source="other" />
         <div className="flex-1 flex flex-col overflow-hidden">
           <Header />
           <main className="flex-1 flex items-center justify-center">
@@ -361,7 +361,7 @@ const ScriptView: React.FC = () => {
         </button>
       </div>
       
-      {/* Sidebar - responsive */}
+      {/* Sidebar - Conditionally shown on mobile */}
       <div className={`${showMobileSidebar ? 'block' : 'hidden'} md:block fixed inset-0 z-40 md:relative md:z-0 md:w-64`}>
         {showMobileSidebar && (
           <div 
@@ -369,8 +369,8 @@ const ScriptView: React.FC = () => {
             onClick={() => setShowMobileSidebar(false)}
           ></div>
         )}
-        <div className="relative h-full z-10">
-          <Sidebar refreshTrigger={sidebarRefreshTrigger} onCloseMobile={() => setShowMobileSidebar(false)} />
+        <div className="relative h-full rounded-2xl border border-gray-300 overflow-hidden z-10 mt-2 mb-2 ml-2">
+          <Sidebar brandsData={[]} brandsLoading={false} brandsError={null} refreshTrigger={sidebarRefreshTrigger} onCloseMobile={() => setShowMobileSidebar(false)} source="other" />
         </div>
       </div>
       

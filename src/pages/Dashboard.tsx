@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect,} from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Search, FolderPlus, Loader2, Video, X, Menu, Plus } from 'lucide-react';
 import { buildApiUrl } from '../config/api';
@@ -7,6 +7,7 @@ import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
 import SubscriptionBanner from '../components/SubscriptionBanner';
 import StoryboardGenerator from '../components/StoryboardGenerator';
+import { useBrands } from '../context/useBrands';
 
 interface Script {
   _id: string;
@@ -32,6 +33,12 @@ interface ScriptGroup {
   latestScriptId: string;
 }
 
+interface Brand {
+  name: string;
+  products: string[];
+  id: string;
+}
+
 const Dashboard: React.FC = () => {
   const [scripts, setScripts] = useState<Script[]>([]);
   const [scriptGroups, setScriptGroups] = useState<ScriptGroup[]>([]);
@@ -42,11 +49,15 @@ const Dashboard: React.FC = () => {
   const [showStoryboard, setShowStoryboard] = useState(false);
   const [hasStoryboardAccess, setHasStoryboardAccess] = useState<boolean | null>(null);
   const [checkingAccess, setCheckingAccess] = useState(false);
+  const [brands, setBrands] = useState<Brand[]>([]);
+  const [brandsLoading, setBrandsLoading] = useState(false);
+  const [brandsError, setBrandsError] = useState<string | null>(null);
   const [sidebarRefreshTrigger, setSidebarRefreshTrigger] = useState(0);
   const [showMobileSidebar, setShowMobileSidebar] = useState(false);
   const [sortOption, setSortOption] = useState('newest');
   const location = useLocation();
   const navigate = useNavigate();
+  const brandsContext = useBrands();
 
    useEffect(() => {
     const hash = location.hash;
@@ -72,6 +83,7 @@ const Dashboard: React.FC = () => {
   useEffect(() => {
     fetchScripts();
     checkStoryboardAccess();
+    // extractBrandsFromScripts will be called after scripts are loaded
   }, []);
   
   // Group scripts by brand_name + product
@@ -203,6 +215,9 @@ const Dashboard: React.FC = () => {
       );
       
       setScripts(sortedScripts || []);
+      
+      // Extract brands data from scripts
+      extractBrandsFromScripts(sortedScripts || []);
     } catch (error) {
       console.error('Error fetching scripts:', error);
       setError('Failed to load scripts. Please try again.');
@@ -237,6 +252,9 @@ const Dashboard: React.FC = () => {
         }
       ];
       setScripts(sampleScripts as Script[]);
+      
+      // Extract brands from sample scripts too
+      extractBrandsFromScripts(sampleScripts as Script[]);
     } finally {
       setIsLoading(false);
     }
@@ -246,6 +264,50 @@ const Dashboard: React.FC = () => {
     group.brand_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     group.product.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  // No need for a separate fetchBrands function anymore
+  
+  // Helper function to extract brand and product information from scripts
+  const extractBrandsFromScripts = (scripts: Script[]) => {
+    setBrandsLoading(true);
+    try {
+      const brandsMap = new Map<string, Brand>();
+      
+      scripts.forEach(script => {
+        const brandName = script.brand_name || script.metadata?.brand_name as string || 'Unknown Brand';
+        const product = script.product || script.metadata?.product as string || 'Unknown Product';
+        
+        if (!brandsMap.has(brandName)) {
+          // Create new brand with this product
+          brandsMap.set(brandName, {
+            name: brandName,
+            products: [product],
+            id: brandName.toLowerCase().replace(/\s+/g, '-')
+          });
+        } else {
+          // Add product to existing brand if it's not already in the list
+          const brand = brandsMap.get(brandName)!;
+          if (!brand.products.includes(product)) {
+            brand.products.push(product);
+          }
+        }
+      });
+      
+      // Convert map to array
+      const brandsArray = Array.from(brandsMap.values());
+      setBrands(brandsArray);
+      
+      // Update the global context
+      brandsContext.updateBrands(brandsArray);
+      
+      setBrandsError(null);
+    } catch (error) {
+      console.error('Error extracting brands from scripts:', error);
+      setBrandsError('Failed to process brand information');
+    } finally {
+      setBrandsLoading(false);
+    }
+  };
 
   // Handle script deletion
   const handleDeleteScript = async (scriptId: string) => {
@@ -269,9 +331,14 @@ const Dashboard: React.FC = () => {
           throw new Error('Failed to delete script');
         }
         
-        // Refresh scripts and groups
+        // Refresh scripts and groups (fetchBrands is called automatically after fetchScripts)
         fetchScripts();
+        
+        // Update the refresh trigger for local state
         setSidebarRefreshTrigger(prev => prev + 1);
+        
+        // Also refresh sidebar in context
+        brandsContext.refreshSidebar();
       } catch (error) {
         console.error('Error deleting script:', error);
         setError('Failed to delete script. Please try again.');
@@ -301,7 +368,14 @@ const Dashboard: React.FC = () => {
           ></div>
         )}
         <div className="relative h-full rounded-2xl border border-gray-300 overflow-hidden z-10 mt-2 mb-2 ml-2">
-          <Sidebar refreshTrigger={sidebarRefreshTrigger} onCloseMobile={() => setShowMobileSidebar(false)} />
+          <Sidebar 
+            brandsData={brands} 
+            brandsLoading={brandsLoading} 
+            brandsError={brandsError}
+            refreshTrigger={sidebarRefreshTrigger} 
+            onCloseMobile={() => setShowMobileSidebar(false)}
+            source="dashboard" 
+          />
         </div>
       </div>
       

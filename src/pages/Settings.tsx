@@ -2,12 +2,22 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   User, Settings as SettingsIcon, Mail, Calendar, FileText, 
-  ImageIcon, Crown, ChevronDown, ChevronUp, Menu, X, AlertTriangle,
+  Crown, ChevronDown, ChevronUp, Menu, AlertTriangle,
   Edit2, Save, CheckCircle, LogOut
 } from 'lucide-react';
 import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
 import { buildApiUrl } from '../config/api';
+import { useBrands } from '../context/useBrands';
+
+// We don't need the Script interface anymore
+
+// Using the same Brand interface as defined in BrandsContext
+interface Brand {
+  name: string;
+  products: string[];
+  id: string;
+}
 
 interface UserProfile {
   _id: string;
@@ -47,10 +57,62 @@ const Settings: React.FC = () => {
   });
   const [passwordError, setPasswordError] = useState<string | null>(null);
   const [passwordSuccess, setPasswordSuccess] = useState(false);
+  
+  // Brand data for sidebar
+  const [brands, setBrands] = useState<Brand[]>([]);
+  const [brandsLoading, setBrandsLoading] = useState(false);
+  const [brandsError, setBrandsError] = useState<string | null>(null);
+    // Sidebar refresh trigger
+  const brandsContext = useBrands(); // Keep context reference even if not directly used
+  const [sidebarRefreshTrigger, setSidebarRefreshTrigger] = useState(0);
 
-  // Fetch user data
+
+  
+  // Function to fetch brands for sidebar - matching CreateScriptWizard implementation
+  const fetchBrands = async () => {
+    setBrandsLoading(true);
+    setBrandsError(null);
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setBrandsError('Authentication required');
+        return;
+      }
+
+      const response = await fetch(buildApiUrl('api/brands/all'), {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch brands');
+      }
+
+      const data = await response.json();
+      if (data.success && Array.isArray(data.brands)) {
+        setBrands(data.brands);
+      } else {
+        throw new Error(data.message || 'Invalid response format');
+      }
+    } catch (error) {
+      console.error('Error fetching brands:', error);
+      setBrandsError(error instanceof Error ? error.message : 'An error occurred');
+    } finally {
+      setBrandsLoading(false);
+    }
+  };
+
+
+  
+  // Fetch user data and brands data for sidebar - matching CreateScriptWizard implementation
   useEffect(() => {
     fetchUserProfile();
+    fetchBrands();
+    
+    // Refresh sidebar when component mounts
+    setSidebarRefreshTrigger(prev => prev + 1);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fetchUserProfile = async () => {
@@ -258,7 +320,13 @@ const Settings: React.FC = () => {
         </div>
         
         <div className="hidden md:block md:w-64">
-          <Sidebar />
+          <Sidebar 
+            brandsData={brands}
+            brandsLoading={brandsLoading}
+            brandsError={brandsError} 
+            source="scriptGroup"
+            refreshTrigger={sidebarRefreshTrigger}
+          />
         </div>
         
         <div className="flex-1 flex flex-col items-center justify-center">
@@ -282,7 +350,7 @@ const Settings: React.FC = () => {
         </button>
       </div>
       
-      {/* Sidebar - responsive */}
+      {/* Sidebar - Conditionally shown on mobile */}
       <div className={`${showMobileSidebar ? 'block' : 'hidden'} md:block fixed inset-0 z-40 md:relative md:z-0 md:w-64`}>
         {showMobileSidebar && (
           <div 
@@ -290,8 +358,15 @@ const Settings: React.FC = () => {
             onClick={() => setShowMobileSidebar(false)}
           ></div>
         )}
-        <div className="relative h-full z-10">
-          <Sidebar onCloseMobile={() => setShowMobileSidebar(false)} />
+        <div className="relative h-full rounded-2xl border border-gray-300 overflow-hidden z-10 mt-2 mb-2 ml-2">
+          <Sidebar 
+            brandsData={brands}
+            brandsLoading={brandsLoading}
+            brandsError={brandsError}
+            onCloseMobile={() => setShowMobileSidebar(false)}
+            source="scriptGroup"
+            refreshTrigger={sidebarRefreshTrigger}
+          />
         </div>
       </div>
       

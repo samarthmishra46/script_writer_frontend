@@ -16,6 +16,7 @@ import GoogleAuthTestPage from './pages/GoogleAuthTestPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import ScriptGroup from './pages/ScriptGroup';
 import Settings from './pages/Settings';
+import { BrandsProvider } from './context/BrandsContext';
 
 function App() {
   // Use environment variable for client ID
@@ -26,18 +27,19 @@ function App() {
   
   return (
     <GoogleOAuthProvider clientId={googleClientId}>
-      <Router>
-        <div className="App">
-          <Toaster 
-            position="top-right"
-            toastOptions={{
-              duration: 4000,
-              style: {
-                background: '#363636',
-                color: '#fff',
-              },
-            }}
-          />
+      <BrandsProvider>
+        <Router>
+          <div className="App">
+            <Toaster 
+              position="top-right"
+              toastOptions={{
+                duration: 4000,
+                style: {
+                  background: '#363636',
+                  color: '#fff',
+                },
+              }}
+            />
           <Routes>
             {/* Public Routes */}
           <Route path="/" element={<LandingPage />} />
@@ -86,6 +88,7 @@ function App() {
         </Routes>
       </div>
     </Router>
+      </BrandsProvider>
     </GoogleOAuthProvider>
   );
 }

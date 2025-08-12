@@ -6,6 +6,7 @@ import remarkGfm from 'remark-gfm';
 import { buildApiUrl } from '../config/api';
 import StoryboardGenerator from '../components/StoryboardGenerator';
 import Sidebar from '../components/Sidebar';
+import { useBrands } from '../context/useBrands';
 
 interface ScriptMetadata {
   format?: string;
@@ -117,6 +118,14 @@ const CreateScript: React.FC = () => {
   const [regeneratingIds, setRegeneratingIds] = useState<string[]>([]);
   const [sidebarRefreshTrigger, setSidebarRefreshTrigger] = useState(0);
   const [showMobileSidebar, setShowMobileSidebar] = useState(false);
+  
+  // Brand data for sidebar
+  const [brands, setBrands] = useState<{name: string; products: string[]; id: string;}[]>([]);
+  const [brandsLoading, setBrandsLoading] = useState(false);
+  const [brandsError, setBrandsError] = useState<string | null>(null);
+  
+  // Use brands context
+  const brandsContext = useBrands();
 
   // Add ref for the top of the page
   const topRef = React.useRef<HTMLDivElement>(null);
@@ -140,13 +149,102 @@ const CreateScript: React.FC = () => {
     };
   }, []);
 
-  // Load user data
+  // Load user data and fetch brand data
   useEffect(() => {
     const userData = localStorage.getItem('user');
     if (userData) {
       setUser(JSON.parse(userData));
     }
+    
+    // Fetch scripts to extract brand data
+    fetchScriptsForBrands();
   }, []);
+  
+  // Helper function to extract brand and product information from scripts
+  const extractBrandsFromScripts = (scripts: Script[]) => {
+    setBrandsLoading(true);
+    try {
+      const brandsMap = new Map<string, {name: string; products: string[]; id: string;}>();
+      
+      scripts.forEach(script => {
+        const brandName = script.brand_name || script.metadata?.brand_name as string || 'Unknown Brand';
+        const product = script.product || script.metadata?.product as string || 'Unknown Product';
+        
+        if (!brandsMap.has(brandName)) {
+          // Create new brand with this product
+          brandsMap.set(brandName, {
+            name: brandName,
+            products: [product],
+            id: brandName.toLowerCase().replace(/\s+/g, '-')
+          });
+        } else {
+          // Add product to existing brand if it's not already in the list
+          const brand = brandsMap.get(brandName)!;
+          if (!brand.products.includes(product)) {
+            brand.products.push(product);
+          }
+        }
+      });
+      
+      // Convert map to array
+      const brandsArray = Array.from(brandsMap.values());
+      
+      // Update local state
+      setBrands(brandsArray);
+      
+      // Update global context if we have brands data
+      if (brandsArray.length > 0) {
+        brandsContext.updateBrands(brandsArray);
+      }
+      
+      setBrandsError(null);
+    } catch (error) {
+      console.error('Error extracting brands from scripts:', error);
+      setBrandsError('Failed to process brand information');
+    } finally {
+      setBrandsLoading(false);
+    }
+  };
+  
+  // Fetch scripts to extract brand data
+  const fetchScriptsForBrands = async () => {
+    try {
+      setBrandsLoading(true);
+      setBrandsError(null);
+      
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setBrandsError('Authentication required');
+        return;
+      }
+
+      const response = await fetch(buildApiUrl('api/scripts'), {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch scripts');
+      }
+
+      const result = await response.json();
+      
+      // Check if response is in new format with success flag
+      const data = result.success ? result.data : result;
+      
+      // Extract brands from scripts
+      extractBrandsFromScripts(data || []);
+    } catch (error) {
+      console.error('Error fetching scripts for brands:', error);
+      setBrandsError('Failed to load brand data');
+      // Set an empty array as fallback
+      setBrands([]);
+    } finally {
+      setBrandsLoading(false);
+    }
+  };
 
   // Load saved form data from localStorage
   useEffect(() => {
@@ -288,6 +386,12 @@ const CreateScript: React.FC = () => {
       // Trigger sidebar refresh
       setSidebarRefreshTrigger(prev => prev + 1);
       
+      // Also refresh the global context
+      brandsContext.refreshSidebar();
+      
+      // Fetch scripts to update brands data
+      fetchScriptsForBrands();
+      
     } catch (error) {
       console.error('Script generation error:', error);
       setError(error instanceof Error ? error.message : 'Failed to generate script');
@@ -296,7 +400,7 @@ const CreateScript: React.FC = () => {
     }
   };
 
-  const handleRegenerate = async (scriptId: string) => {
+  const handleRegenerate = async () => {
     if (!generatedScript) return;
 
     setIsRegenerating(true);
@@ -331,6 +435,15 @@ const CreateScript: React.FC = () => {
       
       // Scroll to top after script is regenerated
       scrollToTop();
+      
+      // Trigger sidebar refresh
+      setSidebarRefreshTrigger(prev => prev + 1);
+      
+      // Also refresh the global context
+      brandsContext.refreshSidebar();
+      
+      // Fetch scripts to update brands data
+      fetchScriptsForBrands();
       
     } catch (error) {
       console.error('Script regeneration error:', error);
@@ -451,7 +564,14 @@ const CreateScript: React.FC = () => {
           ></div>
         )}
         <div className="relative h-full z-10">
-          <Sidebar refreshTrigger={sidebarRefreshTrigger} onCloseMobile={() => setShowMobileSidebar(false)} />
+          <Sidebar 
+            brandsData={brands} 
+            brandsLoading={brandsLoading} 
+            brandsError={brandsError} 
+            refreshTrigger={sidebarRefreshTrigger} 
+            onCloseMobile={() => setShowMobileSidebar(false)}
+            source="createScript" 
+          />
         </div>
       </div>
       

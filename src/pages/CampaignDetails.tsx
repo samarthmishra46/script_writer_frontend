@@ -5,6 +5,12 @@ import { buildApiUrl } from '../config/api';
 import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
 
+interface Brand {
+  name: string;
+  products: string[];
+  id: string;
+}
+
 interface Campaign {
   id: string;
   name: string;
@@ -41,6 +47,48 @@ const CampaignDetails: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'overview' | 'scripts' | 'storyboards'>('overview');
+  const [brands, setBrands] = useState<Brand[]>([]);
+  const [brandsLoading, setBrandsLoading] = useState(false);
+  const [brandsError, setBrandsError] = useState<string | null>(null);
+
+  // Helper function to extract brand and product information from a script
+  const extractBrandsFromScript = (scriptData: {
+    _id: string;
+    title: string;
+    content: string;
+    createdAt: string;
+    brand_name?: string;
+    product?: string;
+    metadata?: {
+      brand_name?: string;
+      product?: string;
+      category?: string;
+      target_persona?: string;
+      [key: string]: unknown;
+    };
+  }) => {
+    setBrandsLoading(true);
+    try {
+      // Create a brand from the script data
+      const brandName = scriptData.brand_name || scriptData.metadata?.brand_name as string || 'Unknown Brand';
+      const product = scriptData.product || scriptData.metadata?.product as string || 'Unknown Product';
+      
+      // Create a single brand with this product
+      const brand: Brand = {
+        name: brandName,
+        products: [product],
+        id: brandName.toLowerCase().replace(/\s+/g, '-')
+      };
+      
+      setBrands([brand]);
+      setBrandsError(null);
+    } catch (error) {
+      console.error('Error extracting brands from script:', error);
+      setBrandsError('Failed to process brand information');
+    } finally {
+      setBrandsLoading(false);
+    }
+  };
 
   useEffect(() => {
     const fetchCampaignDetails = async (campaignId: string) => {
@@ -67,6 +115,9 @@ const CampaignDetails: React.FC = () => {
         }
 
         const data = await response.json();
+        // Extract brand information from script data
+        extractBrandsFromScript(data);
+        
         // Transform script data to campaign format for display
         setCampaign({
           id: data._id,
@@ -90,7 +141,7 @@ const CampaignDetails: React.FC = () => {
         console.error('Error fetching script details:', error);
         setError('Failed to load script details. Please try again.');
         // Fallback to sample data for demo
-        setCampaign({
+        const sampleData = {
           id: campaignId,
           name: 'Sample Script',
           category: 'Healthcare',
@@ -116,12 +167,22 @@ const CampaignDetails: React.FC = () => {
               status: 'draft'
             }
           ]
-        });
+        };
+        
+        setCampaign(sampleData);
+        
+        // Create sample brand data
+        setBrands([{
+          name: 'Healthcare',
+          products: ['Premium Wellness'],
+          id: 'healthcare'
+        }]);
       } finally {
         setIsLoading(false);
       }
     };
 
+    // Fetch campaign details (brands will be extracted from campaign data)
     if (id) {
       fetchCampaignDetails(id);
     }
@@ -136,7 +197,7 @@ const CampaignDetails: React.FC = () => {
   if (isLoading) {
     return (
       <div className="flex h-screen bg-gray-100">
-        <Sidebar />
+        <Sidebar brandsData={brands} brandsLoading={brandsLoading} brandsError={brandsError} source="other" />
         <div className="flex-1 flex flex-col overflow-hidden">
           <Header />
           <main className="flex-1 overflow-y-auto p-6">
@@ -153,7 +214,7 @@ const CampaignDetails: React.FC = () => {
   if (error || !campaign) {
     return (
       <div className="flex h-screen bg-gray-100">
-        <Sidebar />
+        <Sidebar brandsData={brands} brandsLoading={brandsLoading} brandsError={brandsError} source="other" />
         <div className="flex-1 flex flex-col overflow-hidden">
           <Header />
           <main className="flex-1 overflow-y-auto p-6">
@@ -175,7 +236,7 @@ const CampaignDetails: React.FC = () => {
 
   return (
     <div className="flex h-screen bg-gray-100">
-      <Sidebar />
+      <Sidebar brandsData={brands} brandsLoading={brandsLoading} brandsError={brandsError} source="other" />
       
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header />
