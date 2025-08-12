@@ -9,6 +9,7 @@ import ScriptView from './pages/ScriptView';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Subscription from './pages/Subscription';
+import SubscriptionCallback from './pages/SubscriptionCallback';
 import Pricing from './pages/Pricing';
 import ContactUs from './pages/ContactUs';
 import AboutUs from './pages/AboutUs';
@@ -74,6 +75,11 @@ function App() {
           <Route path="/subscription" element={
             <ProtectedRoute>
               <Subscription />
+            </ProtectedRoute>
+          } />
+          <Route path="/subscription/callback" element={
+            <ProtectedRoute>
+              <SubscriptionCallback />
             </ProtectedRoute>
           } />
           <Route path="/script-group/:brandName/:product/:scriptId" element={

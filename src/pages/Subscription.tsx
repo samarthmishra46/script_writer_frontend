@@ -202,48 +202,31 @@ const Subscription: React.FC = () => {
         return;
       }
 
-      console.log('Creating subscription...');
+      console.log('Creating subscription order...');
       
-      // Create subscription plan first
-      const planResponse = await fetch(buildApiUrl('api/subscription/create-plan'), {
+      // Request subscription order from the server
+      // The server will handle plan creation internally
+      const orderResponse = await fetch(buildApiUrl('api/subscription/webhook'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({ plan: 'individual' })
+        body: JSON.stringify({ 
+          plan: 'individual',
+          callbackUrl: `${window.location.origin}/subscription/callback`
+        })
       });
 
-      const planData = await planResponse.json();
-      console.log('Plan creation response:', planData);
+      const orderData = await orderResponse.json();
+      console.log('Order creation response:', orderData);
 
-      if (!planResponse.ok) {
-        throw new Error(planData.message || planData.error || 'Failed to create subscription plan');
+      if (!orderResponse.ok) {
+        throw new Error(orderData.message || orderData.error || 'Failed to create subscription order');
       }
 
-      if (!planData.planId) {
-        throw new Error('No plan ID received from server');
-      }
-
-      // Create subscription with the plan ID
-      const subscriptionResponse = await fetch(buildApiUrl('api/subscription/create-subscription'), {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ planId: planData.planId, plan: 'individual' })
-      });
-
-      const data = await subscriptionResponse.json();
-      console.log('Subscription creation response:', data);
-
-      if (!subscriptionResponse.ok) {
-        throw new Error(data.message || data.error || 'Failed to create subscription');
-      }
-
-      if (!data.subscriptionId) {
-        throw new Error('No subscription ID received from server');
+      if (!orderData.order) {
+        throw new Error('No order data received from server');
       }
 
       // Verify Razorpay is available before creating options
@@ -253,56 +236,34 @@ const Subscription: React.FC = () => {
 
       const options = {
         key: import.meta.env.VITE_RAZORPAY_KEY_ID,
-        subscription_id: data.subscriptionId,
+        order_id: orderData.order.id,
         name: 'Leepi AI',
         description: 'Individual Plan - Monthly Subscription',
         image: 'https://via.placeholder.com/150x50/8B5CF6/FFFFFF?text=Leepi+AI',
-        currency: 'INR',
+        currency: orderData.order.currency || 'INR',
+        amount: orderData.order.amount, // Amount is already in smallest currency unit (paise)
         handler: async function (response: RazorpayResponse) {
           try {
-            console.log('Payment successful, verifying...', response);
+            console.log('Payment successful, redirecting to verification...', response);
             
-            // Handle successful payment
-            const verifyResponse = await fetch(buildApiUrl('api/subscription/verify-subscription'), {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-              },
-              body: JSON.stringify({
-                razorpay_payment_id: response.razorpay_payment_id,
-                razorpay_subscription_id: response.razorpay_subscription_id,
-                razorpay_signature: response.razorpay_signature,
-                plan: 'individual'
-              })
-            });
-
-            const verifyData = await verifyResponse.json();
-            console.log('Payment verification response:', verifyData);
+            // Store payment info temporarily in local storage
+            // This will be used if the redirect fails
+            localStorage.setItem('pendingPayment', JSON.stringify({
+              orderId: response.razorpay_order_id,
+              paymentId: response.razorpay_payment_id,
+              signature: response.razorpay_signature,
+              timestamp: new Date().toISOString()
+            }));
             
-            if (verifyResponse.ok) {
-              // Update local user data
-              const updatedUserData = {
-                ...userData,
-                subscription: { 
-                  plan: 'individual', 
-                  status: 'active',
-                  updatedAt: new Date().toISOString(),
-                  isRecurring: true,
-                  nextBillingDate: verifyData.subscription?.nextBillingDate
-                }
-              };
-              localStorage.setItem('user', JSON.stringify(updatedUserData));
-              
-              // Show success message and redirect
-              alert('Recurring subscription activated successfully!');
-              navigate('/dashboard');
-            } else {
-              throw new Error(verifyData.message || verifyData.error || 'Payment verification failed');
-            }
-          } catch (verifyError) {
-            console.error('Payment verification error:', verifyError);
-            setError('Payment verification failed. Please contact support with your payment ID.');
+            // Instead of verifying directly here, redirect to a verification page
+            // This page will call the webhook verification endpoint
+            navigate(`/subscription/callback?orderId=${response.razorpay_order_id}&paymentId=${response.razorpay_payment_id}&signature=${response.razorpay_signature}`);
+            
+            // The server will receive webhooks directly from Razorpay
+            // and update the subscription status accordingly
+          } catch (error) {
+            console.error('Payment response handling error:', error);
+            setError('Error processing payment response. Please check your subscription status in your account.');
           }
         },
         prefill: {
@@ -311,6 +272,7 @@ const Subscription: React.FC = () => {
           contact: userData.phone || ''
         },
         notes: {
+          userId: userData.id,
           address: 'Leepi AI Individual Plan Subscription',
           plan: 'individual'
         },
@@ -420,15 +382,14 @@ const Subscription: React.FC = () => {
     // Not subscribed yet - show payment page
     return (
       <>
-        <div className="text-center mb-12">
+        {/* {<div className="h-full overflow-hidden text-center mb-12">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">
             Upgrade to Individual Plan
           </h1>
           <p className="text-xl text-gray-600">
             Unlock unlimited campaigns and advanced features
           </p>
-        </div>
-
+        </div> */}
         <div className="bg-white shadow-lg rounded-2xl overflow-hidden">
           {/* Header */}
           <div className="bg-gradient-to-r from-purple-600 to-pink-600 px-8 py-12 text-center">
@@ -525,21 +486,22 @@ const Subscription: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-4xl mx-auto">
-        {renderSubscriptionContent()}
+   <div className="h-screen bg-gray-50 flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8">
+  <div className="max-w-4xl w-full flex flex-col items-center space-y-6">
+    {renderSubscriptionContent()}
 
-        {/* Back to Dashboard */}
-        <div className="text-center mt-8">
-          <button
-            onClick={() => navigate('/dashboard')}
-            className="text-purple-600 hover:text-purple-700 font-medium"
-          >
-            ← Back to Dashboard
-          </button>
-        </div>
-      </div>
+    {/* Back to Dashboard */}
+    <div className="text-center">
+      <button
+        onClick={() => navigate('/dashboard')}
+        className="text-purple-600 hover:text-purple-700 font-medium"
+      >
+        ← Back to Dashboard
+      </button>
     </div>
+  </div>
+</div>
+
   );
 };
 

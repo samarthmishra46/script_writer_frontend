@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { FolderPlus, Search, ChevronDown, ChevronRight, Building2, LogOut, Package, X, Settings, ChevronUp } from 'lucide-react';
+import { FolderPlus, LayoutDashboard,Search , Wallet, ChevronDown, ChevronRight, Building2, LogOut, Package, X, Settings, ChevronUp } from 'lucide-react';
 import { useBrands } from '../context/useBrands';
 
 // Define user interface to fix TypeScript errors
@@ -343,6 +343,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                 className="flex items-center px-4 py-2 text-sm text-[#474747] hover:bg-gray-100"
                 onClick={() => setIsDropdownOpen(false)}
               >
+                 <LayoutDashboard className="w-4 h-4 mr-2" />
                 Dashboard
               </Link>
               <Link
@@ -350,6 +351,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                 className="flex items-center px-4 py-2 text-sm text-[#474747] hover:bg-gray-100"
                 onClick={() => setIsDropdownOpen(false)}
               >
+                 <Wallet className="w-4 h-4 mr-2"  />
                 Subscription
               </Link>
               <Link
