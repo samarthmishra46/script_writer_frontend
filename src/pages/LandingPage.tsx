@@ -119,7 +119,7 @@ const LandingPage: React.FC = () => {
               <span className="font-bold bg-gradient-to-r from-[#CB6CE6] to-[#2D65F5] bg-clip-text text-transparent transition-all duration-300 hover:scale-105 inline-block">
                 Leepi AI
               </span>{" "}
-              Gives You Unlimited Ad Scripts/ Hooks/ Ideas Trained On 50Cr. Of
+              Gives You Unlimited Ad Scripts/ Hooks/ Ideas Trained On 50Cr Of
               Meta Ad Spend
             </div>
           </div>
