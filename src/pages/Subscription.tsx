@@ -214,7 +214,10 @@ const Subscription: React.FC = () => {
           alert("Could not verify payment.");
         }
       },
-      theme: { color: "#3399cc" },
+      theme: { color: "#002fffff" },
+      method:{
+        upi:true
+      }
     };
 
     // 4. Open Razorpay Checkout
