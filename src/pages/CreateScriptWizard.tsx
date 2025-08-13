@@ -1614,7 +1614,7 @@ const CreateScriptWizard: React.FC = () => {
       </div>
       
       {/* Sidebar - responsive */}
-      <div className={`${showMobileSidebar ? 'block' : 'hidden'} md:block fixed inset-0 z-40 md:relative md:z-0 md:w-64`}>
+      <div className={`${showMobileSidebar ? 'block' : 'hidden'} md:block fixed inset-0 z-40 md:relative md:z-0 md:w-65`}>
         {showMobileSidebar && (
           <div 
             className="absolute inset-0 bg-black opacity-50 md:hidden"

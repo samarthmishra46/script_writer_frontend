@@ -481,7 +481,7 @@ const ScriptGroup: React.FC = () => {
       <div
         className={`${
           showMobileSidebar ? "block" : "hidden"
-        } md:block fixed inset-0 z-40 md:relative md:z-0 md:w-64`}
+        } md:block fixed inset-0 z-40 md:relative md:z-0 md:w-65`}
       >
         {showMobileSidebar && (
           <div

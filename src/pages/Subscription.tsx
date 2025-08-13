@@ -3,6 +3,13 @@ import axios from "axios";
 import { buildApiUrl } from "../config/api";
 import { useNavigate } from "react-router-dom";
 
+// Add Razorpay type to window
+declare global {
+  interface Window {
+    Razorpay: unknown;
+  }
+}
+
 interface UserData {
   name: string;
   email: string;
@@ -132,14 +139,33 @@ const Subscription: React.FC = () => {
     checkSubscription();
   }, [navigate]);
 
+
+
   const startSubscription = async () => {
     if (!user?.email) return alert("No email found for logged-in user");
-
+      const token = localStorage.getItem("token");
+      if (!token) {
+        navigate("/login");
+        return;
+      }
     try {
-      const { data } = await axios.post(
+      const response = await fetch(
         buildApiUrl("/api/subscription/create-subscription"),
-        { email: user.email }
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email: user.email,
+          }),
+         }
       );
+      const data = await response.json();
+      const subscriptionId = data.id;
+      console.log("Created subscription:", subscriptionId);
+
 
       const options = {
         key: import.meta.env.VITE_RAZORPAY_KEY_ID,
@@ -147,22 +173,40 @@ const Subscription: React.FC = () => {
         name: "Leepi AI",
         description: "₹1 every 7 days",
         
-        handler: (response: Record<string, string>) => {
-          console.log("Payment successful:", response);
-          // Refresh the page to show updated subscription status
-          window.location.reload();
+        handler: async function (response: Record<string, string>) {
+          console.log("Razorpay Response:", response);
+
+          // 3️⃣ Send payment verification request to backend
+          try {
+            const verifyRes = await axios.post(buildApiUrl("/api/subscription/verify"), {
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_subscription_id: response.razorpay_subscription_id,
+              razorpay_signature: response.razorpay_signature
+            });
+
+            if (verifyRes.data.success) {
+              alert("✅ Subscription activated!");
+            } else {
+              alert("❌ Subscription verification failed.");
+            }
+          } catch (error) {
+            console.error("Verification error:", error);
+            alert("Error verifying payment");
+          }
         },
-        prefill: {
-          email: user.email,
-        },
+        theme: {
+          color: "#3399cc"
+        }
       };
 
-      // @ts-expect-error - Razorpay is loaded externally
-      const rzp = new window.Razorpay(options);
+      const RazorpayConstructor = window.Razorpay as any;
+      const rzp = new RazorpayConstructor(options);
       rzp.open();
-    } catch (err) {
-      console.error(err);
-      alert("Unable to start subscription");
+    } catch (error) {
+      console.error("Error starting subscription:", error);
+      alert("Failed to create subscription");
+    } finally {
+      setIsLoading(false);
     }
   };
 

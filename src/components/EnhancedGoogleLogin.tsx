@@ -43,7 +43,7 @@ const EnhancedGoogleLogin: React.FC<EnhancedGoogleLoginProps> = ({
       
       try {
         console.log('Google login successful, sending token to backend...');
-        
+        console.log(tokenResponse.access_token);
         // Send the token to your backend
         const response = await fetch(buildApiUrl('api/auth/google'), {
           method: 'POST',
@@ -60,7 +60,7 @@ const EnhancedGoogleLogin: React.FC<EnhancedGoogleLoginProps> = ({
         if (!response.ok) {
           throw new Error(data.message || 'Failed to authenticate with Google');
         }
-
+        
         // Save the token and user data
         localStorage.setItem('token', data.token);
         localStorage.setItem('user', JSON.stringify(data.user));
