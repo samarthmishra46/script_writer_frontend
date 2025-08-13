@@ -142,73 +142,94 @@ const Subscription: React.FC = () => {
 
 
   const startSubscription = async () => {
-    if (!user?.email) return alert("No email found for logged-in user");
-      const token = localStorage.getItem("token");
-      if (!token) {
-        navigate("/login");
-        return;
-      }
-    try {
-      const response = await fetch(
-        buildApiUrl("/api/subscription/create-subscription"),
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            email: user.email,
-          }),
-         }
-      );
-      const data = await response.json();
-      const subscriptionId = data.id;
-      console.log("Created subscription:", subscriptionId);
+  if (!user?.email) return alert("No email found for logged-in user");
+  const token = localStorage.getItem("token");
+  if (!token) {
+    navigate("/login");
+    return;
+  }
 
-
-      const options = {
-        key: import.meta.env.VITE_RAZORPAY_KEY_ID,
-        subscription_id: data.id,
-        name: "Leepi AI",
-        description: "₹1 every 7 days",
-        
-        handler: async function (response: Record<string, string>) {
-          console.log("Razorpay Response:", response);
-
-          // 3️⃣ Send payment verification request to backend
-          try {
-            const verifyRes = await axios.post(buildApiUrl("/api/subscription/verify"), {
-              razorpay_payment_id: response.razorpay_payment_id,
-              razorpay_subscription_id: response.razorpay_subscription_id,
-              razorpay_signature: response.razorpay_signature
-            });
-
-            if (verifyRes.data.success) {
-              alert("✅ Subscription activated!");
-            } else {
-              alert("❌ Subscription verification failed.");
-            }
-          } catch (error) {
-            console.error("Verification error:", error);
-            alert("Error verifying payment");
-          }
+  setIsLoading(true);
+  try {
+    // 1. Create subscription from backend
+    const response = await fetch(
+      buildApiUrl("/api/subscription/create-subscription"),
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
-        theme: {
-          color: "#3399cc"
-        }
-      };
+        body: JSON.stringify({ email: user.email }),
+      }
+    );
+    const data = await response.json();
+    const subscriptionId = data.id;
+    console.log("Created subscription:", subscriptionId);
 
-      const RazorpayConstructor = window.Razorpay as any;
-      const rzp = new RazorpayConstructor(options);
-      rzp.open();
-    } catch (error) {
-      console.error("Error starting subscription:", error);
-      alert("Failed to create subscription");
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    // 2. Configure Razorpay options
+    const options = {
+      key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+      subscription_id: subscriptionId,
+      name: "Leepi AI",
+      description: "₹10 every 7 days",
+      handler: async function (response) {
+        console.log("Razorpay Response:", response);
+
+        // Extract values from Razorpay response
+        const {
+          razorpay_payment_id,
+          razorpay_subscription_id,
+          razorpay_signature,
+        } = response;
+
+        // 3. Verify payment with backend
+        try {
+          const verificationRes = await fetch(
+            buildApiUrl("/api/subscription/verify"),
+            {
+              method: "POST",
+              headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                razorpay_payment_id,
+                razorpay_subscription_id,
+                razorpay_signature,
+              }),
+            }
+          );
+
+          const verificationData = await verificationRes.json();
+          if (verificationData.success) {
+            alert("Subscription activated successfully!");
+          } else {
+            alert("Payment verification failed.");
+          }
+        } catch (err) {
+          console.error("Verification error:", err);
+          alert("Could not verify payment.");
+        }
+      },
+      theme: { color: "#3399cc" },
+    };
+
+    // 4. Open Razorpay Checkout
+    const rzp = new Razorpay(options);
+    rzp.on("payment.failed", function (response) {
+      console.error("Payment failed:", response.error);
+      alert("Payment failed: " + response.error.description);
+    });
+    rzp.open();
+  } catch (error) {
+    console.error("Error starting subscription:", error);
+    alert("Failed to create subscription");
+  } finally {
+    setIsLoading(false);
+  }
+};
+
 
   // Loading state
   if (isLoading) {
