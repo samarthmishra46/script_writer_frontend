@@ -125,7 +125,7 @@ const LandingPage: React.FC = () => {
           </div>
           <div>
             <p className="text-lg sm:text-xl md:text-2xl text-gray-700 max-w-3xl mx-auto mb-8">
-            Your Dream ROAS & Dream Revenue Milestone Are Just One Winning
+            Your Dream ROAS Milestone Is Just One Winning
               Ad Script Away!
             </p>
           </div>
@@ -162,11 +162,11 @@ const LandingPage: React.FC = () => {
               <div className="absolute -inset-2 bg-gradient-to-r from-purple-600/20 to-pink-600/20 blur-xl opacity-0 hover:opacity-100 transition-opacity duration-500 rounded-lg"></div>
             </div>
             <h3 className="px-2 text-3xl font-bold   text-center leading-snug">
-              Is Not Just A ChatGPT Wrapper,
+              Is Not Just A ChatGPT Wrapper
               <br />
               It's Trained On
               <br />
-              Rs. 50Cr Of Meta Ad Spend
+              Rs 50Cr Of Meta Ad Spend
             </h3>
 
             <p className="text-gray-600 mt-4 max-w-2xl mx-auto">
