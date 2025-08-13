@@ -54,7 +54,7 @@ export default function Header({ user, getUserFirstName, handleLogout }: HeaderP
 
           {/* Desktop Auth Buttons */}
           <div className=" relative hidden md:flex items-center space-x-4">
-            {user ? (
+            {user  ? (
               <UserDropdown
                 user={user}
                 getUserFirstName={getUserFirstName}
@@ -88,7 +88,7 @@ export default function Header({ user, getUserFirstName, handleLogout }: HeaderP
       {/* Mobile Menu Dropdown */}
       {isMobileMenuOpen && (
         <div className="relative text-xs sm:text-sm md:text-lg lg:text-xl font-bold md:hidden bg-white shadow-lg px-4 pb-4 space-y-4">
-          <NavLinks />
+          <NavlinkMobile />
           {user ? (
             <UserDropdownMobile
               user={user}
@@ -117,18 +117,32 @@ function NavLinks() {
   );
 }
 
+function NavlinkMobile(){
+  return (
+    <div className="py-3 space-y-2 text-xs sm:text-sm md:text-lg lg:text-xl font-bold items-center text-center" >
+      <LinkItem to="/" label="Home"  hoverColor="pink-600" />
+      <LinkItem to="/pricing" label="Pricing" hoverColor="purple-600" />
+      <LinkItem to="/contact" label="Contact Us" hoverColor="blue-600" />
+      <LinkItem to="/about" label="About Us" hoverColor="pink-600" />
+    </div>
+  );
+
+}
+
 /* Reusable Nav Link */
 interface LinkItemProps {
   to: string;
   label: string;
   hoverColor: string;
+  text?: string;
+
 }
 
-function LinkItem({ to, label, hoverColor }: LinkItemProps) {
+function LinkItem({ to, label, hoverColor,text }: LinkItemProps) {
   return (
     <Link
       to={to}
-      className={`nav-item text-gray-700 hover:text-${hoverColor} transition-all duration-300 relative group px-4 py-2 rounded-lg`}
+      className={`nav-item text-gray-700 hover:text-${hoverColor} transition-all duration-300 relative group px-4 py-2 rounded-lg text-${text}`}
     >
       <span className="relative z-10">{label}</span>
       <span className="absolute bottom-0 left-1/2 w-0 h-0.5 bg-gradient-to-r from-pink-600 via-purple-600 to-blue-600 group-hover:w-full group-hover:left-0 transition-all duration-500"></span>

@@ -12,7 +12,7 @@ const Header: React.FC<HeaderProps> = ({ className = '' }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const user = JSON.parse(localStorage.getItem('user') || '{}');
-
+ 
   
 
   const currentPage = location.pathname.substring(1);

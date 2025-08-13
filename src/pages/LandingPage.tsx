@@ -22,9 +22,8 @@ const LandingPage: React.FC = () => {
   //   Array<{ id: number; x: number; y: number; timestamp: number }>
   // >([]);
   const [user, setUser] = useState<User | null>(null);
- const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
-
+const dropdownRef = useRef<HTMLDivElement>(null);
+const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
   // Load user data
   useEffect(() => {
     const userData = localStorage.getItem("user");

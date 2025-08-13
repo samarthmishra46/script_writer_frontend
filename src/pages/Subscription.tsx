@@ -42,7 +42,7 @@ function getUserFromLocalStorage(): UserData {
         ...parsedUser,
       };
     }
-    console.log("User data loaded:", user);
+   
   } catch (err) {
     console.error("Error parsing user data from localStorage:", err);
   }
@@ -60,6 +60,8 @@ const Subscription: React.FC = () => {
     plan: string;
     remainingDays: number;
     nextBillingDate?: Date;
+    startDate?:Date;
+    endDate?:Date;
   }>({
     isActive: false,
     plan: 'free',
@@ -296,7 +298,12 @@ const Subscription: React.FC = () => {
             
             <div className="mt-6 mb-2">
               <div className="text-5xl font-bold text-green-800">
-                {subscriptionData.remainingDays}
+                {subscriptionData.startDate && subscriptionData.endDate
+                  ? Math.ceil(
+                      (subscriptionData.endDate.getTime() - subscriptionData.startDate.getTime()) /
+                      (1000 * 60 * 60 * 24)
+                    )
+                  : subscriptionData.remainingDays}
                 <span className="text-xl font-normal text-green-600 ml-2">days left</span>
               </div>
               {subscriptionData.nextBillingDate && (

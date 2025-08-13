@@ -18,6 +18,8 @@ import ProtectedRoute from './components/ProtectedRoute';
 import ScriptGroup from './pages/ScriptGroup';
 import Settings from './pages/Settings';
 import { BrandsProvider } from './context/BrandsContext';
+import { OrderTimerProvider } from "./context/OrderTimerContext"; // <-- 1. IMPORT
+
 
 function App() {
   // Use environment variable for client ID
@@ -29,6 +31,7 @@ function App() {
   return (
     <GoogleOAuthProvider clientId={googleClientId}>
       <BrandsProvider>
+       <OrderTimerProvider> 
         <Router>
           <div className="App">
             <Toaster 
@@ -94,6 +97,8 @@ function App() {
         </Routes>
       </div>
     </Router>
+     
+    </OrderTimerProvider>
       </BrandsProvider>
     </GoogleOAuthProvider>
   );

@@ -251,7 +251,70 @@ const ScriptGroup: React.FC = () => {
       setIsLoading(false);
     }
   };
-
+const handleDeleteScript = async (scriptId: string) => {
+    if (window.confirm('Are you sure you want to delete this script?')) {
+      try {
+        setIsLoading(true);
+        const token = localStorage.getItem('token');
+        if (!token) {
+          setError('Authentication required');
+          return;
+        }
+        
+        const response = await fetch(buildApiUrl(`api/scripts/${scriptId}`), {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        if (!response.ok) {
+          throw new Error('Failed to delete script');
+        }
+        
+        // Fetch updated scripts after deletion
+        await fetchScripts();
+        
+        // Update the refresh trigger for local state
+        setSidebarRefreshTrigger(prev => prev + 1);
+        
+        // Also refresh sidebar in context
+        brandsContext.refreshSidebar();
+        
+        // If the deleted script was the selected one, select another script or navigate to dashboard
+        if (selectedScript && selectedScript._id === scriptId) {
+          if (scripts.length > 1) {
+            // Find the next available script
+            const remainingScripts = scripts.filter(s => s._id !== scriptId);
+            if (remainingScripts.length > 0) {
+              const newSelectedScript = remainingScripts[0];
+              setSelectedScript(newSelectedScript);
+              
+              // Navigate to the new script
+              navigate(
+                `/script-group/${encodeURIComponent(
+                  brandName || ""
+                )}/${encodeURIComponent(product || "")}/${newSelectedScript._id}`,
+                { replace: true }
+              );
+            } else {
+              // If no scripts left for this brand/product, go back to dashboard
+              navigate('/dashboard');
+            }
+          } else {
+            // If this was the only script, go back to dashboard
+            navigate('/dashboard');
+          }
+        }
+      } catch (error) {
+        console.error('Error deleting script:', error);
+        setError('Failed to delete script. Please try again.');
+      } finally {
+        setIsLoading(false);
+      }
+    }
+  };
   // Handle script regeneration
   const handleRegenerate = async () => {
     if (!selectedScript || !regenerationPrompt.trim()) return;
@@ -652,7 +715,14 @@ const ScriptGroup: React.FC = () => {
                         <RefreshCw className="w-4 h-4 mr-1" />
                         <span className="text-sm">Regenerate </span>
                       </button>
-
+                      <button
+                        onClick={() => handleDeleteScript(selectedScript._id)}
+                        className="flex items-center px-3 py-1 text-xs bg-red-100 text-red-700 hover:bg-red-200 rounded-full transition-colors"
+                        title="Delete script"
+                      >
+                        <X className="w-3 h-3 mr-1" />
+                        Delete
+                      </button>
                       <button
                         onClick={() => toggleLike(selectedScript)}
                         className={`

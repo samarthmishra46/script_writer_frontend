@@ -61,7 +61,7 @@ const Sidebar: React.FC<SidebarProps> = ({
         ...parsedUser
       };
     }
-    console.log("User data loaded:", user); // Debug log
+  
   } catch (err) {
     console.error("Error parsing user data from localStorage:", err);
   }
@@ -81,13 +81,16 @@ const Sidebar: React.FC<SidebarProps> = ({
   
   // Save brands data from dashboard to context
   useEffect(() => {
-    
-    
-    if (source === 'dashboard' && brandsData && brandsData.length > 0 && !brandsLoading) {
-     
+    // Only update if source is dashboard, there is data, and it's different from what's in context
+    if (source === 'dashboard' && 
+        brandsData && 
+        brandsData.length > 0 && 
+        !brandsLoading && 
+        JSON.stringify(brandsData) !== JSON.stringify(brandsContext.brands)) {
+      
       brandsContext.updateBrands(brandsData);
     }
-  }, [source, brandsData, brandsLoading, brandsContext]);
+  }, [source, brandsData, brandsLoading, brandsContext.brands, brandsContext.updateBrands]);
 
   // Convert brandsData to the format used by the component
   const companies: Company[] = (effectiveBrandsData || []).map(brand => {

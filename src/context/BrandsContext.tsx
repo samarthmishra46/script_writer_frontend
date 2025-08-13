@@ -1,4 +1,4 @@
-import React, { createContext, useState, ReactNode } from 'react';
+import React, { createContext, useState, ReactNode, useCallback } from 'react';
 
 // Define the Brand interface
 interface Brand {
@@ -40,18 +40,21 @@ export const BrandsProvider: React.FC<BrandsProviderProps> = ({ children }) => {
   const [error, setError] = useState<string | null>(null);
   const [lastUpdated, setLastUpdated] = useState<number>(0);
 
-  // Function to update brands data
-  const updateBrands = (newBrands: Brand[]) => {
-    setBrands(newBrands);
-    setLoading(false);
-    setError(null);
-    setLastUpdated(Date.now());
-  };
+  // Function to update brands data - memoized with useCallback
+  const updateBrands = useCallback((newBrands: Brand[]) => {
+    // Only update if the brands have actually changed
+    if (JSON.stringify(brands) !== JSON.stringify(newBrands)) {
+      setBrands(newBrands);
+      setLoading(false);
+      setError(null);
+      setLastUpdated(Date.now());
+    }
+  }, [brands]);
 
-  // Function to trigger a sidebar refresh
-  const refreshSidebar = () => {
+  // Function to trigger a sidebar refresh - memoized with useCallback
+  const refreshSidebar = useCallback(() => {
     setLastUpdated(Date.now());
-  };
+  }, []);
 
   // The value provided by the context
   const value = {
