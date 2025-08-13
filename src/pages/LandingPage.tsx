@@ -119,13 +119,13 @@ const LandingPage: React.FC = () => {
               <span className="font-bold bg-gradient-to-r from-[#CB6CE6] to-[#2D65F5] bg-clip-text text-transparent transition-all duration-300 hover:scale-105 inline-block">
                 Leepi AI
               </span>{" "}
-              Gives You Unlimited Ad Scripts/ Hooks/ Ideas Trained On 50Cr Of
+              Gives You Unlimited Ad Scripts Trained On 50Cr Of
               Meta Ad Spend
             </div>
           </div>
           <div>
             <p className="text-lg sm:text-xl md:text-2xl text-gray-700 max-w-3xl mx-auto mb-8">
-              Your Dream ROAS, Dream Revenue Milestone Might Just Be One Winning
+            Your Dream ROAS & Dream Revenue Milestone Are Just One Winning
               Ad Script Away!
             </p>
           </div>
@@ -142,7 +142,7 @@ const LandingPage: React.FC = () => {
           <TryButton />
 
           <p className="relative group  text-base sm:text-lg px-2 leading-relaxed ml-10 mr-10">
-            Generate Unlimited Winning Ad Scripts, If at least 3 ad scripts
+            Generate Unlimited Winning Ad Scripts. If at least 3 ad scripts
             don’t work, 100% money back
           </p>
         </div>
