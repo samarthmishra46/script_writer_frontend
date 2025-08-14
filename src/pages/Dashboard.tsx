@@ -4,8 +4,7 @@ import {
   Search,
   FolderPlus,
   Loader2,
-  Video,
-  X,
+ 
   Menu,
   Plus,
 } from "lucide-react";
@@ -13,7 +12,7 @@ import { buildApiUrl } from "../config/api";
 import Sidebar from "../components/Sidebar";
 import Header from "../components/Header";
 import SubscriptionBanner from "../components/SubscriptionBanner";
-import StoryboardGenerator from "../components/StoryboardGenerator";
+//import StoryboardGenerator from "../components/StoryboardGenerator";
 import { useBrands } from "../context/useBrands";
 
 interface Script {
@@ -52,18 +51,18 @@ const Dashboard: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedScriptId, setSelectedScriptId] = useState<string | null>(null);
-  const [showStoryboard, setShowStoryboard] = useState(false);
-  const [hasStoryboardAccess, setHasStoryboardAccess] = useState<
-    boolean | null
-  >(null);
-  const [checkingAccess, setCheckingAccess] = useState(false);
+  //const [selectedScriptId, setSelectedScriptId] = useState<string | null>(null);
+  //const [showStoryboard, setShowStoryboard] = useState(false);
+  // const [hasStoryboardAccess, setHasStoryboardAccess] = useState<
+  //   boolean | null
+  // >(null);
+  //const [checkingAccess, setCheckingAccess] = useState(false);
   const [brands, setBrands] = useState<Brand[]>([]);
   const [brandsLoading, setBrandsLoading] = useState(false);
   const [brandsError, setBrandsError] = useState<string | null>(null);
   const [sidebarRefreshTrigger, setSidebarRefreshTrigger] = useState(0);
   const [showMobileSidebar, setShowMobileSidebar] = useState(false);
-  const [sortOption, setSortOption] = useState("newest");
+ // const [sortOption, setSortOption] = useState("newest");
   const location = useLocation();
   const navigate = useNavigate();
   const brandsContext = useBrands();
@@ -198,35 +197,35 @@ const Dashboard: React.FC = () => {
   }, []);
 
   // Check if user has access to storyboard generation
-  const checkStoryboardAccess = useCallback(async () => {
-    setCheckingAccess(true);
-    try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        setHasStoryboardAccess(false);
-        return;
-      }
+  // const checkStoryboardAccess = useCallback(async () => {
+  //   setCheckingAccess(true);
+  //   try {
+  //     const token = localStorage.getItem("token");
+  //     if (!token) {
+  //       setHasStoryboardAccess(false);
+  //       return;
+  //     }
 
-      const response = await fetch(buildApiUrl("api/storyboard/status"), {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+  //     const response = await fetch(buildApiUrl("api/storyboard/status"), {
+  //       headers: {
+  //         Authorization: `Bearer ${token}`,
+  //       },
+  //     });
 
-      if (!response.ok) {
-        setHasStoryboardAccess(false);
-        return;
-      }
+  //     if (!response.ok) {
+  //       setHasStoryboardAccess(false);
+  //       return;
+  //     }
 
-      const data = await response.json();
-      setHasStoryboardAccess(data.storyboardAccess || false);
-    } catch (error) {
-      console.error("Error checking storyboard access:", error);
-      setHasStoryboardAccess(false);
-    } finally {
-      setCheckingAccess(false);
-    }
-  }, []);
+  //     const data = await response.json();
+  //     setHasStoryboardAccess(data.storyboardAccess || false);
+  //   } catch (error) {
+  //     console.error("Error checking storyboard access:", error);
+  //     setHasStoryboardAccess(false);
+  //   } finally {
+  //     setCheckingAccess(false);
+  //   }
+  // }, []);
 
   useEffect(() => {
     const hash = location.hash;
@@ -249,8 +248,8 @@ const Dashboard: React.FC = () => {
   // Fetch scripts on component mount
   useEffect(() => {
     fetchScripts();
-    checkStoryboardAccess();
-  }, [fetchScripts, checkStoryboardAccess]);
+   
+  }, [fetchScripts]);
 
   // Extract brands from scripts when scripts change
   useEffect(() => {
@@ -308,40 +307,29 @@ const Dashboard: React.FC = () => {
 
     // Sort based on the current sort option
     const sortedArray = [...groupsArray];
-    if (sortOption === "newest") {
-      sortedArray.sort(
-        (a, b) => b.latestDate.getTime() - a.latestDate.getTime()
-      );
-    } else if (sortOption === "oldest") {
-      sortedArray.sort(
-        (a, b) => a.latestDate.getTime() - b.latestDate.getTime()
-      );
-    } else if (sortOption === "name") {
-      sortedArray.sort((a, b) => a.brand_name.localeCompare(b.brand_name));
-    }
-
+    
     setScriptGroups(sortedArray);
-  }, [scripts, sortOption]);
+  }, [scripts]);
 
   // Handle storyboard generation button click
-  const handleStoryboardGeneration = (scriptId: string) => {
-    if (hasStoryboardAccess) {
-      setSelectedScriptId(scriptId);
-      setShowStoryboard(true);
-    } else if (hasStoryboardAccess === false) {
-      // Redirect to subscription page or show a modal
-      const confirmUpgrade = window.confirm(
-        "Storyboard generation requires an Individual or Organization plan. Would you like to upgrade your subscription?"
-      );
+  // const handleStoryboardGeneration = (scriptId: string) => {
+  //   if (hasStoryboardAccess) {
+  //     setSelectedScriptId(scriptId);
+  //     setShowStoryboard(true);
+  //   } else if (hasStoryboardAccess === false) {
+  //     // Redirect to subscription page or show a modal
+  //     const confirmUpgrade = window.confirm(
+  //       "Storyboard generation requires an Individual or Organization plan. Would you like to upgrade your subscription?"
+  //     );
 
-      if (confirmUpgrade) {
-        window.location.href = "/subscription";
-      }
-    } else {
-      // Still checking access
-      alert("Please wait, checking subscription status...");
-    }
-  };
+  //     if (confirmUpgrade) {
+  //       window.location.href = "/subscription";
+  //     }
+  //   } else {
+  //     // Still checking access
+  //     alert("Please wait, checking subscription status...");
+  //   }
+  // };
 
   const filteredGroups = scriptGroups.filter(
     (group) =>
@@ -547,7 +535,7 @@ const Dashboard: React.FC = () => {
           )}
 
           {/* Storyboard Modal */}
-          {showStoryboard && selectedScriptId && (
+          {/* {showStoryboard && selectedScriptId && (
             <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
               <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
                 <div className="flex justify-between items-center border-b p-4">
@@ -564,7 +552,7 @@ const Dashboard: React.FC = () => {
                 </div>
               </div>
             </div>
-          )}
+          )} */}
         </main>
       </div>
     </div>

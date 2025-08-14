@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Check, Star, Zap, Crown, ChevronDown, User, LogOut, Home } from 'lucide-react';
+import { Check, Star, Zap, Crown, User } from 'lucide-react';
 import Header from '../components/HeaderLanding';
 
 interface User {

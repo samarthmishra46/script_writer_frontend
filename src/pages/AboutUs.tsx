@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Users, Target, Award, Lightbulb, Heart, Zap, Star, TrendingUp, ChevronDown, User, LogOut, Home } from 'lucide-react';
+import { Users, Target, Award, Lightbulb, Heart, Zap, Star, TrendingUp,  User } from 'lucide-react';
 import Header from '../components/HeaderLanding';
 
 interface User {
@@ -15,12 +15,11 @@ interface User {
 
 const AboutUs: React.FC = () => {
   const navigate = useNavigate();
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-  const [ripples, setRipples] = useState<Array<{ id: number; x: number; y: number; timestamp: number }>>([]);
+  
+ 
   const [user, setUser] = useState<User | null>(null);
-  const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
-  const userDropdownRef = useRef<HTMLDivElement>(null);
-
+ 
+  
   // Load user data
   useEffect(() => {
     const userData = localStorage.getItem('user');
@@ -30,18 +29,7 @@ const AboutUs: React.FC = () => {
   }, []);
 
   // Handle click outside dropdown
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (userDropdownRef.current && !userDropdownRef.current.contains(event.target as Node)) {
-        setIsUserDropdownOpen(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, []);
+  
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -56,33 +44,7 @@ const AboutUs: React.FC = () => {
     return 'User';
   };
 
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      setMousePosition({ x: e.clientX, y: e.clientY });
-      
-      // Create ripple effect on mouse move
-      const newRipple = {
-        id: Date.now() + Math.random(),
-        x: e.clientX,
-        y: e.clientY,
-        timestamp: Date.now()
-      };
-      
-      setRipples(prev => [...prev.slice(-5), newRipple]); // Keep only last 5 ripples
-    };
-
-    window.addEventListener('mousemove', handleMouseMove);
-    
-    // Clean up old ripples
-    const cleanup = setInterval(() => {
-      setRipples(prev => prev.filter(ripple => Date.now() - ripple.timestamp < 2000));
-    }, 100);
-
-    return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      clearInterval(cleanup);
-    };
-  }, []);
+  
 
   const team = [
     {

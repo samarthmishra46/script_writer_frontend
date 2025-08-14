@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Mail, Phone, MapPin, Send, MessageCircle, Clock, ChevronDown, User, LogOut, Home } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import {  useNavigate } from 'react-router-dom';
+import { Mail, Phone, MapPin, Send, MessageCircle, Clock, User} from 'lucide-react';
 import Header from '../components/HeaderLanding';
 
 interface User {
@@ -16,10 +16,10 @@ interface User {
 const ContactUs: React.FC = () => {
   const navigate = useNavigate();
   //const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-  const [ripples, setRipples] = useState<Array<{ id: number; x: number; y: number; timestamp: number }>>([]);
+ 
   const [user, setUser] = useState<User | null>(null);
   //const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
-  const userDropdownRef = useRef<HTMLDivElement>(null);
+
   const [formData, setFormData] = useState({
     name: '',
     email: '',

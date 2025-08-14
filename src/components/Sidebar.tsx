@@ -215,7 +215,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                   {/* Brand header - make touch friendly */}
                   <button
                     onClick={() => toggleBrandExpansion(company.brand_name)}
-                    className="w-full text-left px-3 py-4 md:py-3 text-[#272727] hover:text-white hover:bg-[#474747] rounded-lg transition-all duration-200 group relative flex items-center justify-between"
+                    className="w-full text-left px-3 py-4 md:py-3 text-[#272727]  hover:bg-[#a8adb5] rounded-lg transition-all duration-200 group relative flex items-center justify-between"
                   >
                     <div className="flex items-start space-x-3 flex-1">
                       <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center flex-shrink-0">
@@ -227,7 +227,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                       </div>
                       
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium truncate group-hover:text-white">
+                        <p className="text-sm font-medium truncate group-hover:text-black">
                           {company.brand_name || "Unknown Brand"}
                         </p>
                         <p className="text-xs text-gray-400 group-hover:text-[#272727] mt-1">
@@ -243,13 +243,13 @@ const Sidebar: React.FC<SidebarProps> = ({
                         className="w-6 h-6 rounded-full hover:bg-gray-600 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
                         title={`Create script for ${company.brand_name}`}
                       >
-                        <FolderPlus className="w-3 h-3 text-[#272727]" />
+                        <FolderPlus className="w-3 h-3 text-[#272727] hover:text-white" />
                       </button>
                       
                       {expandedBrands[company.brand_name] ? (
-                        <ChevronDown className="w-4 h-4 text-gray-400" />
+                        <ChevronDown className="w-4 h-4 text-gray-400 group-hover:text-black" />
                       ) : (
-                        <ChevronRight className="w-4 h-4 text-gray-400" />
+                        <ChevronRight className="w-4 h-4 text-gray-400 group-hover:text-black" />
                       )}
                     </div>
                     
