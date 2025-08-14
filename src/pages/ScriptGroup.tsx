@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import ReactMarkdown from 'react-markdown';
 import {
   Loader2,
   ChevronLeft,
@@ -13,14 +14,13 @@ import {
   Menu,
   ChevronUp,
   ChevronDown,
-  Phone,
   HelpCircle,
   Calendar,
   MessageSquare,
+  Plus,
 } from "lucide-react";
 import { buildApiUrl } from "../config/api";
 import Sidebar from "../components/Sidebar";
-import Header from "../components/Header";
 import StoryboardGenerator from "../components/StoryboardGenerator";
 import { useBrands } from "../context/useBrands";
 
@@ -65,7 +65,6 @@ const ScriptGroup: React.FC = () => {
 
   // New states for mobile responsiveness
   const [showMobileSidebar, setShowMobileSidebar] = useState(false);
-  const [showScriptSelector, setShowScriptSelector] = useState(false);
 
   // Brand data for sidebar
   const [brands, setBrands] = useState<
@@ -108,6 +107,7 @@ const ScriptGroup: React.FC = () => {
     }
 
     fetchScripts();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [brandName, product]);
 
   // Set the selected script based on URL parameter
@@ -125,7 +125,7 @@ const ScriptGroup: React.FC = () => {
   }, [scripts, scriptId]);
 
   // Helper function to extract brand and product information from scripts
-  const extractBrandsFromScripts = (scripts: Script[]) => {
+  const extractBrandsFromScripts = useCallback((scripts: Script[]) => {
     setBrandsLoading(true);
     try {
       const brandsMap = new Map<
@@ -177,9 +177,9 @@ const ScriptGroup: React.FC = () => {
     } finally {
       setBrandsLoading(false);
     }
-  };
+  }, [brandsContext]);
 
-  const fetchScripts = async () => {
+  const fetchScripts = useCallback(async () => {
     try {
       setIsLoading(true);
       setError(null);
@@ -232,7 +232,7 @@ const ScriptGroup: React.FC = () => {
       );
 
       // Add formatted dates and script numbers
-      filteredScripts.forEach((script: Script, index: number) => {
+      filteredScripts.forEach((script: Script) => {
         script.formattedDate = new Date(script.createdAt).toLocaleDateString(
           "en-US",
           {
@@ -250,8 +250,9 @@ const ScriptGroup: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  };
-const handleDeleteScript = async (scriptId: string) => {
+  }, [brandName, product, navigate, extractBrandsFromScripts]);
+
+  const handleDeleteScript = async (scriptId: string) => {
     if (window.confirm('Are you sure you want to delete this script?')) {
       try {
         setIsLoading(true);
@@ -315,6 +316,7 @@ const handleDeleteScript = async (scriptId: string) => {
       }
     }
   };
+
   // Handle script regeneration
   const handleRegenerate = async () => {
     if (!selectedScript || !regenerationPrompt.trim()) return;
@@ -466,65 +468,53 @@ const handleDeleteScript = async (scriptId: string) => {
     }
   };
 
-  // First, let's add a function to parse and format Markdown text
-  const formatMarkdownText = (markdownText: string): React.ReactNode => {
-    if (!markdownText) return null;
-
-    // Split text into lines to process each paragraph
-    const lines = markdownText.split("\n");
-
-    return lines.map((line, lineIndex) => {
-      // Skip empty lines but preserve them as spacing
-      if (line.trim() === "") {
-        return <br key={`line-${lineIndex}`} />;
-      }
-
-      // Process the line for bold text (text between ** or __ markers)
-      const segments: React.ReactNode[] = [];
-      let lastIndex = 0;
-      let boldPattern = /(\*\*|__)(.*?)\1/g;
-      let match;
-
-      while ((match = boldPattern.exec(line)) !== null) {
-        // Add text before the bold section
-        if (match.index > lastIndex) {
-          segments.push(
-            <span key={`${lineIndex}-text-${lastIndex}`}>
-              {line.substring(lastIndex, match.index)}
-            </span>
-          );
-        }
-
-        // Add the bold text
-        segments.push(
-          <strong key={`${lineIndex}-bold-${match.index}`}>
-            {match[2]}{" "}
-            {/* match[2] contains the text inside ** or __ markers */}
-          </strong>
-        );
-
-        lastIndex = match.index + match[0].length;
-      }
-
-      // Add any remaining text after the last bold section
-      if (lastIndex < line.length) {
-        segments.push(
-          <span key={`${lineIndex}-text-end`}>{line.substring(lastIndex)}</span>
-        );
-      }
-
-      // If no bold markers were found, return the whole line
-      if (segments.length === 0) {
-        segments.push(<span key={`${lineIndex}-text-full`}>{line}</span>);
-      }
-
-      // Return the formatted line with a line break
-      return (
-        <p key={`line-${lineIndex}`} className="mb-2">
-          {segments}
-        </p>
-      );
-    });
+  // Custom components for ReactMarkdown with enhanced styling
+  const MarkdownComponents = {
+    h1: ({ ...props }: React.HTMLProps<HTMLHeadingElement>) => (
+      <h1 className="text-2xl md:text-3xl font-bold mb-4 text-purple-700 border-b-2 border-purple-200 pb-2" {...props} />
+    ),
+    h2: ({ ...props }: React.HTMLProps<HTMLHeadingElement>) => (
+      <h2 className="text-xl md:text-2xl font-bold mb-3 text-blue-700 border-b border-blue-100 pb-1" {...props} />
+    ),
+    h3: ({ ...props }: React.HTMLProps<HTMLHeadingElement>) => (
+      <h3 className="text-lg md:text-xl font-semibold mb-2 text-green-700" {...props} />
+    ),
+    h4: ({ ...props }: React.HTMLProps<HTMLHeadingElement>) => (
+      <h4 className="text-base md:text-lg font-medium mb-2 text-orange-600" {...props} />
+    ),
+    p: ({ ...props }: React.HTMLProps<HTMLParagraphElement>) => (
+      <p className="mb-3 text-gray-800 leading-relaxed text-sm md:text-base" {...props} />
+    ),
+    strong: ({ ...props }: React.HTMLProps<HTMLElement>) => (
+      <strong className="font-bold text-indigo-700 bg-indigo-50 px-1 rounded" {...props} />
+    ),
+    em: ({ ...props }: React.HTMLProps<HTMLElement>) => (
+      <em className="italic text-pink-600 bg-pink-50 px-1 rounded" {...props} />
+    ),
+    ul: ({ ...props }: React.HTMLProps<HTMLUListElement>) => (
+      <ul className="list-disc pl-6 mb-4 space-y-2" {...props} />
+    ),
+    ol: ({ ...props }: React.HTMLProps<HTMLOListElement>) => (
+      <ol className="list-decimal pl-6 mb-4 space-y-2" {...(props as React.OlHTMLAttributes<HTMLOListElement>)} />
+    ),
+    li: ({ ...props }: React.HTMLProps<HTMLLIElement>) => (
+      <li className="text-gray-800 leading-relaxed text-sm md:text-base" {...props} />
+    ),
+    blockquote: ({ ...props }: React.HTMLProps<HTMLQuoteElement>) => (
+      <blockquote className="border-l-4 border-yellow-400 pl-4 italic text-gray-700 bg-yellow-50 py-2 my-4 rounded-r" {...props} />
+    ),
+    a: ({ ...props }: React.HTMLProps<HTMLAnchorElement>) => (
+      <a className="text-blue-600 hover:text-blue-800 underline hover:bg-blue-50 px-1 rounded transition-colors" {...props} />
+    ),
+    code: ({ ...props }: React.HTMLProps<HTMLElement>) => (
+      <code className="bg-gray-200 px-2 py-1 rounded text-sm font-mono text-gray-900 border" {...props} />
+    ),
+    pre: ({ ...props }: React.HTMLProps<HTMLPreElement>) => (
+      <pre className="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto mb-4 text-sm border" {...props} />
+    ),
+    hr: ({ ...props }: React.HTMLProps<HTMLHRElement>) => (
+      <hr className="border-gray-300 my-6" {...props} />
+    ),
   };
 
   return (
@@ -565,8 +555,6 @@ const handleDeleteScript = async (scriptId: string) => {
       </div>
 
       <div className="flex-1 flex flex-col overflow-hidden">
-       
-
         {/* Main content area with fixed sidebar */}
         <div className="flex-1 flex overflow-hidden">
           {/* Scrollable main content */}
@@ -695,111 +683,144 @@ const handleDeleteScript = async (scriptId: string) => {
 
               {/* Script Content */}
               {!isLoading && selectedScript && (
-                <div className="bg-white rounded-lg shadow">
-                  <div className="border-b border-gray-200 p-3 md:p-4 flex flex-wrap justify-between items-center gap-2">
-                    <div>
-                      <h3 className="font-bold text-md md:text-lg">
-                        {selectedScript.title}
-                      </h3>
-                      <p className="text-xs md:text-sm text-gray-500">
-                        Created on {selectedScript.formattedDate}
-                      </p>
-                    </div>
-
-                    <div className="flex flex-wrap gap-2">
-                      {/* Action buttons */}
-                      <button
-                        onClick={() => setShowRegenerateModal(true)}
-                        className="p-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg hover:from-blue-600 hover:to-purple-700 flex items-center transition-colors md:hidden"
-                      >
-                        <RefreshCw className="w-4 h-4 mr-1" />
-                        <span className="text-sm">Regenerate </span>
-                      </button>
-                      <button
-                        onClick={() => handleDeleteScript(selectedScript._id)}
-                        className="flex items-center px-3 py-1 text-xs bg-red-100 text-red-700 hover:bg-red-200 rounded-full transition-colors"
-                        title="Delete script"
-                      >
-                        <X className="w-3 h-3 mr-1" />
-                        Delete
-                      </button>
-                      <button
-                        onClick={() => toggleLike(selectedScript)}
-                        className={`
-                          p-2 rounded-lg flex items-center justify-center transition-colors
-                          ${
-                            selectedScript.liked
-                              ? "text-red-500 bg-red-50 hover:bg-red-100"
-                              : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
-                          }
-                        `}
-                        title={
-                          selectedScript.liked ? "Unlike script" : "Like script"
-                        }
-                        disabled={isLiking}
-                      >
-                        <Heart
-                          className={`w-5 h-5 ${
-                            selectedScript.liked ? "fill-current" : ""
-                          }`}
-                        />
-                      </button>
-
-                      <button
-                        onClick={handleCopyScript}
-                        className="p-2 rounded-lg hover:bg-gray-100 flex items-center justify-center text-gray-600 hover:text-gray-900"
-                        title="Copy script"
-                      >
-                        <Copy className="w-5 h-5" />
-                        {isCopied && (
-                          <span className="ml-1 text-xs text-green-600">
-                            Copied!
+                <div className="bg-white rounded-xl shadow-lg border border-gray-100">
+                  <div className="border-b border-gray-200 p-4 md:p-5 bg-gradient-to-r from-purple-50 to-blue-50 rounded-t-xl">
+                    <div className="flex flex-wrap justify-between items-start gap-3">
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-bold text-lg md:text-xl text-gray-900 mb-1 truncate">
+                          {selectedScript.title}
+                        </h3>
+                        <div className="flex items-center gap-4 text-xs md:text-sm text-gray-600">
+                          <span className="flex items-center gap-1">
+                            <Calendar className="w-4 h-4" />
+                            Created on {selectedScript.formattedDate}
                           </span>
-                        )}
-                      </button>
+                          <span className="flex items-center gap-1">
+                            {selectedScript.liked ? (
+                              <Heart className="w-4 h-4 fill-red-500 text-red-500" />
+                            ) : (
+                              <Heart className="w-4 h-4 text-gray-400" />
+                            )}
+                            {selectedScript.liked ? 'Liked' : 'Not liked'}
+                          </span>
+                        </div>
+                      </div>
 
-                      <button
-                        onClick={handleDownloadScript}
-                        className="p-2 rounded-lg hover:bg-gray-100 flex items-center justify-center text-gray-600 hover:text-gray-900"
-                        title="Download script"
-                      >
-                        <Download className="w-5 h-5" />
-                      </button>
+                      <div className="flex flex-wrap gap-2">
+                        {/* Action buttons */}
+                        <div className="flex items-center gap-1 bg-white rounded-lg p-1 shadow-sm border">
+                          <button
+                            onClick={() => toggleLike(selectedScript)}
+                            className={`
+                              p-2 rounded-md flex items-center justify-center transition-all duration-200
+                              ${
+                                selectedScript.liked
+                                  ? "text-red-500 bg-red-50 hover:bg-red-100"
+                                  : "text-gray-600 hover:bg-gray-100 hover:text-red-500"
+                              }
+                            `}
+                            title={
+                              selectedScript.liked ? "Unlike script" : "Like script"
+                            }
+                            disabled={isLiking}
+                          >
+                            <Heart
+                              className={`w-4 h-4 ${
+                                selectedScript.liked ? "fill-current" : ""
+                              }`}
+                            />
+                          </button>
 
-                      <button
-                        onClick={() => setShowStoryboard(true)}
-                        className="p-2 rounded-lg hover:bg-gray-100 flex items-center justify-center text-gray-600 hover:text-gray-900"
-                        title="Generate storyboard"
-                      >
-                        <Video className="w-5 h-5" />
-                      </button>
+                          <button
+                            onClick={handleCopyScript}
+                            className="p-2 rounded-md hover:bg-gray-100 flex items-center justify-center text-gray-600 hover:text-green-600 transition-all duration-200"
+                            title="Copy script"
+                          >
+                            <Copy className="w-4 h-4" />
+                          </button>
+
+                          <button
+                            onClick={handleDownloadScript}
+                            className="p-2 rounded-md hover:bg-gray-100 flex items-center justify-center text-gray-600 hover:text-blue-600 transition-all duration-200"
+                            title="Download script"
+                          >
+                            <Download className="w-4 h-4" />
+                          </button>
+
+                          <button
+                            onClick={() => setShowStoryboard(true)}
+                            className="p-2 rounded-md hover:bg-gray-100 flex items-center justify-center text-gray-600 hover:text-purple-600 transition-all duration-200"
+                            title="Generate storyboard"
+                          >
+                            <Video className="w-4 h-4" />
+                          </button>
+                          
+                          <button
+                            onClick={() => handleDeleteScript(selectedScript._id)}
+                            className="p-2 rounded-md hover:bg-red-50 flex items-center justify-center text-gray-600 hover:text-red-600 transition-all duration-200"
+                            title="Delete script"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+                        
+                        {/* Mobile regenerate button */}
+                        <button
+                          onClick={() => setShowRegenerateModal(true)}
+                          className="md:hidden px-3 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg hover:from-blue-600 hover:to-purple-700 flex items-center transition-all duration-200 shadow-sm"
+                        >
+                          <RefreshCw className="w-4 h-4 mr-1" />
+                          <span className="text-sm">Regenerate</span>
+                        </button>
+                      </div>
                     </div>
+                    
+                    {/* Copy success message */}
+                    {isCopied && (
+                      <div className="mt-2 text-xs text-green-600 flex items-center gap-1">
+                        <div className="w-1 h-1 bg-green-600 rounded-full"></div>
+                        Script copied to clipboard!
+                      </div>
+                    )}
                   </div>
 
-                  <div className="p-3 md:p-4 whitespace-pre-wrap font-mono text-xs md:text-sm bg-gray-50 rounded-b-lg min-h-[40vh] md:min-h-[60vh] overflow-y-auto">
-                    {formatMarkdownText(selectedScript.content)}
+                  <div className="p-4 md:p-6 bg-gradient-to-br from-gray-50 to-white rounded-b-lg min-h-[40vh] md:min-h-[60vh] overflow-y-auto border-t">
+                    <div className="max-w-none prose prose-sm md:prose-base prose-gray">
+                      <ReactMarkdown components={MarkdownComponents}>
+                        {selectedScript.content}
+                      </ReactMarkdown>
+                    </div>
                   </div>
                 </div>
               )}
 
               {!isLoading && !selectedScript && scripts.length > 0 && (
-                <div className="bg-white rounded-lg shadow p-8 text-center">
-                  <p className="text-gray-500">
+                <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-8 text-center">
+                  <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <MessageSquare className="w-8 h-8 text-purple-600" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">No Script Selected</h3>
+                  <p className="text-gray-600 mb-4">
                     Select a script from the dropdown above to view its content
                   </p>
                 </div>
               )}
 
               {!isLoading && scripts.length === 0 && (
-                <div className="bg-white rounded-lg shadow p-8 text-center">
-                  <p className="text-gray-500">
-                    No scripts found for this brand and product
+                <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-8 text-center">
+                  <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <HelpCircle className="w-8 h-8 text-yellow-600" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">No Scripts Found</h3>
+                  <p className="text-gray-600 mb-6">
+                    No scripts found for <strong>{decodeURIComponent(brandName || '')}</strong> - <strong>{decodeURIComponent(product || '')}</strong>
                   </p>
                   <button
                     onClick={() => navigate("/create-script")}
-                    className="mt-4 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+                    className="px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all duration-200 shadow-sm flex items-center gap-2 mx-auto"
                   >
-                    Create your first script
+                    <Plus className="w-4 h-4" />
+                    Create Your First Script
                   </button>
                 </div>
               )}
@@ -994,8 +1015,6 @@ const handleDeleteScript = async (scriptId: string) => {
           </div>
         </div>
       )}
-
-      {/* Regeneration Loading Overlay with Siri-like animation */}
     </div>
   );
 };
