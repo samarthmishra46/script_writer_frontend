@@ -5,6 +5,7 @@ import Header from "../components/HeaderLanding";
 import { Brandcompo } from "../components/BrandWorked";
 import { NoCommit } from "../components/Nocommit";
 import { TryButton } from "../components/TryButton";
+import CompanyGrid from "../components/CompneyGrid";
 interface User {
   id: string;
   name: string;
@@ -259,13 +260,7 @@ const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
           </h3>
 
           {/* Image */}
-          <div className="flex justify-center mb-8">
-            <img
-              src="https://res.cloudinary.com/dvxqb1wge/image/upload/v1754980415/image_274_1_xcnssg.png"
-              alt="Leepi AI Ads Example"
-              className="w-full max-w-[700px] h-auto"
-            />
-          </div>
+          <CompanyGrid/>
 
           {/* CTA Button */}
           <TryButton />
