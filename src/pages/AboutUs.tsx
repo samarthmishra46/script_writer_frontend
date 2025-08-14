@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Users, Target, Award, Lightbulb, Heart, Zap, Star, TrendingUp, ChevronDown, User, LogOut, Home } from 'lucide-react';
+import Header from '../components/HeaderLanding';
 
 interface User {
   id: string;
@@ -146,149 +147,13 @@ const AboutUs: React.FC = () => {
 
   return (
     <div className="min-h-screen relative overflow-hidden">
-      {/* Cloudy Background */}
-      <div className="cloudy-background"></div>
-      
-      {/* Mouse-following gradient overlay */}
-      <div 
-        className="fixed inset-0 pointer-events-none z-0"
-        style={{
-          background: `
-            radial-gradient(600px circle at ${mousePosition.x}px ${mousePosition.y}px, 
-              rgba(255, 192, 203, 0.2), 
-              rgba(173, 216, 230, 0.15), 
-              transparent 40%)
-          `,
-        }}
-      />
-      
-      {/* Water Ripple Effects */}
-      {ripples.map((ripple) => (
-        <div
-          key={ripple.id}
-          className="absolute pointer-events-none"
-          style={{
-            left: ripple.x - 50,
-            top: ripple.y - 50,
-            width: '100px',
-            height: '100px',
-            borderRadius: '50%',
-            background: 'radial-gradient(circle, rgba(255, 192, 203, 0.4) 0%, rgba(173, 216, 230, 0.3) 30%, transparent 70%)',
-            animation: 'ripple 2s ease-out forwards',
-            zIndex: 1
-          }}
-        />
-      ))}
-
+     
       {/* Header */}
-      <header className="relative z-[9999]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center">
-              <Link to="/" className="group">
-                <h1 className="text-2xl font-bold bg-gradient-to-r from-pink-600 via-purple-600 to-blue-600 bg-clip-text text-transparent transition-all duration-300 group-hover:scale-105 animate-liquid-flow">
-                  Leepi AI
-                </h1>
-              </Link>
-            </div>
-            
-            <nav className="hidden md:flex items-center space-x-2">
-              <Link to="/" className="nav-item text-gray-700 hover:text-pink-600 transition-all duration-300 relative group px-4 py-2 rounded-lg">
-                <span className="relative z-10">Home</span>
-              </Link>
-              <Link to="/pricing" className="nav-item text-gray-700 hover:text-purple-600 transition-all duration-300 relative group px-4 py-2 rounded-lg">
-                <span className="relative z-10">Pricing</span>
-              </Link>
-              <Link to="/contact" className="nav-item text-gray-700 hover:text-blue-600 transition-all duration-300 relative group px-4 py-2 rounded-lg">
-                <span className="relative z-10">Contact Us</span>
-              </Link>
-              <Link to="/about" className="nav-item text-pink-600 transition-all duration-300 relative group px-4 py-2 rounded-lg font-semibold">
-                <span className="relative z-10">About Us</span>
-                <span className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-pink-600 via-blue-600 to-purple-600"></span>
-              </Link>
-            </nav>
-            
-            <div className="flex items-center space-x-4">
-              {user ? (
-                <div className="relative z-[10000]" ref={userDropdownRef}>
-                  <button
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      setIsUserDropdownOpen(!isUserDropdownOpen);
-                    }}
-                    className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-pink-500/20 via-purple-500/20 to-blue-500/20 backdrop-blur-sm rounded-lg text-gray-700 hover:bg-gradient-to-r hover:from-pink-500/30 hover:via-purple-500/30 hover:to-blue-500/30 transition-all duration-300 relative z-[10001]"
-                  >
-                    <User className="w-4 h-4" />
-                    <span>{getUserFirstName()}</span>
-                    <ChevronDown className="w-4 h-4" />
-                  </button>
-                  {isUserDropdownOpen && (
-                    <div 
-                      className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl py-2 z-[10002]"
-                      style={{ 
-                        pointerEvents: 'auto',
-                        position: 'absolute',
-                        zIndex: 10002
-                      }}
-                    >
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          setIsUserDropdownOpen(false);
-                          navigate('/dashboard');
-                        }}
-                        className="flex items-center space-x-2 w-full px-4 py-2 text-gray-800 hover:bg-gray-100 transition-colors cursor-pointer relative z-[10003]"
-                        style={{ 
-                          pointerEvents: 'auto',
-                          zIndex: 10003,
-                          position: 'relative'
-                        }}
-                      >
-                        <Home className="w-4 h-4" />
-                        <span>Dashboard</span>
-                      </button>
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          setIsUserDropdownOpen(false);
-                          handleLogout();
-                        }}
-                        className="flex items-center space-x-2 w-full px-4 py-2 text-gray-800 hover:bg-gray-100 transition-colors cursor-pointer relative z-[10003]"
-                        style={{ 
-                          pointerEvents: 'auto',
-                          zIndex: 10003,
-                          position: 'relative'
-                        }}
-                      >
-                        <LogOut className="w-4 h-4" />
-                        <span>Logout</span>
-                      </button>
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <>
-                  <Link to="/login" className="nav-item text-gray-700 hover:text-purple-600 transition-all duration-300 font-medium px-4 py-2 rounded-lg relative">
-                    <span className="relative z-10">Login</span>
-                  </Link>
-                  <Link
-                    to="/signup"
-                    className="px-6 py-2 bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 text-white rounded-lg hover:from-pink-600 hover:via-purple-600 hover:to-blue-600 transition-all duration-500 shadow-lg hover:shadow-xl hover:scale-105 transform btn-water animate-liquid-flow font-medium"
-                  >
-                    Sign Up
-                  </Link>
-                </>
-              )}
-            </div>
-          </div>
-        </div>
-      </header>
-
+    <Header
+            user={user}
+            getUserFirstName={getUserFirstName}
+            handleLogout={handleLogout}
+          />
       {/* Hero Section */}
       <section className="relative z-10 py-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto text-center">

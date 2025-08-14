@@ -6,6 +6,16 @@ interface BrandProps {
   resultadd: string;
   brandname: string;
 }
+function convertDriveUrl(url: string): string {  
+  const match = url.match(/\/d\/([a-zA-Z0-9_-]+)\//);
+  if (!match) {
+    throw new Error("Invalid Google Drive URL");
+  }
+  
+  const fileId = match[1];
+  return `https://drive.google.com/file/d/${fileId}/preview?autoplay=1&loop=1&playlist=${fileId}&mute=1`;
+}
+
 export function Brandcompo({brandname,videadd,scriptadd,resultadd}:BrandProps){
     return (
         <>
@@ -26,7 +36,7 @@ export function Brandcompo({brandname,videadd,scriptadd,resultadd}:BrandProps){
                     Final Ad
                   </h4>
                   <iframe
-                    src={videadd}
+                    src={convertDriveUrl(videadd)}
                     className="w-full aspect-[3/4] rounded-lg shadow"
                     allow="autoplay"
                   ></iframe>

@@ -41,10 +41,11 @@ export default function Header({ user, getUserFirstName, handleLogout }: HeaderP
           <div className=" relative flex items-center group">
             <Link
               to="/"
-              className="text-sm sm:text-base md:text-lg lg:text-xl font-bold bg-gradient-to-r from-[#CB6CE6] to-[#2D65F5] bg-clip-text text-transparent transition-all duration-300 group-hover:scale-105 animate-liquid-flow"
+              className="text-xl font-bold bg-gradient-to-r from-[#CB6CE6] to-[#2D65F5] bg-clip-text text-transparent transition-all duration-300 group-hover:scale-105 animate-liquid-flow"
             >
               Leepi AI
             </Link>
+            
           </div>
 
           {/* Desktop Menu */}
