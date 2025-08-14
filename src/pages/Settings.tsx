@@ -8,7 +8,7 @@ import {
 import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
 import { buildApiUrl } from '../config/api';
-import { useBrands } from '../context/useBrands';
+//import { useBrands } from '../context/useBrands';
 
 // We don't need the Script interface anymore
 
@@ -63,7 +63,7 @@ const Settings: React.FC = () => {
   const [brandsLoading, setBrandsLoading] = useState(false);
   const [brandsError, setBrandsError] = useState<string | null>(null);
     // Sidebar refresh trigger
-  const brandsContext = useBrands(); // Keep context reference even if not directly used
+ // const brandsContext = useBrands(); // Keep context reference even if not directly used
   const [sidebarRefreshTrigger, setSidebarRefreshTrigger] = useState(0);
 
 
