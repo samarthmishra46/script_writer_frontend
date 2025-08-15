@@ -40,18 +40,25 @@ export function TryButton() {
 
     {/* Subscribe Button */}
     <Link
-      to="/login"
-      className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-[#9F6AEA] to-purple-600 text-white font-semibold rounded-xl text-sm sm:text-base md:text-lg shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105"
-    >
-      <span className="flex items-center relative z-10 pointer-events-auto">
-        Subscribe For Just Rs{" "}
-        <span className="relative inline-block mx-1">
-          <span className="text-gray-300 line-through font-normal">5000</span>
-        </span>
-        <span className="font-bold text-yellow-300">1749/month</span>
-        <ChevronRight className="ml-2 w-4 h-4 sm:w-5 sm:h-5 transition-transform group-hover:translate-x-1" />
+  to="/login"
+  className="group inline-flex items-center px-3 py-2 bg-gradient-to-r from-[#9F6AEA] to-purple-600 text-white font-bold rounded-lg shadow hover:shadow-md transition-all duration-200 text-xs min-w-0"
+>
+  <span className="flex items-center whitespace-nowrap truncate text-[10.5px] sm:text-base md:text-lg lg:text-xl">
+          Get Unlimited Winning Ad Scripts 
+      <span className="flex items-center ml-1.5 px-1.5 py-0.5 bg-black/20 rounded">
+      <span className="text-gray-300 line-through font-normal text-[0.6rem] sm:text-[0.6rem] md:text-sm lg:text-md mr-0.5">
+        ₹7,999
       </span>
-    </Link>
+      <span className="font-extrabold text-yellow-300 text-[0.7rem] sm:text-[0.7rem] md:text-xl lg:text-lg sm">
+        ₹1,999
+      </span>
+      <ChevronRight className="ml-1 w-3 h-3 transition-transform group-hover:translate-x-0.5" />
+    </span>
+  </span>
+</Link>
+    <div className="flex items-center whitespace-nowrap truncate text-[10.5px] sm:text-base md:text-lg lg:text-xl" >
+      <span className="font-bold">(30 Days Access)</span>. 100% Refund Guarantee!
+    </div>
   </div>
 );
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import {  useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { User } from "lucide-react";
 import Header from "../components/HeaderLanding";
 import { Brandcompo } from "../components/BrandWorked";
@@ -18,13 +18,13 @@ interface User {
 
 const LandingPage: React.FC = () => {
   const navigate = useNavigate();
- // const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  // const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   // const [ripples, setRipples] = useState<
   //   Array<{ id: number; x: number; y: number; timestamp: number }>
   // >([]);
   const [user, setUser] = useState<User | null>(null);
-const dropdownRef = useRef<HTMLDivElement>(null);
-//const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  //const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
   // Load user data
   useEffect(() => {
     const userData = localStorage.getItem("user");
@@ -70,8 +70,6 @@ const dropdownRef = useRef<HTMLDivElement>(null);
     return "User";
   };
 
- 
-
   return (
     <div className="min-h-screen relative overflow-hidden">
       {/* Header */}
@@ -82,7 +80,7 @@ const dropdownRef = useRef<HTMLDivElement>(null);
       />
 
       {/* Hero Section */}
-      <section className="relative z-10 py-11 px-4 sm:px-6 lg:px-8">
+      <section className="relative z-10 py-1 px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto text-center">
           <div className="mb-8 text-center">
             <div className="backdrop-blur  px-12 py-1 rounded-lg">
@@ -110,26 +108,36 @@ const dropdownRef = useRef<HTMLDivElement>(null);
             </div>
           </div>
 
-          <div className="mb-6 mt-9 mr-6 ml-6">
-            <span className="block text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-4 leading-tight">
-              One Great Ad Can Change Everything
-            </span>
-
-            <div className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 leading-tight">
-              <span className="font-bold bg-gradient-to-r from-[#CB6CE6] to-[#2D65F5] bg-clip-text text-transparent transition-all duration-300 hover:scale-105 inline-block">
-                Leepi AI
-              </span>{" "}
-              Gives You Unlimited Ad Scripts Trained On 50Cr Of
-              Meta Ad Spend
-            </div>
+          <div className="mb-6 mt-9 mx-4">
+            <h1 className="text-[clamp(1rem,4vw,2rem)] leading-[clamp(1.25rem,5vw,2.5rem)] font-bold text-gray-900">
+              <div className="whitespace-nowrap block">
+                Just One Winning Ad On Meta
+              </div>
+              <div className="whitespace-nowrap block mb-1">
+                Can 3x Your Sales & ROAS!
+              </div>
+              <div className="whitespace-nowrap block">
+                <span className="bg-gradient-to-r from-[#CB6CE6] to-[#2D65F5] bg-clip-text text-transparent">
+                  Leepi
+                </span>{" "}
+                AI Will Write Unlimited Ad
+              </div>
+              <div className="whitespace-nowrap block">
+                Scripts/Hooks/Ideas That Will
+              </div>
+              <div className="whitespace-nowrap block">
+                3X Your ROAS (Guaranteed)
+              </div>
+            </h1>
           </div>
-          <div>
-            <p className="text-lg sm:text-xl md:text-2xl text-gray-700 max-w-3xl mx-auto mb-8">
-            Your Dream ROAS Milestone Is Just One Winning
-              Ad Script Away!
-            </p>
-          </div>
+          
+<div className="relative flex flex-col items-center text-center group mb-6 sm:mb-8 px-3 sm:px-4 ">
+  <div className="inline-flex items-center px-6 py-2 bg-black text-white font-semibold rounded-xl text-sm sm:text-base md:text-lg shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105"> 
+    100% Refund Guarantee
 
+  </div>
+ 
+</div>
           <div className="mb-6 inline-block rounded-lg bg-gradient-to-r from-[#1653F5] via-[#3CA8E3] via-[#BA63D3] via-[#FAAEA5] to-[#1449F9] p-[1px]">
             <div className="bg-white rounded-lg p-4">
               <img
@@ -141,33 +149,38 @@ const dropdownRef = useRef<HTMLDivElement>(null);
           </div>
           <TryButton />
 
-          <p className="relative group  text-base sm:text-lg px-2 leading-relaxed ml-10 mr-10">
-            Generate Unlimited Winning Ad Scripts. If at least 3 ad scripts
-            don’t work, 100% money back
-          </p>
+         
         </div>
       </section>
       <NoCommit />
 
       {/* NEW: "Is Not Just A ChatGPT Wrapper" Section */}
-      <section className="relative z-10 py-11 px-4 sm:px-6 lg:px-8">
+      <section className="relative z-10 py-1 px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto text-center">
           <div className="text-center mb-6">
             <div className="relative inline-block">
               <div className="relative inline-block">
-                <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold bg-gradient-to-r from-[#CB6CE6] to-[#2D65F5] bg-clip-text text-transparent mb-2 transition-all duration-300 hover:scale-105">
+                <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold bg-gradient-to-r from-[#CB6CE6] to-[#2D65F5] bg-clip-text text-transparent  transition-all duration-300 hover:scale-105">
                   Leepi AI
                 </h1>
               </div>
               <div className="absolute -inset-2 bg-gradient-to-r from-purple-600/20 to-pink-600/20 blur-xl opacity-0 hover:opacity-100 transition-opacity duration-500 rounded-lg"></div>
             </div>
-            <h3 className="px-2 text-3xl font-bold   text-center leading-snug">
-              Is Not Just A ChatGPT Wrapper
-              <br />
-              It's Trained On
-              <br />
-              Rs 50Cr Of Meta Ad Spend
-            </h3>
+            <div className="mb-2 mt-2 mx-4">
+            <h1 className="text-[clamp(1rem,4vw,2rem)] leading-[clamp(1.25rem,5vw,2.5rem)] font-bold text-gray-900">
+              <div className="whitespace-nowrap block">
+                Is Not Just A ChatGPT 
+              </div>
+              <div className="whitespace-nowrap block ">
+                Wrapper, Its Trained On 
+              </div>
+              
+              <div className="whitespace-nowrap block">
+                Rs.50Cr Of Meta Ad Spend
+              </div>
+              
+            </h1>
+          </div>
 
             <p className="text-gray-600 mt-4 max-w-2xl mx-auto">
               It Understands
@@ -175,14 +188,14 @@ const dropdownRef = useRef<HTMLDivElement>(null);
           </div>
 
           <div className="space-y-4 mb-9">
-            <div className="flex flex-wrap gap-4 justify-center">
-              {["Copywriting", "Performance Marketing", "Video Ads"].map(
+            <div className="flex flex-wrap gap-2 justify-center">
+              {["Copywriting", "Consumer psychology"].map(
                 (tag, index) => (
                   <div
                     key={index}
-                    className="p-[1px] rounded-full bg-gradient-to-br from-[#1653F5] via-[#3CA8E3] via-[#BA63D3] via-[#FAAEA5] to-[#1449F9]"
+                    className="p-[1.5px] rounded-full bg-gradient-to-br from-[#1653F5] via-[#3CA8E3] via-[#BA63D3] via-[#FAAEA5] to-[#1449F9]"
                   >
-                    <div className="rounded-full px-4 py-2 bg-white text-center text-l text-[#4B4B4B] font-medium">
+                    <div className="rounded-full px-2 py-2 bg-white text-center text-[10px] sm:text-base md:text-lg lg:text-xl text-[#4B4B4B] font-bold">
                       {tag}
                     </div>
                   </div>
@@ -190,14 +203,14 @@ const dropdownRef = useRef<HTMLDivElement>(null);
               )}
             </div>
 
-            <div className="flex flex-wrap gap-4 justify-center">
-              {["Conversion Optimization", "Creative Strategy"].map(
+            <div className="flex flex-wrap gap-2 justify-center">
+              {["Creative Strategy", "Performance Marketing"].map(
                 (tag, index) => (
                   <div
                     key={index}
-                    className="p-[1px] rounded-full bg-gradient-to-br from-[#1653F5] via-[#3CA8E3] via-[#BA63D3] via-[#FAAEA5] to-[#1449F9]"
+                    className="p-[1.5px] rounded-full bg-gradient-to-br from-[#1653F5] via-[#3CA8E3] via-[#BA63D3] via-[#FAAEA5] to-[#1449F9]"
                   >
-                    <div className="rounded-full px-4 py-2 bg-white text-center text-l text-[#4B4B4B] font-medium">
+                    <div className="rounded-full px-2 py-2 bg-white text-center text-[10px] sm:text-base md:text-lg lg:text-xl text-[#4B4B4B] font-bold">
                       {tag}
                     </div>
                   </div>
@@ -205,14 +218,14 @@ const dropdownRef = useRef<HTMLDivElement>(null);
               )}
             </div>
 
-            <div className="flex flex-wrap gap-4 justify-center">
-              {["Brand Storytelling", "Ad Angles", "Hook Ideas"].map(
+            <div className="flex flex-wrap gap-2 justify-center">
+              {["Meta Ads", "Storytelling"].map(
                 (tag, index) => (
                   <div
                     key={index}
-                    className="p-[1px] rounded-full bg-gradient-to-br from-[#1653F5] via-[#3CA8E3] via-[#BA63D3] via-[#FAAEA5] to-[#1449F9]"
+                    className="p-[1.5px] rounded-full bg-gradient-to-br from-[#1653F5] via-[#3CA8E3] via-[#BA63D3] via-[#FAAEA5] to-[#1449F9]"
                   >
-                    <div className="rounded-full px-4 py-2 bg-white text-center text-l text-[#4B4B4B] font-medium">
+                    <div className="rounded-full px-2 py-2 bg-white text-center text-[10px] sm:text-base md:text-lg lg:text-xl text-[#4B4B4B] font-bold">
                       {tag}
                     </div>
                   </div>
@@ -220,32 +233,18 @@ const dropdownRef = useRef<HTMLDivElement>(null);
               )}
             </div>
 
-            <div className="flex flex-wrap gap-4 justify-center">
-              {["Consumer psychology"].map((tag, index) => (
-                <div
-                  key={index}
-                  className="p-[1px] rounded-full bg-gradient-to-br from-[#1653F5] via-[#3CA8E3] via-[#BA63D3] via-[#FAAEA5] to-[#1449F9]"
-                >
-                  <div className="rounded-full px-4 py-2 bg-white text-center text-l text-[#4B4B4B] font-medium">
-                    {tag}
-                  </div>
-                </div>
-              ))}
-            </div>
+            
           </div>
 
           <TryButton />
 
-          <p className="relative group  text-base sm:text-lg px-2 leading-relaxed ml-10 mr-10">
-            Generate Unlimited Winning Ad Scripts, If at least 3 ad scripts
-            don’t work, 100% money back
-          </p>
+          
         </div>
       </section>
       <NoCommit />
 
       {/* NEW: "Leepi AI Has Written & Ideated 1000+ Ads" Section */}
-      <section className="relative z-10 py-11 px-4 sm:px-6 lg:px-8">
+      <section class="relative z-10 py-16  px-1 lg:px-8">
         <div className="max-w-4xl mx-auto text-center">
           {/* Title */}
           <div className="relative inline-block">
@@ -260,7 +259,7 @@ const dropdownRef = useRef<HTMLDivElement>(null);
           </h3>
 
           {/* Image */}
-          <CompanyGrid/>
+          <CompanyGrid />
 
           {/* CTA Button */}
           <TryButton />
@@ -407,7 +406,10 @@ const dropdownRef = useRef<HTMLDivElement>(null);
             <div className="mb-8 relative z-10">
               <div className="w-42 h-42 mx-auto  rounded-full flex items-center justify-center ">
                 <div className="text-center">
-                  <img src="https://res.cloudinary.com/dvxqb1wge/image/upload/v1754980416/image_90_ngk8ls.png" alt="" />
+                  <img
+                    src="https://res.cloudinary.com/dvxqb1wge/image/upload/v1754980416/image_90_ngk8ls.png"
+                    alt=""
+                  />
                 </div>
               </div>
             </div>
