@@ -31,15 +31,20 @@ const StickyFooter: React.FC = () => {
           <span className="text-yellow-400 font-bold text-sm sm:text-lg">
             ₹1999
           </span>
-          <span className="hidden sm:inline font-medium">
+          <span className="text-[9px] sm:text-[10px] md:text-sm text-white sm:inline font-medium">
             100% Refund Guarantee
           </span>
         </div>
 
         {/* Button */}
-        <Link to="/signup" className="bg-gradient-to-r from-[#9F6AEA] to-purple-600 hover:bg-gradient-to-l hover:from-[#9051e8] hover:to-[#512e82] font-bold text-xs sm:text-base px-3 sm:px-6 py-1 sm:py-2 rounded transition w-auto">
-          SIGN UP NOW AT Rs. 1999
+        <Link
+          to="/signup"
+          className="bg-gradient-to-r from-[#9F6AEA] to-purple-600 hover:bg-gradient-to-l hover:from-[#9051e8] hover:to-[#512e82] font-bold text-xs sm:text-base px-3 sm:px-6 py-1 sm:py-2 rounded transition w-auto"
+        >
+          <span className="hidden sm:inline">SIGN UP NOW AT Rs. 1999</span>
+          <span className="inline sm:hidden">Signup Now</span>
         </Link>
+        
       </div>
     </div>
   );

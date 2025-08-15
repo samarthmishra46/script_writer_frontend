@@ -79,7 +79,7 @@ const LandingPage: React.FC = () => {
         getUserFirstName={getUserFirstName}
         handleLogout={handleLogout}
       />
-
+<br />
       {/* Hero Section */}
       <section className="relative z-10 py-1 px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto text-center">

@@ -27,7 +27,7 @@ export default function Header({ user, getUserFirstName, handleLogout }: HeaderP
   return (
     <header className="relative z-[9999] bg-white ">
         <div
-        className="absolute -inset-4 rounded-lg opacity-80 backdrop-blur  px-12 py-1 "
+        className="absolute -inset-4 rounded-lg opacity-80 backdrop-blur  px-12 "
         style={{
           background:
             'linear-gradient(to right, #E1E7FB 0%, #F8EBEF 100%, #FAF3ED 100%)',
