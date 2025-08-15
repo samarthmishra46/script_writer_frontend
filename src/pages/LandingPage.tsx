@@ -113,20 +113,18 @@ const LandingPage: React.FC = () => {
               <div className="whitespace-nowrap block">
                 Just One Winning Ad On Meta
               </div>
-              <div className="whitespace-nowrap block mb-1">
+              <div className="whitespace-nowrap block mb-2">
                 Can 3x Your Sales & ROAS!
               </div>
               <div className="whitespace-nowrap block">
                 <span className="bg-gradient-to-r from-[#CB6CE6] to-[#2D65F5] bg-clip-text text-transparent">
-                  Leepi
+                  Leepi AI
                 </span>{" "}
-                AI Will Write Unlimited Ad
+                 Will Write Unlimited Such
               </div>
+              
               <div className="whitespace-nowrap block">
-                Scripts/Hooks/Ideas That Will
-              </div>
-              <div className="whitespace-nowrap block">
-                3X Your ROAS (Guaranteed)
+                Ads To 3X Your ROAS (Guaranteed)
               </div>
             </h1>
           </div>
