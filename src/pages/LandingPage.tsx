@@ -6,6 +6,7 @@ import { Brandcompo } from "../components/BrandWorked";
 import { NoCommit } from "../components/Nocommit";
 import { TryButton } from "../components/TryButton";
 import CompanyGrid from "../components/CompneyGrid";
+import StickyFooter from "../components/StickeyFooter";
 interface User {
   id: string;
   name: string;
@@ -430,6 +431,7 @@ const LandingPage: React.FC = () => {
       </section>
 
       <NoCommit />
+      <StickyFooter/>
     </div>
   );
 };

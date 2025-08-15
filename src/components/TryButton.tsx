@@ -45,7 +45,7 @@ export function TryButton() {
 >
   <span className="flex items-center whitespace-nowrap truncate text-[10.5px] sm:text-base md:text-lg lg:text-xl">
           Get Unlimited Winning Ad Scripts 
-      <span className="flex items-center ml-1.5 px-1.5 py-0.5 bg-black/20 rounded">
+      <span className="flex items-center ml-1.5 px-1.5 py-0.5 rounded">
       <span className="text-gray-300 line-through font-normal text-[0.6rem] sm:text-[0.6rem] md:text-sm lg:text-md mr-0.5">
         ₹7,999
       </span>
