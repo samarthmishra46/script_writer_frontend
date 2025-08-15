@@ -73,27 +73,36 @@ const LandingPage: React.FC = () => {
 
   return (
     <div className="min-h-screen relative overflow-hidden">
+      {/* Global gradient background */}
+      <div
+        className="fixed inset-0 -z-10"
+        style={{
+          background:
+            'linear-gradient(to right, #E1E7FB 0%, #F8EBEF 50%, #FAF3ED 100%)',
+        }}
+      />
+      <div
+        className="fixed inset-0 -z-10 opacity-60"
+        style={{
+          background:
+            'linear-gradient(to right, #E1E7FB 0%, #F8EBEF 50%, #FAF3ED 100%)',
+          filter: 'blur(40px)',
+        }}
+      />
+      
       {/* Header */}
       <Header
         user={user}
         getUserFirstName={getUserFirstName}
         handleLogout={handleLogout}
       />
-<br />
-      {/* Hero Section */}
+
       <section className="relative z-10 py-1 px-4 sm:px-6 lg:px-8">
+        
         <div className="max-w-4xl mx-auto text-center">
           <div className="mb-8 text-center">
-            <div className="backdrop-blur  px-12 py-1 rounded-lg">
-              <div
-                className="absolute -inset-4 rounded-lg opacity-80"
-                style={{
-                  background:
-                    "linear-gradient(to right, #E1E7FB 0%, #F8EBEF 100%, #FAF3ED 100%)",
-                  filter: "blur(30px)",
-                }}
-              ></div>
-              <p className="relative font-lato text-lg sm:text-xl md:text-2xl  font-medium tracking-wide">
+            <div className="backdrop-blur-sm  px-12 py-1 rounded-lg ">
+              <p className="relative font-lato text-lg sm:text-xl md:text-2xl font-medium tracking-wide text-gray-800">
                 Product Of
               </p>
               <img
@@ -243,7 +252,7 @@ const LandingPage: React.FC = () => {
       <NoCommit />
 
       {/* NEW: "Leepi AI Has Written & Ideated 1000+ Ads" Section */}
-      <section class="relative z-10 py-16  px-1 lg:px-8">
+      <section className="relative z-10 py-16  px-1 lg:px-8">
         <div className="max-w-4xl mx-auto text-center">
           {/* Title */}
           <div className="relative inline-block">

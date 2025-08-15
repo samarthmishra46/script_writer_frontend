@@ -25,15 +25,7 @@ export default function Header({ user, getUserFirstName, handleLogout }: HeaderP
   const navigate = useNavigate();
 
   return (
-    <header className="relative z-[9999] bg-white ">
-        <div
-        className="absolute -inset-4 rounded-lg opacity-80 backdrop-blur  px-12 "
-        style={{
-          background:
-            'linear-gradient(to right, #E1E7FB 0%, #F8EBEF 100%, #FAF3ED 100%)',
-          filter: 'blur(30px)',
-        }}
-      ></div>
+    <header className="relative z-[9999] bg-transparent">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           
@@ -88,7 +80,7 @@ export default function Header({ user, getUserFirstName, handleLogout }: HeaderP
 
       {/* Mobile Menu Dropdown */}
       {isMobileMenuOpen && (
-        <div className="relative text-xs sm:text-sm md:text-lg lg:text-xl font-bold md:hidden bg-white shadow-lg px-4 pb-4 space-y-4">
+        <div className="relative text-xs sm:text-sm md:text-lg lg:text-xl font-bold md:hidden bg-white/20 backdrop-blur-sm border-t border-white/30 shadow-lg px-4 pb-4 space-y-4">
           <NavlinkMobile />
           {user ? (
             <UserDropdownMobile
@@ -186,7 +178,7 @@ function UserDropdown({
       </button>
 
       {isUserDropdownOpen && (
-        <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-xl z-[10002]">
+        <div className="absolute right-0 mt-2 w-48 bg-white/90 backdrop-blur-sm border border-white/30 rounded-lg shadow-xl z-[10002]">
           <div className="py-2">
             <DropdownItem
               icon={<Home className="w-4 h-4 mr-2" />}
