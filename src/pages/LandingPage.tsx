@@ -104,33 +104,27 @@ const LandingPage: React.FC = () => {
             </div>
           </div>
 
-          <div className="mb-6 mt-9 mx-4">
-            <h1
-              className="
-      text-[20px] 
-      leading-[28px]
-      md:text-[clamp(1rem,4vw,2rem)] 
-      md:leading-[clamp(1.25rem,5vw,2.5rem)] 
-      font-bold text-gray-900
-    "
-            >
-              <div className="whitespace-nowrap block">
-                Just One Winning Ad On Meta
-              </div>
-              <div className="whitespace-nowrap block mb-2">
-                Can 3x Your Sales & ROAS!
-              </div>
-              <div className="whitespace-nowrap block">
-                <span className="bg-gradient-to-r from-[#CB6CE6] to-[#2D65F5] bg-clip-text text-transparent">
-                  Leepi AI
-                </span>{" "}
-                Will Write Unlimited Such
-              </div>
-              <div className="whitespace-nowrap block">
-                Ads To 3X Your ROAS (Guaranteed)
-              </div>
-            </h1>
-          </div>
+       <div className="mb-6 mt-9 mx-auto w-full max-w-[clamp(270px,90vw,600px)] px-2">
+  <h1 className="text-[clamp(1.1rem,4.5vw,2.5rem)] leading-[clamp(1.4rem,5vw,3rem)] font-bold text-gray-900 text-center">
+    <span className="whitespace-nowrap block">
+      Just One Winning Ad On Meta
+    </span>
+    <span className="whitespace-nowrap block mb-2">
+      Can 3x Your Sales & ROAS!
+    </span>
+    <span className="whitespace-nowrap block">
+      <span className="bg-gradient-to-r from-[#CB6CE6] to-[#2D65F5] bg-clip-text text-transparent">
+        Leepi AI
+      </span>{" "}
+      Will Write Unlimited Such
+    </span>
+    <span className="whitespace-nowrap block">
+      Ads To 3X Your ROAS (Guaranteed)
+    </span>
+  </h1>
+</div>
+
+
 
           <div className="relative flex flex-col items-center text-center group mb-6 sm:mb-8 px-3 sm:px-4">
   <div className="inline-flex items-center px-6 py-[1px] bg-black text-white font-semibold rounded-xl text-sm sm:text-base md:text-lg shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105">
@@ -166,14 +160,14 @@ const LandingPage: React.FC = () => {
   </div>
 
   {/* Other Headings (bigger + width control) */}
-  <div className="mb-2 mt-2 mx-auto max-w-[270px] sm:max-w-[350px] md:max-w-[500px]">
-    <h1 className="text-[clamp(1.25rem,5vw,2.5rem)] leading-[clamp(1.5rem,5.5vw,3rem)] font-bold text-gray-900">
-      <div className="whitespace-nowrap block">Is Not Just A ChatGPT</div>
-      <div className="whitespace-nowrap block">Wrapper, Its Trained On</div>
-      <div className="whitespace-nowrap block">Rs.50Cr Of Meta Ad Spend</div>
-    </h1>
-    
-  </div>
+<div className="mb-2 mt-2 mx-auto w-full max-w-[clamp(270px,80vw,500px)] px-2">
+  <h1 className="text-[clamp(1.25rem,5vw,2.5rem)] leading-[clamp(1.5rem,5.5vw,3rem)] font-bold text-gray-900 text-center">
+    <div className="block">Is Not Just A ChatGPT</div>
+    <div className="block">Wrapper, Its Trained On</div>
+    <div className="block">Rs.50Cr Of Meta Ad Spend</div>
+  </h1>
+</div>
+
   <p className="text-center text-[12px] sm:text-base md:text-xl font-medium text-gray-800">
   It Understands
 </p>
@@ -244,14 +238,14 @@ const LandingPage: React.FC = () => {
           </div>
 
           {/* Subtitle */}
-         <div className="mb-2 mt-2 mx-auto max-w-[270px] sm:max-w-[350px] md:max-w-[500px]">
-    <h1 className="text-[clamp(1.25rem,5vw,2.5rem)] leading-[clamp(1.5rem,5.5vw,3rem)] font-bold text-gray-900">
-      <div className="whitespace-nowrap block">Has Written & Ideated 1000+</div>
-      <div className="whitespace-nowrap block">Ads For Dozens of Brands</div>
-    </h1>
-    
-    
-  </div>
+         <div className="mb-2 mt-2 mx-auto w-full max-w-[clamp(270px,80vw,500px)] px-2">
+  <h1 className="text-[clamp(1.25rem,5vw,2.5rem)] leading-[clamp(1.5rem,5.5vw,3rem)] font-bold text-gray-900 text-center">
+    <span className="block">Has Written & Ideated 1000+</span>
+    <span className="block">Ads For Dozens of Brands</span>
+  </h1>
+</div>
+
+          {/* Description */}
   <p className="text-center text-[12px] sm:text-base md:text-xl font-medium text-gray-800 mt-4 ">
 Including  VC Backed & Shark Tank Funded Companies
 </p>
