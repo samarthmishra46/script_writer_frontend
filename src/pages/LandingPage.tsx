@@ -288,14 +288,14 @@ const LandingPage: React.FC = () => {
           <Brandcompo
             brandname="Go Wheelo"
             videadd="https://res.cloudinary.com/dvxqb1wge/image/upload/v1755359134/go_wheelo_quqgxp.gif"
-            scriptadd="https://res.cloudinary.com/dvxqb1wge/image/upload/v1754980416/Screenshot_from_2025-08-10_02-32-43_umhnri.png"
+            scriptadd="https://res.cloudinary.com/dvxqb1wge/image/upload/v1755361770/Screenshot_from_2025-08-16_21-59-07_b0g8tl.png"
             resultadd="https://res.cloudinary.com/dvxqb1wge/image/upload/v1754980416/Screenshot_from_2025-08-10_02-32-43_umhnri.png"
           />
           <br />
           <Brandcompo
             brandname="Asli Gems"
             videadd="https://res.cloudinary.com/dvxqb1wge/image/upload/v1755357609/asligems_cx9ntn.gif"
-            scriptadd="https://res.cloudinary.com/dvxqb1wge/image/upload/v1754980416/Screenshot_from_2025-08-10_02-32-43_umhnri.png"
+            scriptadd="https://res.cloudinary.com/dvxqb1wge/image/upload/v1755362138/Screenshot_from_2025-08-16_22-05-18_kinkiv.png"
             resultadd="https://res.cloudinary.com/dvxqb1wge/image/upload/v1754980416/Screenshot_from_2025-08-10_02-32-43_umhnri.png"
           />
           <br />

@@ -19,12 +19,12 @@ export function Brandcompo({
   brandname,
   videadd,
   scriptadd,
-  resultadd,
+ 
 }: BrandProps) {
   return (
     <>
       {/* Card with gradient border */}
-      <div className="bg-gradient-to-br from-[#1653F5] via-[#3CA8E3] via-[#BA63D3] via-[#FAAEA5] to-[#1449F9] p-[2px] rounded-xl shadow-lg mb-8">
+      <div className="bg-gradient-to-br from-[#1653F5] via-[#3CA8E3] via-[#BA63D3] via-[#FAAEA5] to-[#1449F9] p-[2px] rounded-xl shadow-lg mb-8 ">
   <div className="bg-white rounded-xl pb-4">
     {/* Brand */}
     <div className="text-center mb-6">
