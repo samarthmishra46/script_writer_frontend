@@ -25,7 +25,17 @@ export default function Header({ user, getUserFirstName, handleLogout }: HeaderP
   const navigate = useNavigate();
 
   return (
+<>
+<div
+              className="fixed inset-0 -z-10 opacity-60"
+              style={{
+                background:
+                  'linear-gradient(to right, #E1E7FB 0%, #F8EBEF 50%, #FAF3ED 100%)',
+                filter: 'blur(40px)',
+              }}
+            />
     <header className="relative z-[9999] bg-transparent">
+      
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           
@@ -94,7 +104,7 @@ export default function Header({ user, getUserFirstName, handleLogout }: HeaderP
           )}
         </div>
       )}
-    </header>
+    </header></>
   );
 }
 

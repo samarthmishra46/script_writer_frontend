@@ -74,44 +74,30 @@ const LandingPage: React.FC = () => {
   return (
     <div className="min-h-screen relative overflow-hidden">
       {/* Global gradient background */}
-      <div
-        className="fixed inset-0 -z-10"
-        style={{
-          background:
-            'linear-gradient(to right, #E1E7FB 0%, #F8EBEF 50%, #FAF3ED 100%)',
-        }}
-      />
-      <div
-        className="fixed inset-0 -z-10 opacity-60"
-        style={{
-          background:
-            'linear-gradient(to right, #E1E7FB 0%, #F8EBEF 50%, #FAF3ED 100%)',
-          filter: 'blur(40px)',
-        }}
-      />
-      
-      {/* Header */}
-      <Header
-        user={user}
-        getUserFirstName={getUserFirstName}
-        handleLogout={handleLogout}
-      />
 
+      <span>
+        {/* Header */}
+        <Header
+          user={user}
+          getUserFirstName={getUserFirstName}
+          handleLogout={handleLogout}
+        />
+      </span>
       <section className="relative z-10 py-1 px-4 sm:px-6 lg:px-8">
-        
         <div className="max-w-4xl mx-auto text-center">
           <div className="mb-8 text-center">
             <div className="backdrop-blur-sm  px-12 py-1 rounded-lg ">
-              <p className="relative font-lato text-lg sm:text-xl md:text-2xl font-medium tracking-wide text-gray-800">
-                Product Of
-              </p>
-              <img
-                src="https://res.cloudinary.com/dvxqb1wge/image/upload/v1754980416/Yuvichaar_Funnels_1_g37b0q.png"
-                alt="Yuvichaar Funnels Logo"
-                className="relative mx-auto max-w-[210px] sm:max-w-[215px] md:max-w-[275px] h-auto "
-              />
+              <p className="relative font-lato text-sm sm:text-sm md:text-xl lg:text-3xl font-medium tracking-wide text-gray-800 m-0 leading-none">
+  Product Of
+</p>
+<img
+  src="https://res.cloudinary.com/dvxqb1wge/image/upload/v1754980416/Yuvichaar_Funnels_1_g37b0q.png"
+  alt="Yuvichaar Funnels Logo"
+  className="relative mx-auto max-w-[210px] sm:max-w-[215px] md:max-w-[275px] block m-0 leading-none"
+ />
+
               <div className="relative inline-block">
-                <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold bg-gradient-to-r from-[#CB6CE6] to-[#2D65F5] bg-clip-text text-transparent mb-2 transition-all duration-300 hover:scale-105">
+                <h1 className="text-4xl sm:text-4xl md:text-6xl font-bold bg-gradient-to-r from-[#CB6CE6] to-[#2D65F5] bg-clip-text text-transparent mb-2 transition-all duration-300 hover:scale-105">
                   Leepi AI
                 </h1>
               </div>
@@ -119,7 +105,15 @@ const LandingPage: React.FC = () => {
           </div>
 
           <div className="mb-6 mt-9 mx-4">
-            <h1 className="text-[clamp(1rem,4vw,2rem)] leading-[clamp(1.25rem,5vw,2.5rem)] font-bold text-gray-900">
+            <h1
+              className="
+      text-[20px] 
+      leading-[28px]
+      md:text-[clamp(1rem,4vw,2rem)] 
+      md:leading-[clamp(1.25rem,5vw,2.5rem)] 
+      font-bold text-gray-900
+    "
+            >
               <div className="whitespace-nowrap block">
                 Just One Winning Ad On Meta
               </div>
@@ -130,34 +124,31 @@ const LandingPage: React.FC = () => {
                 <span className="bg-gradient-to-r from-[#CB6CE6] to-[#2D65F5] bg-clip-text text-transparent">
                   Leepi AI
                 </span>{" "}
-                 Will Write Unlimited Such
+                Will Write Unlimited Such
               </div>
-              
               <div className="whitespace-nowrap block">
                 Ads To 3X Your ROAS (Guaranteed)
               </div>
             </h1>
           </div>
-          
-<div className="relative flex flex-col items-center text-center group mb-6 sm:mb-8 px-3 sm:px-4 ">
-  <div className="inline-flex items-center px-6 py-2 bg-black text-white font-semibold rounded-xl text-sm sm:text-base md:text-lg shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105"> 
+
+          <div className="relative flex flex-col items-center text-center group mb-6 sm:mb-8 px-3 sm:px-4">
+  <div className="inline-flex items-center px-6 py-[1px] bg-black text-white font-semibold rounded-xl text-sm sm:text-base md:text-lg shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105">
     100% Refund Guarantee
-
   </div>
- 
 </div>
-          <div className="mb-6 inline-block rounded-lg bg-gradient-to-r from-[#1653F5] via-[#3CA8E3] via-[#BA63D3] via-[#FAAEA5] to-[#1449F9] p-[1px]">
-            <div className="bg-white rounded-lg p-4">
-              <img
-                src="https://res.cloudinary.com/dvxqb1wge/image/upload/v1754980416/landingPage1_fjahft.png"
-                alt="Storyboard and Final Ad Example"
-                className="rounded-lg"
-              />
-            </div>
-          </div>
-          <TryButton />
 
-         
+          <div className="mb-6 inline-block scale-[1.01] rounded-lg bg-gradient-to-r from-[#1653F5] via-[#3CA8E3] via-[#BA63D3] via-[#FAAEA5] to-[#1449F9] p-[1px]">
+  <div className="bg-white rounded-lg">
+    <img
+      src="https://res.cloudinary.com/dvxqb1wge/image/upload/v1754980416/landingPage1_fjahft.png"
+      alt="Storyboard and Final Ad Example"
+      className="rounded-lg"
+    />
+  </div>
+</div>
+
+          <TryButton />
         </div>
       </section>
       <NoCommit />
@@ -165,50 +156,43 @@ const LandingPage: React.FC = () => {
       {/* NEW: "Is Not Just A ChatGPT Wrapper" Section */}
       <section className="relative z-10 py-1 px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto text-center">
-          <div className="text-center mb-6">
-            <div className="relative inline-block">
-              <div className="relative inline-block">
-                <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold bg-gradient-to-r from-[#CB6CE6] to-[#2D65F5] bg-clip-text text-transparent  transition-all duration-300 hover:scale-105">
-                  Leepi AI
-                </h1>
-              </div>
-              <div className="absolute -inset-2 bg-gradient-to-r from-purple-600/20 to-pink-600/20 blur-xl opacity-0 hover:opacity-100 transition-opacity duration-500 rounded-lg"></div>
-            </div>
-            <div className="mb-2 mt-2 mx-4">
-            <h1 className="text-[clamp(1rem,4vw,2rem)] leading-[clamp(1.25rem,5vw,2.5rem)] font-bold text-gray-900">
-              <div className="whitespace-nowrap block">
-                Is Not Just A ChatGPT 
-              </div>
-              <div className="whitespace-nowrap block ">
-                Wrapper, Its Trained On 
-              </div>
-              
-              <div className="whitespace-nowrap block">
-                Rs.50Cr Of Meta Ad Spend
-              </div>
-              
-            </h1>
-          </div>
+          <div className="text-center mb-4">
+  {/* Leepi AI (smaller now) */}
+  <div className="relative inline-block">
+    <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-[#CB6CE6] to-[#2D65F5] bg-clip-text text-transparent transition-all duration-300 hover:scale-105">
+      Leepi AI
+    </h1>
+    <div className="absolute -inset-2 bg-gradient-to-r from-purple-600/20 to-pink-600/20 blur-xl opacity-0 hover:opacity-100 transition-opacity duration-500 rounded-lg"></div>
+  </div>
 
-            <p className="text-gray-600 mt-4 max-w-2xl mx-auto">
-              It Understands
-            </p>
-          </div>
+  {/* Other Headings (bigger + width control) */}
+  <div className="mb-2 mt-2 mx-auto max-w-[270px] sm:max-w-[350px] md:max-w-[500px]">
+    <h1 className="text-[clamp(1.25rem,5vw,2.5rem)] leading-[clamp(1.5rem,5.5vw,3rem)] font-bold text-gray-900">
+      <div className="whitespace-nowrap block">Is Not Just A ChatGPT</div>
+      <div className="whitespace-nowrap block">Wrapper, Its Trained On</div>
+      <div className="whitespace-nowrap block">Rs.50Cr Of Meta Ad Spend</div>
+    </h1>
+    
+  </div>
+  <p className="text-center text-[12px] sm:text-base md:text-xl font-medium text-gray-800">
+  It Understands
+</p>
 
-          <div className="space-y-4 mb-9">
+</div>
+
+
+          <div className="space-y-2 ">
             <div className="flex flex-wrap gap-2 justify-center">
-              {["Copywriting", "Consumer psychology"].map(
-                (tag, index) => (
-                  <div
-                    key={index}
-                    className="p-[1.5px] rounded-full bg-gradient-to-br from-[#1653F5] via-[#3CA8E3] via-[#BA63D3] via-[#FAAEA5] to-[#1449F9]"
-                  >
-                    <div className="rounded-full px-2 py-2 bg-white text-center text-[10px] sm:text-base md:text-lg lg:text-xl text-[#4B4B4B] font-bold">
-                      {tag}
-                    </div>
+              {["Copywriting", "Consumer psychology"].map((tag, index) => (
+                <div
+                  key={index}
+                  className="p-[1px] rounded-full bg-gradient-to-br from-[#1653F5] via-[#3CA8E3] via-[#BA63D3] via-[#FAAEA5] to-[#1449F9]"
+                >
+                  <div className="rounded-full px-2 py-2 bg-white text-center text-[10px] sm:text-base md:text-lg lg:text-xl text-[#4B4B4B] font-medium">
+                    {tag}
                   </div>
-                )
-              )}
+                </div>
+              ))}
             </div>
 
             <div className="flex flex-wrap gap-2 justify-center">
@@ -216,9 +200,9 @@ const LandingPage: React.FC = () => {
                 (tag, index) => (
                   <div
                     key={index}
-                    className="p-[1.5px] rounded-full bg-gradient-to-br from-[#1653F5] via-[#3CA8E3] via-[#BA63D3] via-[#FAAEA5] to-[#1449F9]"
+                    className="p-[1px] rounded-full bg-gradient-to-br from-[#1653F5] via-[#3CA8E3] via-[#BA63D3] via-[#FAAEA5] to-[#1449F9]"
                   >
-                    <div className="rounded-full px-2 py-2 bg-white text-center text-[10px] sm:text-base md:text-lg lg:text-xl text-[#4B4B4B] font-bold">
+                    <div className="rounded-full px-2 py-2 bg-white text-center text-[10px] sm:text-base md:text-lg lg:text-xl text-[#4B4B4B] font-medium">
                       {tag}
                     </div>
                   </div>
@@ -227,26 +211,24 @@ const LandingPage: React.FC = () => {
             </div>
 
             <div className="flex flex-wrap gap-2 justify-center">
-              {["Meta Ads", "Storytelling"].map(
-                (tag, index) => (
-                  <div
-                    key={index}
-                    className="p-[1.5px] rounded-full bg-gradient-to-br from-[#1653F5] via-[#3CA8E3] via-[#BA63D3] via-[#FAAEA5] to-[#1449F9]"
-                  >
-                    <div className="rounded-full px-2 py-2 bg-white text-center text-[10px] sm:text-base md:text-lg lg:text-xl text-[#4B4B4B] font-bold">
-                      {tag}
-                    </div>
+              {["Meta Ads", "Storytelling"].map((tag, index) => (
+                <div
+                  key={index}
+                  className="p-[1px] rounded-full bg-gradient-to-br from-[#1653F5] via-[#3CA8E3] via-[#BA63D3] via-[#FAAEA5] to-[#1449F9]"
+                >
+                  <div className="rounded-full px-2 py-2 bg-white text-center text-[10px] sm:text-base md:text-lg lg:text-xl text-[#4B4B4B] font-medium">
+                    {tag}
                   </div>
-                )
-              )}
+                </div>
+              ))}
             </div>
-
-            
+             
           </div>
+          <p className="text-center text-[12px] sm:text-base md:text-xl font-medium text-gray-800 mt-4 mb-9">
+      So That You Don’t Have To! 
+</p>
 
           <TryButton />
-
-          
         </div>
       </section>
       <NoCommit />
@@ -256,15 +238,23 @@ const LandingPage: React.FC = () => {
         <div className="max-w-4xl mx-auto text-center">
           {/* Title */}
           <div className="relative inline-block">
-            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold bg-gradient-to-r from-[#CB6CE6] to-[#2D65F5] bg-clip-text text-transparent mb-2 transition-all duration-300 hover:scale-105">
-              Leepi AI
-            </h1>
+             <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-[#CB6CE6] to-[#2D65F5] bg-clip-text text-transparent transition-all duration-300 hover:scale-105">
+      Leepi AI
+    </h1>
           </div>
 
           {/* Subtitle */}
-          <h3 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-8 px-4">
-            Has Written & Ideated 1000+ Ads For Dozens of Brands
-          </h3>
+         <div className="mb-2 mt-2 mx-auto max-w-[270px] sm:max-w-[350px] md:max-w-[500px]">
+    <h1 className="text-[clamp(1.25rem,5vw,2.5rem)] leading-[clamp(1.5rem,5.5vw,3rem)] font-bold text-gray-900">
+      <div className="whitespace-nowrap block">Has Written & Ideated 1000+</div>
+      <div className="whitespace-nowrap block">Ads For Dozens of Brands</div>
+    </h1>
+    
+    
+  </div>
+  <p className="text-center text-[12px] sm:text-base md:text-xl font-medium text-gray-800 mt-4 ">
+Including  VC Backed & Shark Tank Funded Companies
+</p>
 
           {/* Image */}
           <CompanyGrid />
@@ -275,11 +265,14 @@ const LandingPage: React.FC = () => {
       </section>
 
       {/* NEW: "Ads Written by Leepi AI" Section */}
-      <section className="relative z-10 py-16 px-4 sm:px-6 lg:px-8">
+      <section className="relative z-10  px-4 sm:px-6 lg:px-8">
         <div className="max-w-6xl mx-auto">
           {/* Header */}
           <div className="text-center mb-12">
-            <h2 className="text-3xl sm:text-4xl font-bold">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-[#CB6CE6] to-[#2D65F5] bg-clip-text text-transparent transition-all duration-300 hover:scale-105">
+      
+    
+            
               <span className="bg-gradient-to-r from-[#CB6CE6] to-[#2D65F5] bg-clip-text text-transparent">
                 Ads Written by Leepi AI
               </span>
@@ -287,7 +280,8 @@ const LandingPage: React.FC = () => {
               <span className="bg-gradient-to-r from-[#CB6CE6] to-[#2D65F5] bg-clip-text text-transparent">
                 That Broke Meta Ads
               </span>
-            </h2>
+           
+            </h1>
           </div>
 
           <Brandcompo
@@ -440,7 +434,7 @@ const LandingPage: React.FC = () => {
       </section>
 
       <NoCommit />
-      <StickyFooter/>
+      <StickyFooter />
     </div>
   );
 };
