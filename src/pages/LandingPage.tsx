@@ -87,60 +87,74 @@ const LandingPage: React.FC = () => {
         <div className="max-w-4xl mx-auto text-center">
           <div className="mb-8 text-center">
             <div className="backdrop-blur-sm  px-12 py-1 rounded-lg ">
-              <p className="relative font-lato text-sm sm:text-sm md:text-xl lg:text-3xl font-medium tracking-wide text-gray-800 m-0 leading-none">
-  Product Of
-</p>
-<img
-  src="https://res.cloudinary.com/dvxqb1wge/image/upload/v1754980416/Yuvichaar_Funnels_1_g37b0q.png"
-  alt="Yuvichaar Funnels Logo"
-  className="relative mx-auto max-w-[210px] sm:max-w-[215px] md:max-w-[275px] block m-0 leading-none"
- />
+              <p className="relative font-lato text-xs sm:text-xs md:text-md lg:text-lg font-semibold tracking-wide text-gray-800 m-0 leading-none">
+                Product Of
+              </p>
+              <img
+                src="https://res.cloudinary.com/dvxqb1wge/image/upload/v1754980416/Yuvichaar_Funnels_1_g37b0q.png"
+                alt="Yuvichaar Funnels Logo"
+                className="relative mx-auto max-w-[210px] sm:max-w-[215px] md:max-w-[275px] block m-0 leading-none"
+              />
 
               <div className="relative inline-block">
-                <h1 className="text-4xl sm:text-4xl md:text-6xl font-bold bg-gradient-to-r from-[#CB6CE6] to-[#2D65F5] bg-clip-text text-transparent mb-2 transition-all duration-300 hover:scale-105">
+                <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-[#CB6CE6] to-[#2D65F5] bg-clip-text text-transparent transition-all duration-300 hover:scale-105">
                   Leepi AI
                 </h1>
               </div>
             </div>
           </div>
 
-       <div className="mb-6 mt-9 mx-auto w-full max-w-[clamp(270px,90vw,600px)] px-2">
-  <h1 className="text-[clamp(1.1rem,4.5vw,2.5rem)] leading-[clamp(1.4rem,5vw,3rem)] font-bold text-gray-900 text-center">
-    <span className="whitespace-nowrap block">
-      Just One Winning Ad On Meta
-    </span>
-    <span className="whitespace-nowrap block mb-2">
-      Can 3x Your Sales & ROAS!
-    </span>
-    <span className="whitespace-nowrap block">
-      <span className="bg-gradient-to-r from-[#CB6CE6] to-[#2D65F5] bg-clip-text text-transparent">
-        Leepi AI
-      </span>{" "}
+        {/* Mobile version (below 600px) */}
+<div className="block max-[599px]:block min-[600px]:hidden mb-6 mt-9 mx-auto w-full max-w-[clamp(270px,90vw,600px)] px-2">
+  <h1 className="text-[1.3rem] leading-[1.6rem] font-bold text-gray-900 text-center">
+    <span className="whitespace-nowrap inline-block mx-auto">Just One Winning Ad</span>{" "}
+    <span className="whitespace-nowrap inline-block mx-auto">On Meta</span>
+    <span className="whitespace-nowrap inline-block mx-auto">Can 3x Your Sales & ROAS!</span>
+    <span className="whitespace-nowrap inline-block mx-auto">
+      <span className="bg-gradient-to-r from-[#CB6CE6] to-[#2D65F5] bg-clip-text text-transparent">Leepi AI</span>{" "}
       Will Write Unlimited Such
     </span>
+    <span className="whitespace-nowrap inline-block mx-auto">Ads To 3X Your ROAS (Guaranteed)</span>
+  </h1>
+</div>
+
+{/* Larger screens version (from 600px upwards) */}
+<div className="hidden min-[600px]:block mb-6 mt-9 mx-auto w-full px-2">
+  <h1 className="text-[clamp(1.1rem,4.5vw,2.5rem)] leading-[clamp(1.4rem,5vw,3rem)] font-bold text-gray-900 text-center">
+    <span className="whitespace-nowrap block">Just One Winning Ad On Meta</span>
+    <span className="whitespace-nowrap block mb-2">Can 3x Your Sales & ROAS!</span>
     <span className="whitespace-nowrap block">
-      Ads To 3X Your ROAS (Guaranteed)
+      <span className="bg-gradient-to-r from-[#CB6CE6] to-[#2D65F5] bg-clip-text text-transparent">Leepi AI</span>{" "}
+      Will Write Unlimited Such
     </span>
+    <span className="whitespace-nowrap block">Ads To 3X Your ROAS (Guaranteed)</span>
   </h1>
 </div>
 
 
 
           <div className="relative flex flex-col items-center text-center group mb-6 sm:mb-8 px-3 sm:px-4">
-  <div className="inline-flex items-center px-6 py-[1px] bg-black text-white font-semibold rounded-xl text-sm sm:text-base md:text-lg shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105">
+  <div className="inline-flex items-center min-w-[315px] justify-center  bg-black text-white font-semibold rounded-xl text-sm sm:text-base md:text-lg shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105">
     100% Refund Guarantee
   </div>
 </div>
 
-          <div className="mb-6 inline-block scale-[1.01] rounded-lg bg-gradient-to-r from-[#1653F5] via-[#3CA8E3] via-[#BA63D3] via-[#FAAEA5] to-[#1449F9] p-[1px]">
-  <div className="bg-white rounded-lg">
+
+<div className="mb-6 mx-auto scale-[1.01] 
+                w-full max-w-[700px] 
+                rounded-lg bg-gradient-to-r from-[#1653F5] via-[#3CA8E3] via-[#BA63D3] via-[#FAAEA5] to-[#1449F9] 
+                p-[1px] flex items-center justify-center">
+  <div className="bg-white rounded-lg w-full h-auto">
     <img
       src="https://res.cloudinary.com/dvxqb1wge/image/upload/v1754980416/landingPage1_fjahft.png"
       alt="Storyboard and Final Ad Example"
-      className="rounded-lg"
+      className="rounded-lg w-full h-auto object-contain"
     />
   </div>
 </div>
+
+
+
 
           <TryButton />
         </div>
@@ -151,29 +165,27 @@ const LandingPage: React.FC = () => {
       <section className="relative z-10 py-1 px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto text-center">
           <div className="text-center mb-4">
-  {/* Leepi AI (smaller now) */}
-  <div className="relative inline-block">
-    <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-[#CB6CE6] to-[#2D65F5] bg-clip-text text-transparent transition-all duration-300 hover:scale-105">
-      Leepi AI
-    </h1>
-    <div className="absolute -inset-2 bg-gradient-to-r from-purple-600/20 to-pink-600/20 blur-xl opacity-0 hover:opacity-100 transition-opacity duration-500 rounded-lg"></div>
-  </div>
+            {/* Leepi AI (smaller now) */}
+            <div className="relative inline-block">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-[#CB6CE6] to-[#2D65F5] bg-clip-text text-transparent transition-all duration-300 hover:scale-105">
+                Leepi AI
+              </h1>
+              <div className="absolute -inset-2 bg-gradient-to-r from-purple-600/20 to-pink-600/20 blur-xl opacity-0 hover:opacity-100 transition-opacity duration-500 rounded-lg"></div>
+            </div>
 
-  {/* Other Headings (bigger + width control) */}
-<div className="mb-2 mt-2 mx-auto w-full max-w-[clamp(270px,80vw,500px)] px-2">
-  <h1 className="text-[clamp(1.25rem,5vw,2.5rem)] leading-[clamp(1.5rem,5.5vw,3rem)] font-bold text-gray-900 text-center">
-    <div className="block">Is Not Just A ChatGPT</div>
-    <div className="block">Wrapper, Its Trained On</div>
-    <div className="block">Rs.50Cr Of Meta Ad Spend</div>
-  </h1>
-</div>
+            {/* Other Headings (bigger + width control) */}
+            <div className="mb-2 mt-2 mx-auto w-full max-w-[clamp(270px,80vw,500px)] px-2">
+              <h1 className="text-[clamp(1.25rem,5vw,2.5rem)] leading-[clamp(1.5rem,5.5vw,3rem)] font-bold text-gray-900 text-center">
+                <div className="block">Is Not Just A ChatGPT</div>
+                <div className="block">Wrapper, Its Trained On</div>
+                <div className="block">Rs.50Cr Of Meta Ad Spend</div>
+              </h1>
+            </div>
 
-  <p className="text-center text-[12px] sm:text-base md:text-xl font-medium text-gray-800">
-  It Understands
-</p>
-
-</div>
-
+            <p className="text-center text-[12px] sm:text-base md:text-xl font-medium text-gray-800">
+              It Understands
+            </p>
+          </div>
 
           <div className="space-y-2 ">
             <div className="flex flex-wrap gap-2 justify-center">
@@ -216,11 +228,10 @@ const LandingPage: React.FC = () => {
                 </div>
               ))}
             </div>
-             
           </div>
           <p className="text-center text-[12px] sm:text-base md:text-xl font-medium text-gray-800 mt-4 mb-9">
-      So That You Don’t Have To! 
-</p>
+            So That You Don’t Have To!
+          </p>
 
           <TryButton />
         </div>
@@ -232,23 +243,23 @@ const LandingPage: React.FC = () => {
         <div className="max-w-4xl mx-auto text-center">
           {/* Title */}
           <div className="relative inline-block">
-             <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-[#CB6CE6] to-[#2D65F5] bg-clip-text text-transparent transition-all duration-300 hover:scale-105">
-      Leepi AI
-    </h1>
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-[#CB6CE6] to-[#2D65F5] bg-clip-text text-transparent transition-all duration-300 hover:scale-105">
+              Leepi AI
+            </h1>
           </div>
 
           {/* Subtitle */}
-         <div className="mb-2 mt-2 mx-auto w-full max-w-[clamp(270px,80vw,500px)] px-2">
-  <h1 className="text-[clamp(1.25rem,5vw,2.5rem)] leading-[clamp(1.5rem,5.5vw,3rem)] font-bold text-gray-900 text-center">
-    <span className="block">Has Written & Ideated 1000+</span>
-    <span className="block">Ads For Dozens of Brands</span>
-  </h1>
-</div>
+          <div className="mb-2 mt-2 mx-auto w-full max-w-[clamp(270px,80vw,500px)] px-2">
+            <h1 className="text-[clamp(1.25rem,5vw,2.5rem)] leading-[clamp(1.5rem,5.5vw,3rem)] font-bold text-gray-900 text-center">
+              <span className="block">Has Written & Ideated 1000+</span>
+              <span className="block">Ads For Dozens of Brands</span>
+            </h1>
+          </div>
 
           {/* Description */}
-  <p className="text-center text-[12px] sm:text-base md:text-xl font-medium text-gray-800 mt-4 ">
-Including  VC Backed & Shark Tank Funded Companies
-</p>
+          <p className="text-center text-[12px] sm:text-base md:text-xl font-medium text-gray-800 mt-4 ">
+            Including  VC Backed & Shark Tank Funded Companies
+          </p>
 
           {/* Image */}
           <CompanyGrid />
@@ -264,9 +275,6 @@ Including  VC Backed & Shark Tank Funded Companies
           {/* Header */}
           <div className="text-center mb-12">
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-[#CB6CE6] to-[#2D65F5] bg-clip-text text-transparent transition-all duration-300 hover:scale-105">
-      
-    
-            
               <span className="bg-gradient-to-r from-[#CB6CE6] to-[#2D65F5] bg-clip-text text-transparent">
                 Ads Written by Leepi AI
               </span>
@@ -274,27 +282,26 @@ Including  VC Backed & Shark Tank Funded Companies
               <span className="bg-gradient-to-r from-[#CB6CE6] to-[#2D65F5] bg-clip-text text-transparent">
                 That Broke Meta Ads
               </span>
-           
             </h1>
           </div>
 
           <Brandcompo
-            brandname="Arabian Aroma"
-            videadd="https://drive.google.com/file/d/1K_ekJGfkPtujOE2_9GVHmzVyNk2RI4Ik/preview"
+            brandname="Go Wheelo"
+            videadd="https://res.cloudinary.com/dvxqb1wge/image/upload/v1755359134/go_wheelo_quqgxp.gif"
+            scriptadd="https://res.cloudinary.com/dvxqb1wge/image/upload/v1754980416/Screenshot_from_2025-08-10_02-32-43_umhnri.png"
+            resultadd="https://res.cloudinary.com/dvxqb1wge/image/upload/v1754980416/Screenshot_from_2025-08-10_02-32-43_umhnri.png"
+          />
+          <br />
+          <Brandcompo
+            brandname="Asli Gems"
+            videadd="https://res.cloudinary.com/dvxqb1wge/image/upload/v1755357609/asligems_cx9ntn.gif"
             scriptadd="https://res.cloudinary.com/dvxqb1wge/image/upload/v1754980416/Screenshot_from_2025-08-10_02-32-43_umhnri.png"
             resultadd="https://res.cloudinary.com/dvxqb1wge/image/upload/v1754980416/Screenshot_from_2025-08-10_02-32-43_umhnri.png"
           />
           <br />
           <Brandcompo
             brandname="Arabian Aroma"
-            videadd="https://drive.google.com/file/d/1K_ekJGfkPtujOE2_9GVHmzVyNk2RI4Ik/preview"
-            scriptadd="https://res.cloudinary.com/dvxqb1wge/image/upload/v1754980416/Screenshot_from_2025-08-10_02-32-43_umhnri.png"
-            resultadd="https://res.cloudinary.com/dvxqb1wge/image/upload/v1754980416/Screenshot_from_2025-08-10_02-32-43_umhnri.png"
-          />
-          <br />
-          <Brandcompo
-            brandname="Arabian Aroma"
-            videadd="https://drive.google.com/file/d/1K_ekJGfkPtujOE2_9GVHmzVyNk2RI4Ik/preview"
+            videadd="https://res.cloudinary.com/dvxqb1wge/image/upload/v1755359130/arabian_rogpzs.gif"
             scriptadd="https://res.cloudinary.com/dvxqb1wge/image/upload/v1754980416/Screenshot_from_2025-08-10_02-32-43_umhnri.png"
             resultadd="https://res.cloudinary.com/dvxqb1wge/image/upload/v1754980416/Screenshot_from_2025-08-10_02-32-43_umhnri.png"
           />

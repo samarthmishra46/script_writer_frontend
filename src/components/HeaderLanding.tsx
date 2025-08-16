@@ -141,18 +141,19 @@ interface LinkItemProps {
 
 }
 
-function LinkItem({ to, label, hoverColor,text }: LinkItemProps) {
+function LinkItem({ to, label, hoverColor, text }: LinkItemProps) {
   return (
     <Link
       to={to}
-      className={`nav-item text-gray-700 hover:text-${hoverColor} transition-all duration-300 relative group px-4 py-2 rounded-lg text-${text}`}
+      className={`nav-item text-gray-700 hover:text-${hoverColor} relative group px-4 py-2 rounded-lg text-${text}`}
     >
-      <span className="relative z-10">{label}</span>
-      <span className="absolute bottom-0 left-1/2 w-0 h-0.5 bg-gradient-to-r from-pink-600 via-purple-600 to-blue-600 group-hover:w-full group-hover:left-0 transition-all duration-500"></span>
+      <span className="relative z-10 inline-block transition-transform duration-200 ease-out group-hover:scale-105">
+        {label}
+      </span>
+      <span className="absolute bottom-0 left-1/2 w-0 h-0.5 bg-gradient-to-r from-pink-600 via-purple-600 to-blue-600 group-hover:w-full group-hover:left-0 transition-all duration-300 ease-out"></span>
     </Link>
   );
 }
-
 /* Desktop User Dropdown */
 interface UserDropdownProps {
   user?: User | null;
