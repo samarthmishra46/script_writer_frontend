@@ -71,7 +71,7 @@ export function Brandcompo({
             </div>
           </div>
 
-          
+          <br />
         </div>
         
       </div>
