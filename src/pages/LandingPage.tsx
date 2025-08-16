@@ -106,7 +106,7 @@ const LandingPage: React.FC = () => {
 
         {/* Mobile version (below 600px) */}
 <div className="block max-[599px]:block min-[600px]:hidden mb-6 mt-9 mx-auto w-full max-w-[clamp(270px,90vw,600px)] px-2">
-  <h1 className="text-[1.3rem] leading-[1.6rem] font-bold text-gray-900 text-center">
+  <h1 className="text-[clamp(1.25rem,5vw,2.5rem)] leading-[clamp(1.5rem,5.5vw,3rem)] font-bold text-gray-900 text-center">
     <span className="whitespace-nowrap inline-block mx-auto">Just One Winning Ad</span>{" "}
     <span className="whitespace-nowrap inline-block mx-auto">On Meta</span>
     <span className="whitespace-nowrap inline-block mx-auto">Can 3x Your Sales & ROAS!</span>
@@ -120,7 +120,7 @@ const LandingPage: React.FC = () => {
 
 {/* Larger screens version (from 600px upwards) */}
 <div className="hidden min-[600px]:block mb-6 mt-9 mx-auto w-full px-2">
-  <h1 className="text-[clamp(1.1rem,4.5vw,2.5rem)] leading-[clamp(1.4rem,5vw,3rem)] font-bold text-gray-900 text-center">
+  <h1 className="text-[clamp(1.1rem,5vw,2.5rem)] leading-[clamp(1.4rem,5.5vw,3rem)] font-bold text-gray-900 text-center">
     <span className="whitespace-nowrap block">Just One Winning Ad On Meta</span>
     <span className="whitespace-nowrap block mb-2">Can 3x Your Sales & ROAS!</span>
     <span className="whitespace-nowrap block">
@@ -141,7 +141,8 @@ const LandingPage: React.FC = () => {
 
 
 <div className="mb-6 mx-auto scale-[1.01] 
-                w-full max-w-[700px] 
+                w-full 
+                max-w-[700px] 
                 rounded-lg bg-gradient-to-r from-[#1653F5] via-[#3CA8E3] via-[#BA63D3] via-[#FAAEA5] to-[#1449F9] 
                 p-[1px] flex items-center justify-center">
   <div className="bg-white rounded-lg w-full h-auto">
