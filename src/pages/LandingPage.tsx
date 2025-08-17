@@ -135,7 +135,7 @@ const LandingPage: React.FC = () => {
 
 
           <div className="relative flex flex-col items-center text-center group mb-6 sm:mb-8 px-3 sm:px-4">
-  <div className="inline-flex items-center min-w-[360px] justify-center  bg-black text-white font-semibold rounded-xl text-sm sm:text-base md:text-lg shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105">
+  <div className="inline-flex items-center min-w-[320px] justify-center  bg-black text-white font-semibold rounded-xl text-sm sm:text-base md:text-lg shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105">
     100% Refund Guarantee
   </div>
 </div>
