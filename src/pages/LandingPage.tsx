@@ -7,6 +7,7 @@ import { NoCommit } from "../components/Nocommit";
 import { TryButton } from "../components/TryButton";
 import CompanyGrid from "../components/CompneyGrid";
 import StickyFooter from "../components/StickeyFooter";
+import { VideoRunning } from "../components/RunningVideoLtoR";
 interface User {
   id: string;
   name: string;
@@ -268,10 +269,15 @@ const LandingPage: React.FC = () => {
           {/* CTA Button */}
           <TryButton />
         </div>
+        <VideoRunning/>
       </section>
 
+      
+
+      
+
       {/* NEW: "Ads Written by Leepi AI" Section */}
-      <section className="relative z-10  px-4 sm:px-6 lg:px-8">
+      <section className="relative z-10  px-1 sm:px-4 md:px-8 lg:px-9">
         <div className="max-w-6xl mx-auto">
           {/* Header */}
           <div className="text-center mb-12">

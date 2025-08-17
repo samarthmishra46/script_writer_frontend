@@ -24,6 +24,19 @@ nav {
 .animate-marquee {
   animation: marquee 15s linear infinite;
 }
+
+
+
+
+.animate_marquee {
+  display: flex;
+  width: max-content;
+  animation: marquee 20s linear infinite;
+}
+
+
+
+
 .nav-item {
   transform-origin: center bottom;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
