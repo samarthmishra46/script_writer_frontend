@@ -46,7 +46,7 @@ export function TryButton() {
              min-h-[35px] min-w-[305px]" // ✅ fixed height + width
 >
   {/* Inner text can scale without changing button height */}
-  <span className="flex items-center whitespace-nowrap truncate text-[12px] sm:text-base md:text-md lg:text-lg px-1 leading-none">
+  <span className="flex items-center whitespace-nowrap truncate text-[15px] sm:text-base md:text-md lg:text-lg px-2 leading-none">
     Get Unlimited Winning Ad Scripts
     <span className="flex items-center ml-1.5 px-1.5 py-0.5 rounded">
       <span className="text-gray-300 line-through font-normal text-[0.65rem] sm:text-[0.75rem] md:text-sm lg:text-md mr-0.5">
