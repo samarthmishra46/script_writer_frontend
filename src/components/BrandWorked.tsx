@@ -25,7 +25,7 @@ export function Brandcompo({
     <>
       {/* Card with gradient border */}
       <div className="bg-gradient-to-br from-[#1653F5] via-[#3CA8E3] via-[#BA63D3] via-[#FAAEA5] to-[#1449F9] p-[2px] rounded-xl shadow-lg mb-8 ">
-  <div className="bg-white rounded-xl pb-4">
+  <div className="bg-white rounded-xl pb-4 pt-4">
     {/* Brand */}
     <div className="text-center mb-6">
       <h3 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-black">
@@ -83,19 +83,12 @@ export function Brandcompo({
 </div>
 
       {/* Quote */}
-          <p className="mt-8 text-[12px] sm:text-base md:text-lg font-bold text-center italic text-gray-700 max-w-2xl mx-auto">
-            “It knows exactly which hooks work in which industries, what angles
-            to use, what formats convert”
-          </p>
+          
 
           {/* CTA Button */}
-          <TryButton />
-
+         
           {/* Footer Note */}
-          <p className="mt-4 text-[10px] sm:text-base md:text-lg font-bold text-center  text-gray-500 px-8 max-w-2xl mx-auto">
-            Generate Unlimited Winning Ad Scripts. If at least 3 ad scripts
-            don’t work, 100% money back.
-          </p>
+         
     </>
   );
 }

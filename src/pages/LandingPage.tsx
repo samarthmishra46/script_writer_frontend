@@ -267,9 +267,12 @@ const LandingPage: React.FC = () => {
           <CompanyGrid />
 
           {/* CTA Button */}
+
+          <VideoRunning/>
+          <br />
           <TryButton />
         </div>
-        <VideoRunning/>
+        
       </section>
 
       
@@ -287,10 +290,12 @@ const LandingPage: React.FC = () => {
               </span>
               <br />
               <span className="bg-gradient-to-r from-[#CB6CE6] to-[#2D65F5] bg-clip-text text-transparent">
-                That Broke Meta Ads
+                That Broke Meta Ads 
               </span>
             </h1>
+            <span className="bg-yellow text-2xl">👇🤯💸</span>
           </div>
+          
 
           <Brandcompo
             brandname="Go Wheelo"
@@ -298,6 +303,12 @@ const LandingPage: React.FC = () => {
             scriptadd="https://res.cloudinary.com/dvxqb1wge/image/upload/v1755361770/Screenshot_from_2025-08-16_21-59-07_b0g8tl.png"
             resultadd="https://res.cloudinary.com/dvxqb1wge/image/upload/v1754980416/Screenshot_from_2025-08-10_02-32-43_umhnri.png"
           />
+          
+          <p className="mt-8 text-[15px] sm:text-base md:text-lg font-bold text-center italic text-gray-700 max-w-xl mx-auto">
+            “It knows exactly which hooks work in which 
+            <br />industries, what angles
+            to use, what formats convert”
+          </p>
           <br />
           <Brandcompo
             brandname="Asli Gems"
@@ -305,6 +316,9 @@ const LandingPage: React.FC = () => {
             scriptadd="https://res.cloudinary.com/dvxqb1wge/image/upload/v1755362138/Screenshot_from_2025-08-16_22-05-18_kinkiv.png"
             resultadd="https://res.cloudinary.com/dvxqb1wge/image/upload/v1754980416/Screenshot_from_2025-08-10_02-32-43_umhnri.png"
           />
+          <p className="mt-8 text-[15px] sm:text-base md:text-lg font-bold text-center italic text-gray-700 max-w-xl mx-auto">
+            “This tool doesn’t just write ad scripts. It reverse-engineers what makes ads perform”
+          </p>
           <br />
           <Brandcompo
             brandname="Arabian Aroma"
@@ -312,8 +326,14 @@ const LandingPage: React.FC = () => {
             scriptadd="https://res.cloudinary.com/dvxqb1wge/image/upload/v1754980416/Screenshot_from_2025-08-10_02-32-43_umhnri.png"
             resultadd="https://res.cloudinary.com/dvxqb1wge/image/upload/v1754980416/Screenshot_from_2025-08-10_02-32-43_umhnri.png"
           />
+          <p className="mt-8 text-[15px] sm:text-base md:text-lg font-bold text-center italic text-gray-700 max-w-xl mx-auto">
+            “Every script felt engineered to sell. My ROAS shot through the roof”
+          </p>
+          <br />
         </div>
+        <TryButton />
       </section>
+
       <NoCommit />
       {/* NEW: How Leepi AI Works */}
       <section className="relative z-10 py-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-blue-50 to-purple-50">
@@ -399,9 +419,9 @@ const LandingPage: React.FC = () => {
       </section>
       <NoCommit />
       {/* NEW: 100% Money Back Guarantee */}
-      <section className="relative z-10 py-16 px-4 sm:px-6 lg:px-8">
+      <section className="relative z-10 py-6 px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-12">
+          <div className="text-center mb-2">
             <h1 className="text-4xl font-bold bg-gradient-to-r from-[#CB6CE6] to-[#2D65F5] bg-clip-text text-transparent">
               <span className="text-[#474747]">The</span> Promise
             </h1>
@@ -434,15 +454,42 @@ const LandingPage: React.FC = () => {
           </div>
 
           <TryButton />
-          <p className="relative group  text-center text-sm sm:text-sm px-2 leading-relaxed ml-10 mr-10">
-            Generate Unlimited Winning Ad Scripts, If at least 3 ad scripts
-            don’t work, 100% money back
-          </p>
+          <NoCommit/>
+         
         </div>
+      </section>
+      {/* {Commitment} */}
+      <section className="relative z-10 py-2  px-1 lg:px-8">
+        <div className="max-w-4xl mx-auto text-center mb-16">
+          {/* Title */}
+          <div className="relative inline-block">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-[#CB6CE6] to-[#2D65F5] bg-clip-text text-transparent transition-all duration-300 hover:scale-105">
+              Leepi AI
+            </h1>
+          </div>
+
+          {/* Subtitle */}
+          <div className="mb-2 mt-2 mx-auto w-full max-w-[clamp(270px,80vw,500px)] px-2">
+            <h1 className="text-[clamp(1.25rem,5vw,2.5rem)] leading-[clamp(1.5rem,5.5vw,3rem)] font-bold text-gray-900 text-center">
+              <span className="block">Starting Today, You’ll Never</span>
+              <span className="block">Have To Worry About Meta</span>
+              <span className="block">Ads Ever Again!</span>
+            </h1>
+          </div>
+
+          {/* Description */}
+         
+        </div>
+        <TryButton />
+         <p className="mt-4 mb-20 text-[12px] sm:text-base md:text-lg font-bold text-center  text-gray-500 px-8 max-w-2xl mx-auto">
+            Generate Unlimited Winning Ad Scripts. If at least 3 ad scripts
+            don’t work, 100% money back.
+          </p>
       </section>
 
       <NoCommit />
       <StickyFooter />
+
     </div>
   );
 };
