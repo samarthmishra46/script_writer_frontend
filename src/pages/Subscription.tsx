@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import { buildApiUrl } from "../config/api";
 import { useNavigate } from "react-router-dom";
 
@@ -8,6 +7,27 @@ declare global {
   interface Window {
     Razorpay: unknown;
   }
+}
+
+interface RazorpayResponse {
+  razorpay_payment_id: string;
+  razorpay_subscription_id: string;
+  razorpay_signature: string;
+}
+
+interface RazorpayError {
+  error: {
+    description: string;
+  };
+}
+
+interface RazorpayInstance {
+  open(): void;
+  on(event: string, callback: (response: RazorpayError) => void): void;
+}
+
+interface RazorpayConstructor {
+  new (options: unknown): RazorpayInstance;
 }
 
 interface UserData {
@@ -19,13 +39,12 @@ interface UserData {
     nextBillingDate?: Date;
     remainingDays?: number;
   };
-  [key: string]: any;
 }
 interface ScriptResponse {
   isActive?: boolean;
   plan: string;
-  startDate: string | Date;
-  endDate: string | Date;
+  activatedDate:Date;
+  nextBillingDate:Date;
   status?: string;
   message?: string;
 }
@@ -58,14 +77,14 @@ const Subscription: React.FC = () => {
   const [subscriptionData, setSubscriptionData] = useState<{
     isActive: boolean;
     plan: string;
-    remainingDays: number;
-    nextBillingDate?: Date;
-    startDate?:Date;
-    endDate?:Date;
+    activatedDate:Date;
+  nextBillingDate:Date;
+  remainingDays?: number;
   }>({
     isActive: false,
     plan: 'free',
-    remainingDays: 0
+    activatedDate: new Date(),
+    nextBillingDate: new Date(),
   });
 
   // Load Razorpay script
@@ -112,23 +131,21 @@ const Subscription: React.FC = () => {
         
         // Calculate remaining days properly
         let remainingDays = 0;
-        if (data.startDate && data.endDate) {
-          const end = new Date(data.endDate);
-          const now = new Date();
-          remainingDays = Math.ceil((end.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-          console.log("Remaining days calculation:", { 
-            end: end.toISOString(), 
-            now: now.toISOString(), 
-            remainingDays 
-          });
-          if (remainingDays < 0) remainingDays = 0;
+        if (data.nextBillingDate && data.activatedDate) {
+          const currentDate = new Date();
+          
+          const nextDate = new Date(data.nextBillingDate);
+          
+          const diffMs = nextDate.getTime() - currentDate.getTime();
+          remainingDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
         }
-        
+          
         setSubscriptionData({
           isActive: data.plan === 'individual' || data.plan === 'organization',
           plan: data.plan || 'free',
           remainingDays: remainingDays,
-          nextBillingDate: data.endDate ? new Date(data.endDate) : undefined
+          activatedDate: data.activatedDate,
+          nextBillingDate: data.nextBillingDate
         });
       } catch (error) {
         console.error('Error checking subscription:', error);
@@ -175,7 +192,7 @@ const Subscription: React.FC = () => {
       subscription_id: subscriptionId,
       name: "Leepi AI",
       description: "₹10 every 7 days",
-      handler: async function (response) {
+      handler: async function (response: RazorpayResponse) {
         console.log("Razorpay Response:", response);
 
         // Extract values from Razorpay response
@@ -221,8 +238,8 @@ const Subscription: React.FC = () => {
     };
 
     // 4. Open Razorpay Checkout
-    const rzp = new Razorpay(options);
-    rzp.on("payment.failed", function (response) {
+    const rzp = new (window as { Razorpay: RazorpayConstructor }).Razorpay(options);
+    rzp.on("payment.failed", function (response: RazorpayError) {
       console.error("Payment failed:", response.error);
       alert("Payment failed: " + response.error.description);
     });
@@ -301,12 +318,7 @@ const Subscription: React.FC = () => {
             
             <div className="mt-6 mb-2">
               <div className="text-5xl font-bold text-green-800">
-                {subscriptionData.startDate && subscriptionData.endDate
-                  ? Math.ceil(
-                      (subscriptionData.endDate.getTime() - subscriptionData.startDate.getTime()) /
-                      (1000 * 60 * 60 * 24)
-                    )
-                  : subscriptionData.remainingDays}
+                {subscriptionData.remainingDays || 0}
                 <span className="text-xl font-normal text-green-600 ml-2">days left</span>
               </div>
               {subscriptionData.nextBillingDate && (
