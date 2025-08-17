@@ -241,7 +241,7 @@ const LandingPage: React.FC = () => {
       <NoCommit />
 
       {/* NEW: "Leepi AI Has Written & Ideated 1000+ Ads" Section */}
-      <section className="relative z-10 py-16  px-1 lg:px-8">
+      <section className="relative z-10 py-16  px-1 lg:px-7">
         <div className="max-w-4xl mx-auto text-center">
           {/* Title */}
           <div className="relative inline-block">
@@ -271,6 +271,7 @@ const LandingPage: React.FC = () => {
           <VideoRunning/>
           <br />
           <TryButton />
+          <NoCommit/>
         </div>
         
       </section>

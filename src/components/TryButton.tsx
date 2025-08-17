@@ -39,26 +39,41 @@ export function TryButton() {
   </div>
 
     {/* Subscribe Button */}
-   <Link
+ <Link
   to="/login"
-  className="group inline-flex items-center justify-center bg-gradient-to-r from-[#9F6AEA] to-purple-600 
-             text-white font-bold rounded-lg shadow hover:shadow-md transition-all duration-200 
-             min-h-[35px] min-w-[305px]" // ✅ fixed height + width
+  className="group relative inline-flex items-center justify-center 
+             overflow-hidden rounded-lg 
+             bg-gradient-to-r from-[#9F6AEA] to-purple-600 
+             text-white font-bold shadow hover:shadow-lg 
+             transition-all duration-300 
+             min-h-[45px] min-w-[320px]"
 >
-  {/* Inner text can scale without changing button height */}
-  <span className="flex items-center whitespace-nowrap truncate text-[15px] sm:text-base md:text-md lg:text-lg px-2 leading-none">
+  {/* Button text + price */}
+  <span className="flex items-center whitespace-nowrap truncate 
+                   text-[15px] sm:text-base md:text-md lg:text-lg px-3 leading-none">
     Get Unlimited Winning Ad Scripts
-    <span className="flex items-center ml-1.5 px-1.5 py-0.5 rounded">
-      <span className="text-gray-300 line-through font-normal text-[0.65rem] sm:text-[0.75rem] md:text-sm lg:text-md mr-0.5">
+    <span className="flex items-center ml-2 px-1.5 py-0.5 rounded">
+      <span className="text-gray-300 line-through font-normal 
+                       text-[0.65rem] sm:text-[0.75rem] md:text-sm lg:text-md mr-1">
         ₹7,999
       </span>
-      <span className="font-extrabold text-yellow-300 text-[0.8rem] sm:text-[0.9rem] md:text-xl lg:text-lg">
+      <span className="font-extrabold text-yellow-300 
+                       text-[0.85rem] sm:text-[0.95rem] md:text-xl lg:text-lg">
         ₹1,999
       </span>
       <ChevronRight className="ml-1 w-3 h-3 transition-transform group-hover:translate-x-0.5" />
     </span>
   </span>
+
+  {/* Shiny sweep effect */}
+  <span className="pointer-events-none absolute inset-0 
+                   before:absolute before:inset-0 
+                   before:-translate-x-full before:animate-shiny 
+                   before:bg-gradient-to-r before:from-transparent 
+                   before:via-white/40 before:to-transparent 
+                   before:skew-x-12" />
 </Link>
+
 
      <div className="flex items-center whitespace-nowrap truncate text-sm sm:text-lg md:text-xl lg:text-2xl mt-2"> 
     {/* ⬅ bigger size */}
