@@ -19,9 +19,8 @@ const StickyFooter: React.FC = () => {
 
   return (
     <div
-  className={`fixed bottom-0 left-0 w-full bg-[#241F26] text-white border-t border-gray-700 z-50 transition-transform duration-300 ${
-    showFooter ? "translate-y-0" : "translate-y-full"
-  }`}
+  className="fixed bottom-0 left-0 w-full bg-[#241F26] text-white border-t border-gray-700 z-50 
+    "
 >
   <div className="max-w-6xl mx-auto flex items-center justify-between gap-3 px-3 py-2 sm:py-3 flex-nowrap">
     
