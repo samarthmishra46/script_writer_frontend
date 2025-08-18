@@ -1,54 +1,51 @@
-import { ShinyButton } from "@/components/magicui/shiny-button";
 import { Link } from "react-router-dom";
+import { ChevronRight } from "lucide-react";
 
 const StickyFooter: React.FC = () => {
-  // const [showFooter, setShowFooter] = useState(false);
- 
-  // useEffect(() => {
-  //   const handleScroll = () => {
-  //     setShowFooter(window.scrollY > 100);
-  //   };
-  //   window.addEventListener("scroll", handleScroll);
-  //   return () => window.removeEventListener("scroll", handleScroll);
-  // }, []);
-
-  // if (!showFooter) return null;
-
   return (
-    <div className="fixed bottom-0 left-0 w-full bg-[#241F26] text-white border-t border-gray-800 z-50 rounded-xl">
-      <div className="max-w-6xl mx-auto flex items-center justify-between px-5 py-6 sm:py-6 md:py-1">
+    <div className="fixed bottom-0 left-0 w-full z-50 bg-gradient-to-r from-[#1e1b22] to-[#241F26] border-t border-gray-700 shadow-lg">
+      <div className="flex flex-col items-center text-center px-4 py-4 sm:py-6">
         
-        {/* Price + Guarantee */}
-        <div className="flex flex-col text-left">
-          <div className="flex items-center gap-2">
-            <span className="text-gray-400 line-through text-lg sm:text-xl md:text-xl">
-              ₹7999
+        {/* Subscribe Button */}
+        <Link
+          to="/login"
+          className="group relative inline-flex items-center justify-center 
+                     overflow-hidden rounded-2xl
+                     bg-gradient-to-r from-[#9F6AEA] to-purple-600 
+                     text-white font-bold shadow-md hover:shadow-xl 
+                     hover:scale-[1.02] transition-all duration-300 
+                     min-h-[50px] min-w-[320px] sm:min-w-[380px] md:min-w-[420px]"
+        >
+          {/* Button text + price */}
+          <span className="flex items-center whitespace-nowrap truncate 
+                           text-[15px] sm:text-base md:text-lg lg:text-xl px-4 leading-none">
+            Get Unlimited Winning Ad Scripts
+            <span className="flex items-center ml-3 px-2 py-1 rounded-lg bg-black/20">
+              <span className="text-gray-300 line-through font-normal 
+                               text-[0.7rem] sm:text-sm md:text-base mr-2">
+                ₹7,999
+              </span>
+              <span className="font-extrabold text-yellow-300 
+                               text-[0.95rem] sm:text-lg md:text-xl">
+                ₹1,999
+              </span>
+              <ChevronRight className="ml-2 w-4 h-4 transition-transform group-hover:translate-x-1" />
             </span>
-            <span className="text-[#FFD600] font-extrabold text-2xl sm:text-3xl md:text-2xl">
-              ₹1999
-            </span>
-          </div>
-          <span className="text-sm sm:text-base md:text-lg text-gray-300 font-medium mt-2">
-            100% Money Back Guarantee
           </span>
+
+          {/* Shiny sweep effect */}
+          <span className="pointer-events-none absolute inset-0 
+                           before:absolute before:inset-0 
+                           before:-translate-x-full before:animate-shiny 
+                           before:bg-gradient-to-r before:from-transparent 
+                           before:via-white/40 before:to-transparent 
+                           before:skew-x-12" />
+        </Link>
+
+        {/* Guarantee Text */}
+        <div className="mt-3 text-gray-300 text-sm sm:text-lg md:text-xl lg:text-2xl font-semibold">
+          (30 Days Access) · <span className="text-green-400">100% Refund Guarantee!</span>
         </div>
-
-        {/* CTA Button */}
-       <Link
-  to="/signup"
-  className="relative inline-flex items-center justify-center overflow-hidden rounded-lg 
-             bg-gradient-to-r from-[#9F6AEA] to-purple-600 
-             px-9 py-5 text-lg sm:text-xl md:text-2xl font-extrabold text-white 
-             shadow-lg whitespace-nowrap transition-transform duration-300 hover:scale-105"
->
-  SIGN UP NOW
-  {/* Shiny sweep overlay */}
-  <span className="pointer-events-none absolute inset-0 before:absolute before:inset-0 
-                   before:-translate-x-full before:animate-shiny 
-                   before:bg-gradient-to-r before:from-transparent 
-                   before:via-white/40 before:to-transparent before:skew-x-12" />
-</Link>
-
       </div>
     </div>
   );
