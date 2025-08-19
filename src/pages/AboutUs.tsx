@@ -225,17 +225,8 @@ const AboutUs: React.FC = () => {
               </div>
             </div>
 
-            {/* Vinnet Mishra */}
-            <div className="bg-gradient-to-br from-white to-blue-50 rounded-2xl p-8 shadow-xl border border-blue-100">
-              <div className="text-6xl mb-6 text-center">👨‍💻</div>
-              <h3 className="text-2xl font-bold mb-2 text-gray-900">Vinnet Mishra</h3>
-              <p className="text-blue-600 font-semibold mb-4 text-lg">Co-founder & Head of Product/AI</p>
-              <div className="space-y-4 text-gray-700">
-                <p>
-                  MBA, <span className="font-bold text-blue-600">IIM Bangalore</span>. <span className="font-bold">10+ years</span> in product. Vinnet <span className="font-bold text-blue-600">envisioned Leepi AI</span> and leads the product & AI spine—turning simple offer inputs into <span className="font-bold">20 high-converting, Meta-native scripts with storyboards</span> in minutes. Obsessed with <span className="font-bold">speed, clarity, and ROAS</span>.
-                </p>
-              </div>
-            </div>
+           
+            
           </div>
         </div>
       </section>
