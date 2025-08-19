@@ -114,6 +114,13 @@ interface ScriptResponse {
   };
   message: string;
 }
+const messages = [
+  "AI is taking your prompt",
+  "AI is using RAG to search similar ads from database",
+  "AI is analyzing top-performing ads",
+  "AI is generating your winning ad script",
+  "Finalizing results"
+];
 
 const CreateScriptWizard: React.FC = () => {
   const navigate = useNavigate();
@@ -122,6 +129,10 @@ const CreateScriptWizard: React.FC = () => {
   const totalSteps = 9;
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [currentText, setCurrentText] = useState('');
+  const [isTyping, setIsTyping] = useState(false);
+  const [showDots, setShowDots] = useState(false);
   const [expandedSections, setExpandedSections] = useState<{[key: string]: boolean}>({
     'offer': true,
     'core': true,
@@ -206,7 +217,47 @@ const CreateScriptWizard: React.FC = () => {
     }));
   };
 
-  // No need to load user data anymore
+  // Enhanced loading animation effect
+  useEffect(() => {
+    if (!isLoading || currentIndex >= messages.length) return;
+
+    setIsTyping(true);
+    setShowDots(false);
+    let textIndex = 0;
+    const currentMessage = messages[currentIndex];
+
+    // Typing animation
+    const typeInterval = setInterval(() => {
+      if (textIndex <= currentMessage.length) {
+        setCurrentText(currentMessage.slice(0, textIndex));
+        textIndex++;
+      } else {
+        clearInterval(typeInterval);
+        setIsTyping(false);
+        setShowDots(true);
+
+        // Show dots for 1.5 seconds, then move to next message
+        setTimeout(() => {
+          if (currentIndex < messages.length - 1) {
+            setCurrentIndex(prev => prev + 1);
+            setCurrentText('');
+          }
+        }, 1500);
+      }
+    }, 50); // Typing speed
+
+    return () => clearInterval(typeInterval);
+  }, [currentIndex, isLoading, messages.length]);
+
+  // Reset animation when loading starts
+  useEffect(() => {
+    if (isLoading) {
+      setCurrentIndex(0);
+      setCurrentText('');
+      setIsTyping(false);
+      setShowDots(false);
+    }
+  }, [isLoading]);
 
   // Handle prefilled brand name from sidebar
   useEffect(() => {
@@ -231,6 +282,12 @@ const CreateScriptWizard: React.FC = () => {
     const savedData = localStorage.getItem('createScriptWizardData');
     const existingScript = localStorage.getItem('currentGeneratedScript');
     
+//Genrating Loading Overlay
+
+
+
+ 
+  
     if (savedData) {
       try {
         const parsedData = JSON.parse(savedData);
@@ -1093,16 +1150,7 @@ const CreateScriptWizard: React.FC = () => {
 
       {expandedSections.product && (
         <div className="space-y-6">
-          <div>
-            <p className="text-sm text-white mb-2">
-              Upload product images (or packaging shots if physical)
-            </p>
-            <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-              <p className="text-white">
-                In the full version, you would upload images here. For now, please provide links or descriptions.
-              </p>
-            </div>
-          </div>
+          
 
           <div>
             <label htmlFor="user_experience" className="block text-sm font-medium text-white mb-2">
@@ -1250,17 +1298,17 @@ const CreateScriptWizard: React.FC = () => {
             <h3 className="text-lg font-medium text-white">8. 📈 PERFORMANCE & 🔥 BRANDING</h3>
             <button 
               onClick={() => toggleSection('performance')}
-              className="text-white hover:text-white focus:outline-none"
+              className="text-white hover:text-gray-300 focus:outline-none"
             >
               {expandedSections.performance ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
             </button>
           </div>
-          <p className="text-sm text-white mt-1">Final details about your ad preferences</p>
+          <p className="text-sm text-gray-300 mt-1">Final details about your ad preferences</p>
         </div>
         <button
           type="button"
           onClick={handlePreviousStep}
-          className="inline-flex items-center px-4 py-2 text-white hover:text-white transition-colors"
+          className="inline-flex items-center px-4 py-2 text-white hover:text-gray-300 transition-colors"
         >
           <ArrowLeft className="mr-2 w-4 h-4" />
           Back
@@ -1269,11 +1317,11 @@ const CreateScriptWizard: React.FC = () => {
 
       {expandedSections.performance && (
         <>
-          <div className="bg-gray-50 p-4 rounded-lg border border-gray-100 mb-4">
-            <h4 className="font-medium text-black mb-3">📈 PERFORMANCE CONTEXT (Optional)</h4>
+          <div className="bg-gray-800 p-4 rounded-lg border border-gray-700 mb-4">
+            <h4 className="font-medium text-white mb-3">📈 PERFORMANCE CONTEXT (Optional)</h4>
             <div className="space-y-4">
               <div>
-                <label htmlFor="previous_ads" className="block text-sm font-medium text-black mb-2">
+                <label htmlFor="previous_ads" className="block text-sm font-medium text-white mb-2">
                   Have you run ads before? If yes, what worked and what flopped?
                 </label>
                 <textarea
@@ -1282,13 +1330,13 @@ const CreateScriptWizard: React.FC = () => {
                   value={stepNineData.previous_ads}
                   onChange={handleStepNineChange}
                   rows={3}
-                  className="block w-full rounded-md border-black shadow-sm focus:border-purple-500 focus:ring-purple-500 p-3"
+                  className="block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 p-3"
                   placeholder="e.g., We've tested testimonial-based ads which performed okay. Scientific explanation videos flopped. Before/after images with minimal text worked best."
                 />
               </div>
 
               <div>
-                <label htmlFor="audience_type" className="block text-sm font-medium text-black mb-2">
+                <label htmlFor="audience_type" className="block text-sm font-medium text-white mb-2">
                   Do you want these ads to be cold audience, warm retargeting, or both?
                 </label>
                 <select
@@ -1307,11 +1355,11 @@ const CreateScriptWizard: React.FC = () => {
             </div>
           </div>
 
-          <div className="bg-gray-50 p-4 rounded-lg border border-gray-100 mb-4">
+          <div className="bg-gray-800 p-4 rounded-lg border border-gray-700 mb-4">
             <h4 className="font-medium text-white mb-3">🔥 BRANDING STYLE</h4>
             <div className="space-y-4">
               <div>
-                <label htmlFor="admired_brand" className="block text-sm font-medium text-black mb-2">
+                <label htmlFor="admired_brand" className="block text-sm font-medium text-white mb-2">
                   One brand you admire in your space?
                 </label>
                 <input
@@ -1326,7 +1374,7 @@ const CreateScriptWizard: React.FC = () => {
               </div>
 
               <div>
-                <label htmlFor="brand_tone" className="block text-sm font-medium text-black mb-2">
+                <label htmlFor="brand_tone" className="block text-sm font-medium text-white mb-2">
                   Three adjectives to describe your brand tone?
                 </label>
                 <input
@@ -1338,11 +1386,11 @@ const CreateScriptWizard: React.FC = () => {
                   className="block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 p-3"
                   placeholder="e.g., trustworthy, cheeky, premium"
                 />
-                <p className="mt-1 text-xs text-white">e.g., trustworthy, cheeky, premium — or skip</p>
+                <p className="mt-1 text-xs text-gray-400">e.g., trustworthy, cheeky, premium — or skip</p>
               </div>
 
               <div>
-                <label htmlFor="forbidden_words" className="block text-sm font-medium text-black mb-2">
+                <label htmlFor="forbidden_words" className="block text-sm font-medium text-white mb-2">
                   Any words or claims we must NOT use?
                 </label>
                 <textarea
@@ -1358,11 +1406,11 @@ const CreateScriptWizard: React.FC = () => {
             </div>
           </div>
 
-          <div className="bg-gray-50 p-4 rounded-lg border border-gray-100">
+          <div className="bg-gray-800 p-4 rounded-lg border border-gray-700">
             <h4 className="font-medium text-white mb-3">AD FORMAT PREFERENCES</h4>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label htmlFor="ad_format" className="block text-sm font-medium text-black mb-2">
+                <label htmlFor="ad_format" className="block text-sm font-medium text-white mb-2">
                   Preferred Format *
                 </label>
                 <select
@@ -1382,7 +1430,7 @@ const CreateScriptWizard: React.FC = () => {
               </div>
 
               <div>
-                <label htmlFor="ad_duration" className="block text-sm font-medium text-black mb-2">
+                <label htmlFor="ad_duration" className="block text-sm font-medium text-white mb-2">
                   Ad Duration (seconds)
                 </label>
                 <select
@@ -1400,7 +1448,7 @@ const CreateScriptWizard: React.FC = () => {
               </div>
 
               <div>
-                <label htmlFor="language" className="block text-sm font-medium text-black mb-2">
+                <label htmlFor="language" className="block text-sm font-medium text-white mb-2">
                   Language
                 </label>
                 <select
@@ -1439,29 +1487,13 @@ const CreateScriptWizard: React.FC = () => {
           className="inline-flex items-center px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
         >
           {isLoading ? (
-        <div className="fixed inset-0 bg-black bg-opacity-70 backdrop-blur-sm z-[60] flex flex-col items-center justify-center">
-          <div className="relative w-32 h-32">
-            {/* Circular animation similar to Siri */}
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-28 h-28 rounded-full border-t-4 border-b-4 border-purple-500 animate-spin"></div>
-            </div>
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-24 h-24 rounded-full border-l-4 border-r-4 border-blue-500 animate-spin" style={{ animationDirection: 'reverse', animationDuration: '1.5s' }}></div>
-            </div>
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-20 h-20 rounded-full border-t-4 border-pink-500 animate-spin" style={{ animationDuration: '2s' }}></div>
-            </div>
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-12 h-12 rounded-full bg-gradient-to-r from-purple-600 to-blue-600 opacity-80 animate-pulse"></div>
-            </div>
-          </div>
-          <p className="mt-6 text-white text-lg font-medium">Generating new script...</p>
-          <p className="mt-2 text-gray-300 text-sm max-w-md text-center">
-            AI is working to create Ad Winning Script.
-          </p>
-        </div>
-      ):('Generate Script')}
-          
+            <>
+              <Loader2 className="mr-2 w-4 h-4 animate-spin" />
+              Generating...
+            </>
+          ) : (
+            'Generate Script'
+          )}
         </button>
       </div>
     </div>
@@ -1494,7 +1526,7 @@ const CreateScriptWizard: React.FC = () => {
           </button>
           <button
             onClick={handleNewScript}
-            className="inline-flex items-center px-4 py-2 bg-text-white text-white rounded-lg hover:bg-gray-700 transition-colors"
+            className="inline-flex items-center px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
           >
             New Script
           </button>
@@ -1601,7 +1633,70 @@ const CreateScriptWizard: React.FC = () => {
   }, []);
 
   return (
-    <div className="flex flex-col md:flex-row h-screen bg-gwhite">
+    <div className="flex flex-col md:flex-row h-screen bg-gray-900">
+      {/* Loading Overlay */}
+      {isLoading && (
+        <div className="fixed inset-0 bg-black bg-opacity-70 backdrop-blur-sm z-[60] flex flex-col items-center justify-center">
+          <div className="relative w-32 h-32">
+            {/* Circular animation */}
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="w-28 h-28 rounded-full border-t-4 border-b-4 border-purple-500 animate-spin"></div>
+            </div>
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div
+                className="w-24 h-24 rounded-full border-l-4 border-r-4 border-blue-500 animate-spin"
+                style={{ animationDirection: "reverse", animationDuration: "1.5s" }}
+              ></div>
+            </div>
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div
+                className="w-20 h-20 rounded-full border-t-4 border-pink-500 animate-spin"
+                style={{ animationDuration: "2s" }}
+              ></div>
+            </div>
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="w-12 h-12 rounded-full bg-gradient-to-r from-purple-600 to-blue-600 opacity-80 animate-pulse"></div>
+            </div>
+          </div>
+
+          {/* Main Title */}
+          <p className="mt-6 text-white text-lg font-medium">
+            Generating new script...
+          </p>
+
+          {/* Animated typing text */}
+          <div className="mt-4 text-gray-300 text-sm max-w-md text-center h-12 flex items-center justify-center">
+            <div className="flex items-center">
+              <span className="animate-fadeIn">
+                {currentText}
+              </span>
+              {showDots && (
+                <span className="ml-1">
+                  <span className="animate-bounce inline-block" style={{ animationDelay: '0ms' }}>.</span>
+                  <span className="animate-bounce inline-block" style={{ animationDelay: '150ms' }}>.</span>
+                  <span className="animate-bounce inline-block" style={{ animationDelay: '300ms' }}>.</span>
+                </span>
+              )}
+              {isTyping && (
+                <span className="ml-1 w-0.5 h-4 bg-gray-300 animate-pulse"></span>
+              )}
+            </div>
+          </div>
+
+          {/* Progress indicator */}
+          <div className="mt-4 flex space-x-2">
+            {messages.map((_, index) => (
+              <div
+                key={index}
+                className={`w-2 h-2 rounded-full transition-colors duration-300 ${
+                  index <= currentIndex ? 'bg-purple-500' : 'bg-gray-600'
+                }`}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Mobile header */}
       <div className="md:hidden bg-white text-black p-4 flex items-center justify-between">
         <h1 className="text-xl font-bold text-purple-500">Leepi AI</h1>
@@ -1638,7 +1733,7 @@ const CreateScriptWizard: React.FC = () => {
           <Header />
         </div>
         
-        <main className="flex-1 overflow-y-auto p-6">
+        <main className="flex-1 bg-white overflow-y-auto p-6">
           <div className="max-w-4xl mx-auto">
             {error && (
               <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-6 rounded-lg">
@@ -1648,24 +1743,23 @@ const CreateScriptWizard: React.FC = () => {
 
             {generatedScript ? (
               renderGeneratedScript()
-              
             ) : (
-              <div className="bg-[#0F0616] rounded-lg shadow-sm p-6">
+              <div className="bg-[#474747] rounded-lg shadow-sm p-6">
                 <div className="mb-6">
                   <h2 className="text-2xl font-bold text-white mb-2">Create New Script</h2>
                   <div className="flex items-center space-x-4">
-                    <div className={`flex items-center ${currentStep >= 1 ? 'text-purple-600' : 'text-white'}`}>
+                    <div className={`flex items-center ${currentStep >= 1 ? 'text-purple-600' : 'text-gray-400'}`}>
                       <div className={`w-8 h-8 rounded-full flex items-center justify-center ${currentStep >= 1 ? 'bg-purple-600 text-white' : 'bg-gray-200'}`}>
                         1
                       </div>
-                      <span className=" text-whiteml-2">Basic Info</span>
+                      <span className="ml-2 text-white">Basic Info</span>
                     </div>
                     <div className={`w-8 h-1 ${currentStep >= 2 ? 'bg-purple-600' : 'bg-gray-200'}`}></div>
                     <div className={`flex items-center ${currentStep >= 2 ? 'text-purple-600' : 'text-gray-400'}`}>
                       <div className={`w-8 h-8 rounded-full flex items-center justify-center ${currentStep >= 2 ? 'bg-purple-600 text-white' : 'bg-gray-200'}`}>
                         2
                       </div>
-                      <span className="ml-2">Details</span>
+                      <span className="ml-2 text-white">Details</span>
                     </div>
                   </div>
                 </div>

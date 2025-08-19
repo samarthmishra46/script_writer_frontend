@@ -6,7 +6,7 @@ import {
   ChevronLeft,
   Copy,
   Download,
-  Video,
+
   X,
   Heart,
   RefreshCw,
@@ -747,13 +747,13 @@ const ScriptGroup: React.FC = () => {
                             <Download className="w-4 h-4" />
                           </button>
 
-                          <button
+                          {/* <button
                             onClick={() => setShowStoryboard(true)}
                             className="p-2 rounded-md hover:bg-gray-100 flex items-center justify-center text-gray-600 hover:text-purple-600 transition-all duration-200"
                             title="Generate storyboard"
                           >
                             <Video className="w-4 h-4" />
-                          </button>
+                          </button> */}
                           
                           <button
                             onClick={() => handleDeleteScript(selectedScript._id)}

@@ -14,11 +14,11 @@ const StickyFooter: React.FC = () => {
                      bg-gradient-to-r from-[#9F6AEA] to-purple-600 
                      text-white font-bold shadow-md hover:shadow-xl 
                      hover:scale-[1.02] transition-all duration-300 
-                     min-h-[50px] min-w-[320px] sm:min-w-[380px] md:min-w-[420px]"
+                     min-h-[50px] min-w-[280px] sm:min-w-[300px] md:min-w-[420px]"
         >
           {/* Button text + price */}
           <span className="flex items-center whitespace-nowrap truncate 
-                           text-[15px] sm:text-base md:text-lg lg:text-xl px-4 leading-none">
+                           text-[13px] sm:text-[15px] md:text-lg lg:text-xl px-3 leading-none">
             Get Unlimited Winning Ad Scripts
             <span className="flex items-center ml-3 px-2 py-1 rounded-lg bg-black/20">
               <span className="text-gray-300 line-through font-normal 
