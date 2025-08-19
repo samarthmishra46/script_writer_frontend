@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Users, Target, Award, Lightbulb, Heart, Zap, Star, TrendingUp,  User } from 'lucide-react';
+import { Trophy, Zap, Target, Shield, Rocket,TrendingUp, Award, CheckCircle } from 'lucide-react';
 import Header from '../components/HeaderLanding';
 
 interface User {
@@ -15,10 +15,7 @@ interface User {
 
 const AboutUs: React.FC = () => {
   const navigate = useNavigate();
-  
- 
   const [user, setUser] = useState<User | null>(null);
- 
   
   // Load user data
   useEffect(() => {
@@ -27,9 +24,6 @@ const AboutUs: React.FC = () => {
       setUser(JSON.parse(userData));
     }
   }, []);
-
-  // Handle click outside dropdown
-  
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -44,229 +38,235 @@ const AboutUs: React.FC = () => {
     return 'User';
   };
 
-  
+  const beliefs = [
+    "Direct response > decoration. Every line must earn revenue.",
+    "Script is the product. Hook, angle, promise, proof—get these right and ROAS follows.",
+    "Native or nothing. Ads should feel like content your buyer already consumes.",
+    "Data + taste. Spend-level signals guided by human judgment—not templates.",
+    "Speed wins. 20 strong options today beat one \"perfect\" ad next week.",
+    "Skin in the game. 3 winners or money back."
+  ];
 
-  const team = [
+  const features = [
     {
-      name: "Priya Sharma",
-      role: "CEO & Founder",
-      image: "👩‍💼",
-      bio: "Former Meta marketing executive with 10+ years in AI and digital advertising."
+      title: "20 Winners, On Demand",
+      description: "Ideas, angles, hooks, full scripts, storyboards.",
+      icon: <Trophy className="w-6 h-6" />
     },
     {
-      name: "Arjun Patel",
-      role: "CTO",
-      image: "👨‍💻",
-      bio: "AI researcher and former Google engineer specializing in natural language processing."
+      title: "Zero Guesswork",
+      description: "You share offer, buyer, proof. We decide tone, format, and style.",
+      icon: <Target className="w-6 h-6" />
     },
     {
-      name: "Sneha Gupta",
-      role: "Head of Marketing",
-      image: "👩‍🎨",
-      bio: "Award-winning marketer who has generated over ₹100Cr in ad revenue for top brands."
+      title: "Category-Aware Intelligence",
+      description: "Trained on outcomes from ₹50Cr+ of Meta spend; understands the difference between jewellery UGC and B2B SaaS explainers.",
+      icon: <Zap className="w-6 h-6" />
     },
     {
-      name: "Rahul Singh",
-      role: "Head of AI",
-      image: "👨‍🔬",
-      bio: "PhD in Machine Learning with expertise in conversational AI and content generation."
+      title: "Shoot-Ready",
+      description: "Frame-by-frame directions (camera, on-screen copy, VO) your team can film tomorrow.",
+      icon: <Rocket className="w-6 h-6" />
     }
   ];
 
-  const values = [
+  const reasons = [
     {
-      icon: <Lightbulb className="w-8 h-8" />,
-      title: "Innovation",
-      description: "We constantly push the boundaries of AI technology to deliver cutting-edge solutions.",
-      color: "from-yellow-400 to-orange-500"
+      title: "Performance first",
+      description: "Built for sales & lead gen, not vanity metrics.",
+      icon: <TrendingUp className="w-6 h-6" />
     },
     {
-      icon: <Heart className="w-8 h-8" />,
-      title: "Customer-Centric",
-      description: "Every feature we build is designed with our users' success and growth in mind.",
-      color: "from-pink-500 to-red-500"
+      title: "Guarantee",
+      description: "At least 3 winners out of 20—or a full refund.",
+      icon: <Shield className="w-6 h-6" />
     },
     {
-      icon: <Target className="w-8 h-8" />,
-      title: "Results-Driven",
-      description: "We measure our success by the measurable impact we create for our customers.",
-      color: "from-blue-500 to-purple-500"
+      title: "Faster than an agency brief",
+      description: "Inputs in minutes, outputs same session.",
+      icon: <Zap className="w-6 h-6" />
     },
     {
-      icon: <Users className="w-8 h-8" />,
-      title: "Collaboration",
-      description: "We believe in the power of teamwork and building strong partnerships.",
-      color: "from-green-500 to-teal-500"
+      title: "Proven across categories",
+      description: "D2C, edtech, real estate, B2B—native to Meta in 2025.",
+      icon: <Award className="w-6 h-6" />
     }
-  ];
-
-  const stats = [
-    { number: "10,000+", label: "Happy Customers", icon: <Users className="w-6 h-6" /> },
-    { number: "1M+", label: "Scripts Generated", icon: <Zap className="w-6 h-6" /> },
-    { number: "₹50Cr+", label: "Ad Spend Analyzed", icon: <TrendingUp className="w-6 h-6" /> },
-    { number: "99.9%", label: "Uptime Guarantee", icon: <Award className="w-6 h-6" /> }
   ];
 
   return (
-    <div className="min-h-screen relative overflow-hidden">
-     
-      {/* Header */}
-    <Header
-            user={user}
-            getUserFirstName={getUserFirstName}
-            handleLogout={handleLogout}
-          />
-      {/* Hero Section */}
-      <section className="relative z-10 py-20 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-4xl mx-auto text-center">
-          <h1 className="text-5xl font-bold mb-6 bg-gradient-to-r from-pink-600 via-purple-600 to-blue-600 bg-clip-text text-transparent animate-liquid-flow">
-            About Leepi AI
-          </h1>
-          <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed">
-            We're on a mission to democratize high-converting ad script creation through the power of artificial intelligence. 
-            Founded by marketing veterans and AI experts, we're transforming how businesses create compelling advertising content.
-          </p>
-          
-          <div className="flex items-center justify-center space-x-2 mb-8">
-            {[...Array(5)].map((_, i) => (
-              <Star key={i} className="w-5 h-5 text-yellow-400 fill-current animate-pulse" style={{ animationDelay: `${i * 100}ms` }} />
-            ))}
-            <span className="ml-2 text-gray-600 font-medium">Trusted by industry leaders</span>
-          </div>
-        </div>
-      </section>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-purple-50 to-pink-50">
+      <Header
+        user={user}
+        getUserFirstName={getUserFirstName}
+        handleLogout={handleLogout}
+      />
 
-      {/* Stats Section */}
-      <section className="relative z-10 py-16 px-4 sm:px-6 lg:px-8">
+      {/* Hero Section */}
+      <section className="relative py-20 px-4 sm:px-6 lg:px-8 overflow-hidden">
         <div className="max-w-6xl mx-auto">
-          <div className="grid md:grid-cols-4 gap-8">
-            {stats.map((stat, index) => (
-              <div
-                key={index}
-                className="text-center bg-white/70 backdrop-blur-custom rounded-xl p-6 shadow-lg border border-pink-100 hover:shadow-xl transition-all duration-500 hover:-translate-y-2"
-              >
-                <div className="w-12 h-12 bg-gradient-to-r from-pink-500 to-purple-500 rounded-full flex items-center justify-center text-white mx-auto mb-4">
-                  {stat.icon}
-                </div>
-                <div className="text-3xl font-bold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent mb-2">
-                  {stat.number}
-                </div>
-                <div className="text-gray-600 font-medium">{stat.label}</div>
+          <div className="text-center mb-16">
+            <h1 className="text-6xl font-bold mb-8 bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 bg-clip-text text-transparent">
+              About Leepi AI
+            </h1>
+            <h2 className="text-4xl font-bold text-gray-900 mb-8">
+              We don't "write copy." We <span className="text-purple-600">mint winners.</span>
+            </h2>
+            <div className="max-w-4xl mx-auto text-xl text-gray-700 leading-relaxed space-y-4">
+              <p>
+                Leepi AI turns raw product truth into <span className="font-bold text-purple-600">20 Meta-native ad ideas, hooks, scripts, and frame-by-frame storyboards</span>—in minutes. No tone-pickers. No format guesswork. Just <span className="font-bold">scroll-stopping, money-moving creatives</span> designed to raise ROAS.
+              </p>
+              <div className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-8 py-4 rounded-full inline-block font-bold text-lg shadow-lg">
+                <span className="text-2xl">3 winners guaranteed or 100% refund.</span>
               </div>
-            ))}
+              <p className="text-sm text-gray-600 italic">
+                (When performance matters, guarantees speak.)
+              </p>
+            </div>
           </div>
         </div>
       </section>
 
       {/* Our Story Section */}
-      <section className="relative z-10 py-16 px-4 sm:px-6 lg:px-8">
+      <section className="py-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-6xl mx-auto">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div>
-              <h2 className="text-3xl font-bold mb-6 bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
-                Our Story
-              </h2>
-              <div className="space-y-4 text-gray-600 leading-relaxed">
-                <p>
-                  Leepi AI was born from a simple observation: creating high-converting ad scripts was taking too long and costing too much. 
-                  Our founders, who had collectively managed over ₹50 crores in ad spend, knew there had to be a better way.
-                </p>
-                <p>
-                  After analyzing thousands of successful campaigns across industries, we discovered patterns that could be encoded into AI. 
-                  We spent two years training our models on the most successful ad campaigns, working with top marketers and copywriters.
-                </p>
-                <p>
-                  Today, Leepi AI has helped over 10,000 businesses create compelling ad scripts that convert. From startups to Fortune 500 companies, 
-                  our AI-powered platform has become the go-to solution for marketers who want results fast.
-                </p>
-              </div>
-            </div>
-            
-            <div className="bg-white/70 backdrop-blur-custom rounded-2xl p-8 shadow-lg border border-pink-100">
-              <h3 className="text-xl font-bold mb-4 text-gray-900">Our Mission</h3>
-              <p className="text-gray-600 mb-6">
-                To empower every business, regardless of size or budget, with AI-powered tools that create 
-                high-converting advertising content in seconds, not hours.
+          <div className="bg-white/80 backdrop-blur-sm rounded-3xl p-12 shadow-xl border border-purple-100">
+            <h2 className="text-4xl font-bold mb-8 bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+              Our Story
+            </h2>
+            <div className="prose prose-lg max-w-none text-gray-700 leading-relaxed space-y-6">
+              <p>
+                We started as <span className="font-bold text-purple-600">Yuvichaar Funnels</span>, shipping founder-led, UGC-first ads that scaled brands. After managing <span className="font-bold text-green-600">₹50Cr+ in ad spend</span> and contributing to <span className="font-bold text-green-600">₹130Cr+ in tracked revenue</span>, we codified what worked into a product. Leepi AI is that playbook—<span className="font-bold">an engine that thinks like a strategist, writes like a top copywriter, and plans shots like a creative director</span>.
               </p>
-              
-              <h3 className="text-xl font-bold mb-4 text-gray-900">Our Vision</h3>
-              <p className="text-gray-600">
-                A world where creating compelling, conversion-focused advertising content is accessible to everyone, 
-                democratizing effective marketing through artificial intelligence.
+              <p>
+                Used to ideate and strategize <span className="font-bold text-purple-600">1,000+ ads</span> across <span className="font-bold">VC-backed & Shark Tank-funded D2C, ecommerce, B2B, edtech, and real estate</span> brands.
               </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Values Section */}
-      <section className="relative z-10 py-16 px-4 sm:px-6 lg:px-8">
+      {/* What We Believe Section */}
+      <section className="py-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl font-bold text-center mb-12 bg-gradient-to-r from-pink-600 via-purple-600 to-blue-600 bg-clip-text text-transparent">
-            Our Values
+          <h2 className="text-4xl font-bold text-center mb-12 bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+            What We Believe
           </h2>
-          
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {values.map((value, index) => (
-              <div
-                key={index}
-                className="text-center bg-white/70 backdrop-blur-custom rounded-xl p-6 shadow-lg border border-pink-100 hover:shadow-xl transition-all duration-500 hover:-translate-y-2"
-              >
-                <div className={`w-16 h-16 bg-gradient-to-r ${value.color} rounded-full flex items-center justify-center text-white mx-auto mb-4 group-hover:scale-110 transition-transform duration-500`}>
-                  {value.icon}
+          <div className="grid md:grid-cols-2 gap-6">
+            {beliefs.map((belief, index) => (
+              <div key={index} className="bg-white/80 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-purple-100 hover:shadow-xl transition-all duration-300">
+                <div className="flex items-start space-x-3">
+                  <CheckCircle className="w-6 h-6 text-green-500 flex-shrink-0 mt-0.5" />
+                  <p className="text-gray-700 font-medium">{belief}</p>
                 </div>
-                <h3 className="text-xl font-bold mb-4 text-gray-900">{value.title}</h3>
-                <p className="text-gray-600 text-sm leading-relaxed">{value.description}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Team Section */}
-      <section className="relative z-10 py-16 px-4 sm:px-6 lg:px-8">
+      {/* What We Built Section */}
+      <section className="py-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl font-bold text-center mb-12 bg-gradient-to-r from-pink-600 via-purple-600 to-blue-600 bg-clip-text text-transparent">
-            Meet Our Team
+          <h2 className="text-4xl font-bold text-center mb-12 bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+            What We Built
           </h2>
-          
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {team.map((member, index) => (
-              <div
-                key={index}
-                className="text-center bg-white/70 backdrop-blur-custom rounded-xl p-6 shadow-lg border border-pink-100 hover:shadow-xl transition-all duration-500 hover:-translate-y-2"
-              >
-                <div className="text-6xl mb-4">{member.image}</div>
-                <h3 className="text-xl font-bold mb-2 text-gray-900">{member.name}</h3>
-                <p className="text-pink-600 font-semibold mb-4">{member.role}</p>
-                <p className="text-gray-600 text-sm leading-relaxed">{member.bio}</p>
+            {features.map((feature, index) => (
+              <div key={index} className="bg-gradient-to-br from-white to-purple-50 rounded-xl p-6 shadow-lg border border-purple-100 hover:shadow-xl transition-all duration-300 hover:-translate-y-2">
+                <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white mb-4">
+                  {feature.icon}
+                </div>
+                <h3 className="text-xl font-bold mb-3 text-gray-900">{feature.title}</h3>
+                <p className="text-gray-600 leading-relaxed">{feature.description}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="relative z-10 py-16 px-4 sm:px-6 lg:px-8">
+      {/* Why Brands Choose Us Section */}
+      <section className="py-16 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-6xl mx-auto">
+          <h2 className="text-4xl font-bold text-center mb-12 bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+            Why Brands Choose Us
+          </h2>
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {reasons.map((reason, index) => (
+              <div key={index} className="bg-white/80 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-purple-100 hover:shadow-xl transition-all duration-300 hover:-translate-y-2">
+                <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center text-white mb-4">
+                  {reason.icon}
+                </div>
+                <h3 className="text-xl font-bold mb-3 text-gray-900">{reason.title}</h3>
+                <p className="text-gray-600 leading-relaxed">{reason.description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Founders Section */}
+      <section className="py-16 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-6xl mx-auto">
+          <h2 className="text-4xl font-bold text-center mb-12 bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+            Founders
+          </h2>
+          <div className="grid lg:grid-cols-2 gap-8">
+            {/* Yuvraj Singh */}
+            <div className="bg-gradient-to-br from-white to-purple-50 rounded-2xl p-8 shadow-xl border border-purple-100">
+              <div className="text-6xl mb-6 text-center">👨‍💼</div>
+              <h3 className="text-2xl font-bold mb-2 text-gray-900">Yuvraj Singh</h3>
+              <p className="text-purple-600 font-semibold mb-4 text-lg">Founder & Chief Creative Strategist</p>
+              <div className="space-y-4 text-gray-700">
+                <p>
+                  Performance marketer and creative strategist; founder of <span className="font-bold text-purple-600">Yuvichaar Funnels</span>. Managed <span className="font-bold text-green-600">₹50Cr+</span> in spend and helped drive <span className="font-bold text-green-600">₹130Cr+</span> in tracked revenue using high-conviction, UGC-native ads. Built Leepi AI to bottle the exact process behind 6–7× ROAS spikes.
+                </p>
+                <div className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-4 py-2 rounded-lg inline-block">
+                  <p className="font-bold italic">"Don't make nice ads. Make ads that move money."</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Vinnet Mishra */}
+            <div className="bg-gradient-to-br from-white to-blue-50 rounded-2xl p-8 shadow-xl border border-blue-100">
+              <div className="text-6xl mb-6 text-center">👨‍💻</div>
+              <h3 className="text-2xl font-bold mb-2 text-gray-900">Vinnet Mishra</h3>
+              <p className="text-blue-600 font-semibold mb-4 text-lg">Co-founder & Head of Product/AI</p>
+              <div className="space-y-4 text-gray-700">
+                <p>
+                  MBA, <span className="font-bold text-blue-600">IIM Bangalore</span>. <span className="font-bold">10+ years</span> in product. Vinnet <span className="font-bold text-blue-600">envisioned Leepi AI</span> and leads the product & AI spine—turning simple offer inputs into <span className="font-bold">20 high-converting, Meta-native scripts with storyboards</span> in minutes. Obsessed with <span className="font-bold">speed, clarity, and ROAS</span>.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Our Promise Section */}
+      <section className="py-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto text-center">
-          <div className="bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 rounded-2xl p-8 text-white">
-            <h2 className="text-3xl font-bold mb-4">Ready to Transform Your Advertising?</h2>
-            <p className="text-xl mb-8 text-white/90">
-              Join thousands of marketers who are already creating winning ad scripts with Leepi AI.
-            </p>
+          <div className="bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 rounded-3xl p-12 text-white shadow-2xl">
+            <h2 className="text-4xl font-bold mb-8">Our Promise</h2>
+            <div className="space-y-6 text-xl leading-relaxed">
+              <p>You're probably <span className="font-bold text-yellow-300">one ad away</span> from your next revenue jump.</p>
+              <p>Leepi AI gives you <span className="font-bold text-yellow-300">twenty</span>.</p>
+              <div className="text-2xl font-bold space-y-2">
+                <p><span className="text-green-300">Try it.</span> <span className="text-blue-300">Shoot it.</span> <span className="text-pink-300">Publish it.</span></p>
+                <p>Then watch the dashboard turn <span className="text-green-300">green</span>.</p>
+              </div>
+            </div>
             
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <div className="mt-12 flex flex-col sm:flex-row gap-6 justify-center">
               <Link
                 to="/signup"
-                className="inline-flex items-center px-8 py-4 bg-white text-purple-600 font-semibold rounded-lg hover:bg-gray-50 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+                className="inline-flex items-center px-8 py-4 bg-white text-purple-600 font-bold rounded-xl hover:bg-gray-50 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 text-lg"
               >
-                Start Free Trial
+                Start Creating Winners
               </Link>
               <Link
                 to="/contact"
-                className="inline-flex items-center px-8 py-4 bg-white/20 backdrop-blur-sm text-white font-semibold rounded-lg hover:bg-white/30 transition-all duration-300 border border-white/30"
+                className="inline-flex items-center px-8 py-4 bg-white/20 backdrop-blur-sm text-white font-bold rounded-xl hover:bg-white/30 transition-all duration-300 border-2 border-white/30 text-lg"
               >
-                Contact Us
+                Get In Touch
               </Link>
             </div>
           </div>
