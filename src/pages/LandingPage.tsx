@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { User } from "lucide-react";
 import Header from "../components/HeaderLanding";
 import { Brandcompo } from "../components/BrandWorked";
 import { NoCommit } from "../components/Nocommit";
@@ -30,7 +29,8 @@ const LandingPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  function getUserFromLocalStorage(): UserData {
+  // Function to get user from localStorage
+  const getUserFromLocalStorage = (): UserData => {
     let user: UserData = { name: "", email: "" };
     try {
       const userString = localStorage.getItem("user");
@@ -44,13 +44,16 @@ const LandingPage: React.FC = () => {
       }
     } catch (err) {
       console.error("Error parsing user data from localStorage:", err);
+      // Clear invalid user data
+      localStorage.removeItem("user");
+      localStorage.removeItem("token");
     }
     return user;
-  }
+  };
 
+  // Function to check subscription status
   const checkSubscription = async () => {
     try {
-      setIsLoading(true);
       const token = localStorage.getItem('token');
       if (!token) {
         setIsLoading(false);
@@ -67,8 +70,14 @@ const LandingPage: React.FC = () => {
 
       const data: ScriptResponse = await response.json();
       
-      if (response.ok && (data.plan === 'individual' || data.plan === 'organization') && data.isActive) {
-        navigate('/dashboard');
+      if (response.ok) {
+        // Check if user has active individual or organization plan
+        const hasActiveSubscription = (data.plan === 'individual' || data.plan === 'organization') && data.isActive;
+        
+        if (hasActiveSubscription) {
+          navigate('/dashboard');
+          return; // Exit early since we're redirecting
+        }
       }
     } catch (error) {
       console.error('Error checking subscription:', error);
@@ -77,16 +86,31 @@ const LandingPage: React.FC = () => {
     }
   };
 
-  // Check user and subscription on component mount
+  // Effect to check user and subscription status on every load
   useEffect(() => {
-    const userData = getUserFromLocalStorage();
-    setUser(userData);
+    const loadData = async () => {
+      // First get user data
+      const userData = getUserFromLocalStorage();
+      setUser(userData);
 
-    if (localStorage.getItem("token")) {
-      checkSubscription();
-    } else {
-      setIsLoading(false);
-    }
+      // Then check subscription
+      await checkSubscription();
+    };
+
+    loadData();
+
+    // Add storage event listener to handle changes from other tabs
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'token' || e.key === 'user') {
+        loadData();
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
   }, []);
 
   const handleLogout = () => {
@@ -265,7 +289,7 @@ const LandingPage: React.FC = () => {
       </section>
       <NoCommit />
 
-      <section className="relative z-10 py-16  px-1 lg:px-7">
+      <section className="relative z-10 mt-4 py-4  px-1 lg:px-7">
         <div className="max-w-4xl mx-auto text-center">
           <div className="relative inline-block">
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-[#CB6CE6] to-[#2D65F5] bg-clip-text text-transparent transition-all duration-300 hover:scale-105">
@@ -289,9 +313,11 @@ const LandingPage: React.FC = () => {
           <VideoRunning/>
           <br />
           <TryButton />
-          <NoCommit/>
+          
         </div>
       </section>
+      <NoCommit />
+              <div className="mb-10"></div>
 
       <section className="relative z-10  px-1 sm:px-4 md:px-8 lg:px-9">
         <div className="max-w-6xl mx-auto">
@@ -305,7 +331,7 @@ const LandingPage: React.FC = () => {
                 That Broke Meta Ads 
               </span>
             </h1>
-            <span className="bg-yellow text-2xl">👇🤯💸</span>
+            <span className="bg-yellow text-2xl md:text-4xl">👇🤯💸</span>
           </div>
           
           <Brandcompo
