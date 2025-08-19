@@ -105,13 +105,12 @@ const AboutUs: React.FC = () => {
       <section className="relative py-20 px-4 sm:px-6 lg:px-8 overflow-hidden">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
-            <h1 className="text-6xl font-bold mb-8 bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 bg-clip-text text-transparent">
-              About Leepi AI
-            </h1>
-            <h2 className="text-4xl font-bold text-gray-900 mb-8">
-              We don't "write copy." We <span className="text-purple-600">mint winners.</span>
+           
+            <h2 className=" mb-1 text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+              We don't "write copy." 
+              <br />We <span className="text-purple-600">mint winners.</span>
             </h2>
-            <div className="max-w-4xl mx-auto text-xl text-gray-700 leading-relaxed space-y-4">
+            <div className="max-w-4xl mx-auto text-lg text-gray-700 leading-relaxed space-y-4">
               <p>
                 Leepi AI turns raw product truth into <span className="font-bold text-purple-600">20 Meta-native ad ideas, hooks, scripts, and frame-by-frame storyboards</span>—in minutes. No tone-pickers. No format guesswork. Just <span className="font-bold">scroll-stopping, money-moving creatives</span> designed to raise ROAS.
               </p>
@@ -244,8 +243,8 @@ const AboutUs: React.FC = () => {
       {/* Our Promise Section */}
       <section className="py-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto text-center">
-          <div className="bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 rounded-3xl p-12 text-white shadow-2xl">
-            <h2 className="text-4xl font-bold mb-8">Our Promise</h2>
+          <div className="bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600  rounded-3xl p-12 text-white shadow-2xl">
+            <h2 className="relative text-4xl font-bold mb-8">Our Promise</h2>
             <div className="space-y-6 text-xl leading-relaxed">
               <p>You're probably <span className="font-bold text-yellow-300">one ad away</span> from your next revenue jump.</p>
               <p>Leepi AI gives you <span className="font-bold text-yellow-300">twenty</span>.</p>
