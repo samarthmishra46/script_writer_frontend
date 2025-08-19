@@ -1658,14 +1658,14 @@ const CreateScriptWizard: React.FC = () => {
               <div className="w-12 h-12 rounded-full bg-gradient-to-r from-purple-600 to-blue-600 opacity-80 animate-pulse"></div>
             </div>
           </div>
-
+{/*genrating script spinning icon animation and text */}
           {/* Main Title */}
-          <p className="mt-6 text-white text-lg font-medium">
+          <p className="mt-6 text-white text-lg font-bold">
             Generating new script...
           </p>
 
           {/* Animated typing text */}
-          <div className="mt-4 text-gray-300 text-sm max-w-md text-center h-12 flex items-center justify-center">
+          <div className="mt-4 text-gray-300 text-sm font-semibold max-w-md text-center h-12 flex items-center justify-center">
             <div className="flex items-center">
               <span className="animate-fadeIn">
                 {currentText}
