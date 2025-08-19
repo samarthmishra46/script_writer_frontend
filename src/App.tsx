@@ -6,6 +6,7 @@ import Dashboard from './pages/Dashboard';
 import CreateScriptWizard from './pages/CreateScriptWizard';
 import GeneratedScripts from './pages/GeneratedScripts';
 import ScriptView from './pages/ScriptView';
+import NotFound from './pages/NotFound';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Subscription from './pages/Subscription';
@@ -53,6 +54,7 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/google-auth-test" element={<GoogleAuthTestPage />} />
+          <Route path="*" element={<NotFound />} />
           
           {/* Protected Routes */}
           <Route path="/dashboard" element={
