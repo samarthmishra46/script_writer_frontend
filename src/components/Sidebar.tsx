@@ -138,7 +138,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   };
 
   return (
-    <div className="w-full md:w-65 sm:py-2 bg-[#F4F4F4] border h-screen flex flex-col overflow-hidden">
+    <div className="w-full  md:w-65 sm:py-2 bg-[#F4F4F4] border h-[95vh] sm:h-screen flex flex-col overflow-hidden">
       {/* Mobile close button - only on mobile */}
       {onCloseMobile && (
         <div className="md:hidden flex justify-end p-2">
