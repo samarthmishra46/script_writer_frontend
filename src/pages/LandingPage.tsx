@@ -210,7 +210,8 @@ const LandingPage: React.FC = () => {
             </div>
           </div>
 
-          <TryButton />
+          <TryButton
+          user={user} />
         </div>
       </section>
       <NoCommit />
@@ -284,7 +285,8 @@ const LandingPage: React.FC = () => {
             So That You Don't Have To!
           </p>
 
-          <TryButton />
+          <TryButton
+          user={user} />
         </div>
       </section>
       <NoCommit />
@@ -312,7 +314,8 @@ const LandingPage: React.FC = () => {
 
           <VideoRunning/>
           <br />
-          <TryButton />
+          <TryButton
+          user={user} />
           
         </div>
       </section>
@@ -368,7 +371,8 @@ const LandingPage: React.FC = () => {
           </p>
           <br />
         </div>
-        <TryButton />
+        <TryButton 
+        user={user}/>
       </section>
 
       <NoCommit />
@@ -447,7 +451,8 @@ const LandingPage: React.FC = () => {
             </div>
           </div>
 
-          <TryButton />
+          <TryButton 
+          user={user}/>
         </div>
       </section>
       <NoCommit />
@@ -486,7 +491,8 @@ const LandingPage: React.FC = () => {
             </p>
           </div>
 
-          <TryButton />
+          <TryButton 
+          user={user}/>
         </div>
       </section>
       
@@ -509,7 +515,8 @@ const LandingPage: React.FC = () => {
             </h1>
           </div>
         </div>
-        <TryButton />
+        <TryButton 
+        user={user}/>
          <p className="mt-4  text-[12px] sm:text-base md:text-lg font-bold text-center  text-gray-500 px-8 max-w-2xl mx-auto">
             Generate Unlimited Winning Ad Scripts. If at least 3 ad scripts
             don't work, 100% money back.
@@ -517,7 +524,8 @@ const LandingPage: React.FC = () => {
       </section>
 
       <NoCommit />
-      <StickyFooter />
+      <StickyFooter 
+      user={user}/>
     </div>
   );
 };

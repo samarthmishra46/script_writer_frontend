@@ -1,14 +1,35 @@
 import { Link } from "react-router-dom";
 import { ChevronRight } from "lucide-react";
 
-const StickyFooter: React.FC = () => {
+interface User {
+  id?: string;
+  name?: string;
+  email?: string;
+  subscription?: {
+    plan: string;
+    status: string;
+  };
+}
+
+interface StickyFooterProps {
+  user: User | null;
+}
+
+const StickyFooter: React.FC<StickyFooterProps> = ({ user }) => {
+  const hasActiveSubscription = user?.subscription?.status === "active";
+
+  // ✅ If subscribed, don't render the footer
+  if (hasActiveSubscription) {
+    return null;
+  }
+
   return (
     <div className="fixed bottom-0 left-0 w-full z-50 bg-gradient-to-r from-[#1e1b22] to-[#241F26] border-t border-gray-700 shadow-lg">
       <div className="flex flex-col items-center text-center px-4 py-4 sm:py-6">
         
         {/* Subscribe Button */}
         <Link
-          to="/login"
+          to={user ? "/pricing" : "/login"}
           className="group relative inline-flex items-center justify-center 
                      overflow-hidden rounded-2xl
                      bg-gradient-to-r from-[#9F6AEA] to-purple-600 
@@ -16,7 +37,6 @@ const StickyFooter: React.FC = () => {
                      hover:scale-[1.02] transition-all duration-300 
                      min-h-[50px] min-w-[280px] sm:min-w-[300px] md:min-w-[420px]"
         >
-          {/* Button text + price */}
           <span className="flex items-center whitespace-nowrap truncate 
                            text-[13px] sm:text-[15px] md:text-lg lg:text-xl px-3 leading-none">
             Get Unlimited Winning Ad Scripts

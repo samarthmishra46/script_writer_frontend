@@ -203,38 +203,13 @@ const AboutUs: React.FC = () => {
         </div>
       </section>
 
-      {/* Founders Section */}
-      <section className="py-16 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-4xl font-bold text-center mb-12 bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-            Founders
-          </h2>
-          <div className="grid lg:grid-cols-2 gap-8">
-            {/* Yuvraj Singh */}
-            <div className="bg-gradient-to-br from-white to-purple-50 rounded-2xl p-8 shadow-xl border border-purple-100">
-              <div className="text-6xl mb-6 text-center">👨‍💼</div>
-              <h3 className="text-2xl font-bold mb-2 text-gray-900">Yuvraj Singh</h3>
-              <p className="text-purple-600 font-semibold mb-4 text-lg">Founder & Chief Creative Strategist</p>
-              <div className="space-y-4 text-gray-700">
-                <p>
-                  Performance marketer and creative strategist; founder of <span className="font-bold text-purple-600">Yuvichaar Funnels</span>. Managed <span className="font-bold text-green-600">₹50Cr+</span> in spend and helped drive <span className="font-bold text-green-600">₹130Cr+</span> in tracked revenue using high-conviction, UGC-native ads. Built Leepi AI to bottle the exact process behind 6–7× ROAS spikes.
-                </p>
-                <div className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-4 py-2 rounded-lg inline-block">
-                  <p className="font-bold italic">"Don't make nice ads. Make ads that move money."</p>
-                </div>
-              </div>
-            </div>
-
-           
-            
-          </div>
-        </div>
-      </section>
+      
 
       {/* Our Promise Section */}
       <section className="py-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto text-center">
-          <div className="bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600  rounded-3xl p-12 text-white shadow-2xl">
+          <div className="bg-gradient-to-r from-[#E1E7FB] via-[#F8EBEF] to-[#FAF3ED]   rounded-3xl p-12 text-black shadow-2xl"
+          >
             <h2 className="relative text-4xl font-bold mb-8">Our Promise</h2>
             <div className="space-y-6 text-xl leading-relaxed">
               <p>You're probably <span className="font-bold text-yellow-300">one ad away</span> from your next revenue jump.</p>
@@ -254,7 +229,7 @@ const AboutUs: React.FC = () => {
               </Link>
               <Link
                 to="/contact"
-                className="inline-flex items-center px-8 py-4 bg-white/20 backdrop-blur-sm text-white font-bold rounded-xl hover:bg-white/30 transition-all duration-300 border-2 border-white/30 text-lg"
+                className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-[#9F6AEA] to-purple-600  backdrop-blur-sm text-white font-bold rounded-xl hover:bg-white/30 transition-all duration-300 border-2 border-white/30 text-lg"
               >
                 Get In Touch
               </Link>
