@@ -637,91 +637,17 @@ const CreateScriptWizard: React.FC = () => {
     saveDataToStorage();
   };
 
-  const handlePerfumeAutoFill = () => {
-    setStepOneData({
-      product: 'Eternal Elegance Eau de Parfum',
-      brand_name: 'Lumière Fragrances'
-    });
-    
-    setStepTwoData({
-      selling_what: 'Luxury eau de parfum with rare French jasmine, Madagascar vanilla, and white musk - a sophisticated fragrance for confident women',
-      target_audience: 'Women aged 25-45 who appreciate luxury, have sophisticated taste, and want a signature scent that makes them feel confident and elegant. They value quality and are willing to invest in premium beauty products.',
-      price_point: '$85 for 50ml bottle, $120 for 100ml bottle',
-      desired_action: 'Purchase from our boutique or premium department stores like Nordstrom and Saks'
-    });
-
-    setStepThreeData({
-      main_problem: 'Most perfumes either fade too quickly, smell too generic and common, or are overpowering and cheap-smelling, making it hard to find a signature scent that truly represents your personality.',
-      emotional_desire: 'They want to feel sophisticated, memorable, and confident. They want people to notice and remember them for their elegant presence and distinctive, beautiful scent.',
-      transformation: 'From feeling invisible or forgettable with generic drugstore fragrances → To having a signature scent that makes you feel confident, sophisticated, and leaves a lasting impression wherever you go.'
-    });
-
-    setStepFourData({
-      credibility_proof: 'Made with rare French jasmine harvested at dawn, authentic Madagascar vanilla beans, and sustainably sourced white musk. Created by master perfumer Jean-Claude Moreau with 30+ years experience. Long-lasting 8-12 hour wear time.',
-      main_reason_to_buy: 'It\'s the only perfume that combines rare, high-quality ingredients with a sophisticated scent profile that evolves beautifully throughout the day, lasting 8-12 hours without being overpowering.',
-      guarantees: '30-day satisfaction guarantee - if you don\'t love it, return it for a full refund. Free fragrance consultation included.',
-      social_proof: 'Featured in Vogue\'s "Best Luxury Fragrances 2024", winner of Fragrance Foundation Award, worn by celebrities like Emma Stone and Margot Robbie'
-    });
-
-    setStepFiveData({
-      objections: 'Too expensive for a perfume, might not suit my skin chemistry, luxury fragrances are pretentious, I already have perfumes I don\'t finish',
-      testimonials: 'This is my holy grail fragrance! I get compliments everywhere I go and it lasts all day. It\'s become my signature scent and I feel so elegant wearing it. - Sarah M., verified buyer',
-      myths_misconceptions: 'Expensive perfumes are just paying for the brand name, all perfumes smell the same after a few hours, you need to spray a lot for people to notice',
-      alternatives: 'Chanel No. 5, Marc Jacobs Daisy, Victoria\'s Secret body sprays, Bath & Body Works perfumes, designer dupes from discount stores'
-    });
-
-    setStepSixData({
-      competitors: 'Chanel and Tom Ford',
-      competitor_ads: 'Celebrity endorsements, glamorous lifestyle imagery, focus on heritage and craftsmanship, before/after confidence transformations',
-      unique_advantage: 'Our exclusive jasmine-vanilla-musk blend creates a scent that\'s sophisticated yet approachable, with unmatched longevity and a beautiful evolution from fresh to warm throughout the day'
-    });
-
-    setStepSevenData({
-      user_experience: 'Elegant frosted glass bottle with rose gold accents and magnetic cap. Comes in a luxurious gift box with velvet interior. The first spray reveals fresh top notes, developing into warm, sensual base notes over 2-3 hours.',
-      media_links: 'Behind-the-scenes video of jasmine harvesting in Grasse, France. Customer testimonial videos. Perfumer interview about the creation process.'
-    });
-
-    setStepEightData({
-      creation_story: 'I created this fragrance after traveling to Grasse, France and being enchanted by the jasmine fields at dawn. I wanted to capture that moment of pure elegance and sophistication in a bottle that modern women could wear as their signature scent.',
-      founder_belief: 'Every woman deserves to feel confident and elegant. A beautiful fragrance isn\'t just an accessory - it\'s an invisible confidence booster that becomes part of your identity and leaves a lasting impression.',
-      key_insight: 'If they understood that the right fragrance doesn\'t just smell beautiful - it actually changes how you feel about yourself and how others perceive you, making you more memorable and confident.'
-    });
-
-    setStepNineData({
-      previous_ads: 'Lifestyle photography worked well. Ingredient-focused content performed okay. Celebrity endorsement attempts were too expensive and didn\'t convert well.',
-      audience_type: 'both',
-      admired_brand: 'Chanel',
-      brand_tone: 'elegant, sophisticated, timeless',
-      forbidden_words: 'cheap, strong, overpowering, knockoff',
-      ad_format: 'video',
-      ad_duration: '30',
-      language: 'English'
-    });
-
-    // Also save the autofilled data
-    saveDataToStorage();
-  };
-
   const renderStepOne = () => (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-medium text-white mb-4">Basic Information</h3>
-        <div className="flex gap-2">
-          <button
-            type="button"
-            onClick={handleAutoFill}
-            className="inline-flex items-center px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors text-sm"
-          >
-            🎮 Gaming AutoFill
-          </button>
-          <button
-            type="button"
-            onClick={handlePerfumeAutoFill}
-            className="inline-flex items-center px-4 py-2 bg-pink-600 text-white rounded-lg hover:bg-pink-700 transition-colors text-sm"
-          >
-            🌸 Perfume AutoFill
-          </button>
-        </div>
+        <button
+          type="button"
+          onClick={handleAutoFill}
+          className="inline-flex items-center px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors text-sm"
+        >
+          🚀 Auto-fill for Testing
+        </button>
       </div>
       
       <div>

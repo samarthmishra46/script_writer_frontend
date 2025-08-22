@@ -67,7 +67,7 @@ const Pricing: React.FC = () => {
       ],
       icon: <Crown className="w-6 h-6" />,
       color: "from-pink-500 via-purple-500 to-blue-500",
-      buttonText: "Start Free Trial",
+      buttonText: "Get Unlimited Winning Ad Scripts",
       popular: true,
       discount: "60% OFF"
     },

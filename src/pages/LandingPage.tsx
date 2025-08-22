@@ -11,7 +11,7 @@ import { VideoRunning } from "../components/RunningVideoLtoR";
 interface UserData {
   name: string;
   email: string;
-  [key: string]: any;
+  
 }
 
 interface ScriptResponse {

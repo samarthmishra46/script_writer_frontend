@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 // Import icons and StoryboardGenerator component
-import { Copy, Download, RefreshCw, Eye, Edit3, Save, X, Video, Heart } from 'lucide-react';
+import { Copy, Download, RefreshCw, Edit3, Save, X, Video, Heart } from 'lucide-react';
 import StoryboardGenerator from './StoryboardGenerator';
+import ScriptViewer from './AscriptViwerJSON';
 import { buildApiUrl } from '../config/api';
 
 interface GeneratedScriptProps {
@@ -48,6 +49,53 @@ const GeneratedScript: React.FC<GeneratedScriptProps> = ({
   useEffect(() => {
     checkStoryboardAccess();
   }, []);
+
+    // Function to detect and parse JSON content
+  const parseScriptContent = (content: string) => {
+    try {
+      // Check if content contains JSON-like structure
+      if (content.includes('{') && content.includes('}')) {
+        // Extract JSON from markdown code blocks if present
+        const jsonMatch = content.match(/```json\s*([\s\S]*?)\s*```/);
+        if (jsonMatch) {
+          const jsonString = jsonMatch[1].trim();
+          console.log('Extracted JSON string:', jsonString);
+          const parsed = JSON.parse(jsonString);
+          console.log('Successfully parsed JSON:', parsed);
+          return parsed;
+        }
+        
+        // Try to find JSON object between first { and last } if no code blocks
+        const firstBrace = content.indexOf('{');
+        const lastBrace = content.lastIndexOf('}');
+        if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+          const jsonString = content.substring(firstBrace, lastBrace + 1);
+          console.log('Extracted JSON from content:', jsonString);
+          const parsed = JSON.parse(jsonString);
+          console.log('Successfully parsed JSON:', parsed);
+          return parsed;
+        }
+        
+        // Try to parse directly if it looks like JSON
+        if (content.trim().startsWith('{')) {
+          const parsed = JSON.parse(content);
+          console.log('Successfully parsed direct JSON:', parsed);
+          return parsed;
+        }
+      }
+      return null;
+    } catch (error) {
+      console.log('Failed to parse JSON:', error);
+      return null;
+    }
+  };
+
+  const scriptData = parseScriptContent(script.content);
+  const isJsonFormat = scriptData !== null;
+  
+  console.log('GeneratedScript - Original content:', script.content);
+  console.log('GeneratedScript - Parsed script data:', scriptData);
+  console.log('GeneratedScript - Is JSON format:', isJsonFormat);
   
   const checkStoryboardAccess = async () => {
     setCheckingAccess(true);
@@ -260,9 +308,17 @@ const GeneratedScript: React.FC<GeneratedScriptProps> = ({
             </div>
           </div>
         ) : (
-          <div className="whitespace-pre-wrap font-mono text-sm text-gray-800 max-h-96 overflow-y-auto">
-            {script.content}
-          </div>
+          <>
+            {isJsonFormat && scriptData ? (
+              <div className="bg-gray-50 rounded-lg p-4">
+                <ScriptViewer script={scriptData} />
+              </div>
+            ) : (
+              <div className="whitespace-pre-wrap font-mono text-sm text-gray-800 max-h-96 overflow-y-auto">
+                {script.content}
+              </div>
+            )}
+          </>
         )}
       </div>
       
