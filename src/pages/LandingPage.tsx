@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "../components/HeaderLanding";
 import { Brandcompo } from "../components/BrandWorked";
@@ -27,20 +27,24 @@ const LandingPage: React.FC = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState<UserData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Function to get user from localStorage
-  const getUserFromLocalStorage = (): UserData => {
-    let user: UserData = { name: "", email: "" };
+  const getUserFromLocalStorage = (): UserData | null => {
     try {
       const userString = localStorage.getItem("user");
-      if (userString) {
+      const token = localStorage.getItem("token");
+      
+      if (userString && token) {
         const parsedUser: Partial<UserData> = JSON.parse(userString);
-        user = {
-          name: parsedUser.name || "",
-          email: parsedUser.email || "",
-          ...parsedUser,
-        };
+        
+        // Check if we have valid user data (name and email)
+        if (parsedUser.name && parsedUser.email) {
+          return {
+            name: parsedUser.name,
+            email: parsedUser.email,
+            ...parsedUser,
+          };
+        }
       }
     } catch (err) {
       console.error("Error parsing user data from localStorage:", err);
@@ -48,46 +52,48 @@ const LandingPage: React.FC = () => {
       localStorage.removeItem("user");
       localStorage.removeItem("token");
     }
-    return user;
-  };
-
-  // Function to check subscription status
-  const checkSubscription = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        setIsLoading(false);
-        return;
-      }
-      
-      const response = await fetch('/api/subscription', {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-      });
-
-      const data: ScriptResponse = await response.json();
-      
-      if (response.ok) {
-        // Check if user has active individual or organization plan
-        const hasActiveSubscription = (data.plan === 'individual' || data.plan === 'organization') && data.isActive;
-        
-        if (hasActiveSubscription) {
-          navigate('/dashboard');
-          return; // Exit early since we're redirecting
-        }
-      }
-    } catch (error) {
-      console.error('Error checking subscription:', error);
-    } finally {
-      setIsLoading(false);
-    }
+    
+    // Return null if no valid user data found
+    return null;
   };
 
   // Effect to check user and subscription status on every load
   useEffect(() => {
+    // Function to check subscription status
+    const checkSubscription = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+          setIsLoading(false);
+          return;
+        }
+        
+        const response = await fetch('/api/subscription', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+        });
+
+        const data: ScriptResponse = await response.json();
+        
+        if (response.ok) {
+          // Check if user has active individual or organization plan
+          const hasActiveSubscription = (data.plan === 'individual' || data.plan === 'organization') && data.isActive;
+          
+          if (hasActiveSubscription) {
+            navigate('/dashboard');
+            return; // Exit early since we're redirecting
+          }
+        }
+      } catch (error) {
+        console.error('Error checking subscription:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
     const loadData = async () => {
       // First get user data
       const userData = getUserFromLocalStorage();
@@ -111,7 +117,7 @@ const LandingPage: React.FC = () => {
     return () => {
       window.removeEventListener('storage', handleStorageChange);
     };
-  }, []);
+  }, [navigate]);
 
   const handleLogout = () => {
     localStorage.removeItem("token");

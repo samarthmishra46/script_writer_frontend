@@ -88,7 +88,7 @@ export function TryButton({ user }: TryButtonProps) {
 
       {isLoggedIn && !hasActiveSubscription && (
         <Link
-          to="/pricing"
+          to="/subscription"
           className="group relative inline-flex items-center justify-center 
                      overflow-hidden rounded-lg 
                      bg-gradient-to-r from-[#9F6AEA] to-purple-600 

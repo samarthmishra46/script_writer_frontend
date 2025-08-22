@@ -29,7 +29,7 @@ const StickyFooter: React.FC<StickyFooterProps> = ({ user }) => {
         
         {/* Subscribe Button */}
         <Link
-          to={user ? "/pricing" : "/login"}
+          to={user ? "/subscription" : "/login"}
           className="group relative inline-flex items-center justify-center 
                      overflow-hidden rounded-2xl
                      bg-gradient-to-r from-[#9F6AEA] to-purple-600 
@@ -39,7 +39,17 @@ const StickyFooter: React.FC<StickyFooterProps> = ({ user }) => {
         >
           <span className="flex items-center whitespace-nowrap truncate 
                            text-[13px] sm:text-[15px] md:text-lg lg:text-xl px-3 leading-none">
-            Get Unlimited Winning Ad Scripts
+                            
+            {user ? (
+              <>
+               <span>Unlock Unlimited Winning Ad Scripts</span>
+               
+              </>
+            ) : (
+              <>
+                <span>Get Unlimited Winning Ad Scripts</span>
+              </>
+            )}
             <span className="flex items-center ml-3 px-2 py-1 rounded-lg bg-black/20">
               <span className="text-gray-300 line-through font-normal 
                                text-[0.7rem] sm:text-sm md:text-base mr-2">
