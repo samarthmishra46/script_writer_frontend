@@ -50,29 +50,21 @@ const GeneratedScript: React.FC<GeneratedScriptProps> = ({
     checkStoryboardAccess();
   }, []);
 
-    // Function to detect and parse JSON content
+  // Function to detect and parse JSON content
   const parseScriptContent = (content: string) => {
+    if (!content || typeof content !== 'string') {
+      console.log('Invalid content provided to parseScriptContent');
+      return null;
+    }
+    
     try {
       // Check if content contains JSON-like structure
       if (content.includes('{') && content.includes('}')) {
         // Extract JSON from markdown code blocks if present
         const jsonMatch = content.match(/```json\s*([\s\S]*?)\s*```/);
         if (jsonMatch) {
-          const jsonString = jsonMatch[1].trim();
-          console.log('Extracted JSON string:', jsonString);
-          const parsed = JSON.parse(jsonString);
-          console.log('Successfully parsed JSON:', parsed);
-          return parsed;
-        }
-        
-        // Try to find JSON object between first { and last } if no code blocks
-        const firstBrace = content.indexOf('{');
-        const lastBrace = content.lastIndexOf('}');
-        if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
-          const jsonString = content.substring(firstBrace, lastBrace + 1);
-          console.log('Extracted JSON from content:', jsonString);
-          const parsed = JSON.parse(jsonString);
-          console.log('Successfully parsed JSON:', parsed);
+          const parsed = JSON.parse(jsonMatch[1]);
+          console.log('Successfully parsed JSON from markdown:', parsed);
           return parsed;
         }
         
@@ -85,17 +77,13 @@ const GeneratedScript: React.FC<GeneratedScriptProps> = ({
       }
       return null;
     } catch (error) {
-      console.log('Failed to parse JSON:', error);
+      console.log('Content is not valid JSON, displaying as text:', error);
       return null;
     }
   };
 
   const scriptData = parseScriptContent(script.content);
   const isJsonFormat = scriptData !== null;
-  
-  console.log('GeneratedScript - Original content:', script.content);
-  console.log('GeneratedScript - Parsed script data:', scriptData);
-  console.log('GeneratedScript - Is JSON format:', isJsonFormat);
   
   const checkStoryboardAccess = async () => {
     setCheckingAccess(true);

@@ -42,14 +42,13 @@ const StickyFooter: React.FC<StickyFooterProps> = ({ user }) => {
                             
             {user ? (
               <>
-               <span>Unlock Unlimited Winning Ad Scripts</span>
-               
+                <span>Unlock</span>{" "}
               </>
-            ) : (
-              <>
-                <span>Get Unlimited Winning Ad Scripts</span>
-              </>
-            )}
+            ) : <>
+             <span>Get</span>
+             </>}
+             <span className="mr-1"> </span>
+             Unlimited Winning Ad Scripts
             <span className="flex items-center ml-3 px-2 py-1 rounded-lg bg-black/20">
               <span className="text-gray-300 line-through font-normal 
                                text-[0.7rem] sm:text-sm md:text-base mr-2">

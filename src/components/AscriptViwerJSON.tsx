@@ -36,35 +36,9 @@ interface Script {
   scenes?: Scene[];
 }
 
-// Function to parse script content from string
-const parseScriptContent = (content: string): Script | null => {
-  try {
-    // Check if content contains JSON-like structure
-    if (content.includes('{') && content.includes('}')) {
-      // Extract JSON from markdown code blocks if present
-      const jsonMatch = content.match(/```json\s*([\s\S]*?)\s*```/);
-      if (jsonMatch) {
-        return JSON.parse(jsonMatch[1]);
-      }
-      
-      // Try to parse directly if it looks like JSON
-      if (content.trim().startsWith('{')) {
-        return JSON.parse(content);
-      }
-    }
-    return null;
-  } catch {
-    console.log('Content is not valid JSON, returning null');
-    return null;
-  }
-};
-
-const ScriptViewer: React.FC<{ script: Script }> = ({ script }) => {
+ const ScriptViewer: React.FC<{ script: Script }> = ({ script }) => {
   // Safety check - if script is null/undefined, show a fallback
-  console.log('ScriptViewer received script:', script);
-  
   if (!script) {
-    console.log('Script is null or undefined');
     return (
       <div className="max-w-5xl mx-auto space-y-6 p-6 font-serif">
         <p className="text-center text-gray-500">No script data available</p>
@@ -185,52 +159,4 @@ const ScriptViewer: React.FC<{ script: Script }> = ({ script }) => {
     </div>
   );
 };
-
-// Wrapper component that can handle both string and object input
-interface AdScriptViewerProps {
-  scriptString?: string;
-  script?: Script;
-}
-
-const AdScriptViewer: React.FC<AdScriptViewerProps> = ({ scriptString, script }) => {
-  console.log('AdScriptViewer received:', { scriptString: !!scriptString, script: !!script });
-  
-  // If script object is provided, use it directly
-  if (script) {
-    return <ScriptViewer script={script} />;
-  }
-  
-  // If scriptString is provided, try to parse it
-  if (scriptString) {
-    const parsedScript = parseScriptContent(scriptString);
-    
-    if (parsedScript) {
-      return <ScriptViewer script={parsedScript} />;
-    } else {
-      // If parsing fails, show the raw content with formatting
-      return (
-        <div className="max-w-5xl mx-auto space-y-6 p-6 font-serif">
-          <div className="bg-gray-50 rounded-lg p-6 border">
-            <h2 className="text-xl font-semibold text-gray-800 mb-4">Generated Script</h2>
-            <div className="whitespace-pre-wrap font-mono text-sm text-gray-800 bg-white p-4 rounded border">
-              {scriptString}
-            </div>
-          </div>
-          <Separator />
-          <p className="text-center text-sm text-gray-500 italic">
-            ✨ Script content displayed as text ✨
-          </p>
-        </div>
-      );
-    }
-  }
-  
-  // If neither is provided, show fallback
-  return (
-    <div className="max-w-5xl mx-auto space-y-6 p-6 font-serif">
-      <p className="text-center text-gray-500">No script data available</p>
-    </div>
-  );
-};
-
-export default AdScriptViewer;
+export default ScriptViewer;

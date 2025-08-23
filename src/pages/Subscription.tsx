@@ -43,8 +43,8 @@ interface UserData {
 interface ScriptResponse {
   isActive?: boolean;
   plan: string;
-  activatedDate:Date;
-  nextBillingDate:Date;
+  activatedDate: Date;
+  nextBillingDate: Date;
   status?: string;
   message?: string;
 }
@@ -61,7 +61,6 @@ function getUserFromLocalStorage(): UserData {
         ...parsedUser,
       };
     }
-   
   } catch (err) {
     console.error("Error parsing user data from localStorage:", err);
   }
@@ -77,23 +76,23 @@ const Subscription: React.FC = () => {
   const [subscriptionData, setSubscriptionData] = useState<{
     isActive: boolean;
     plan: string;
-    activatedDate:Date;
-  nextBillingDate:Date;
-  remainingDays?: number;
+    activatedDate: Date;
+    nextBillingDate: Date;
+    remainingDays?: number;
   }>({
     isActive: false,
-    plan: 'free',
+    plan: "free",
     activatedDate: new Date(),
     nextBillingDate: new Date(),
   });
 
   // Load Razorpay script
   useEffect(() => {
-    const script = document.createElement('script');
-    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+    const script = document.createElement("script");
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
     script.async = true;
     document.body.appendChild(script);
-    
+
     return () => {
       if (document.body.contains(script)) {
         document.body.removeChild(script);
@@ -107,49 +106,53 @@ const Subscription: React.FC = () => {
       try {
         setIsLoading(true);
         setError(null);
-        const token = localStorage.getItem('token');
+        const token = localStorage.getItem("token");
         if (!token) {
-          navigate('/login');
+          navigate("/login");
           setIsLoading(false);
           return;
         }
-        
-        const response = await fetch(buildApiUrl('/api/subscription'), {
-          method: 'GET',
+
+        const response = await fetch(buildApiUrl("/api/subscription"), {
+          method: "GET",
           headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
           },
         });
 
         const data: ScriptResponse = await response.json();
         console.log("Subscription API response:", data);
-        
+
         if (!response.ok) {
-          throw new Error(data.message || 'Failed to fetch subscription data');
+          throw new Error(data.message || "Failed to fetch subscription data");
         }
-        
+
         // Calculate remaining days properly
         let remainingDays = 0;
         if (data.nextBillingDate && data.activatedDate) {
           const currentDate = new Date();
-          
+
           const nextDate = new Date(data.nextBillingDate);
-          
+
           const diffMs = nextDate.getTime() - currentDate.getTime();
           remainingDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
         }
-          
+
         setSubscriptionData({
-          isActive: data.plan === 'individual' || data.plan === 'organization',
-          plan: data.plan || 'free',
+          isActive: data.plan === "individual" || data.plan === "organization",
+          plan: data.plan || "free",
           remainingDays: remainingDays,
           activatedDate: data.activatedDate,
-          nextBillingDate: data.nextBillingDate
+          nextBillingDate: data.nextBillingDate,
         });
       } catch (error) {
-        console.error('Error checking subscription:', error);
-        setError(error instanceof Error ? error.message : 'Failed to fetch subscription data');
+        console.error("Error checking subscription:", error);
+        setError(
+          error instanceof Error
+            ? error.message
+            : "Failed to fetch subscription data"
+        );
       } finally {
         setIsLoading(false);
       }
@@ -158,100 +161,105 @@ const Subscription: React.FC = () => {
     checkSubscription();
   }, [navigate]);
 
-
-
   const startSubscription = async () => {
-  if (!user?.email) return alert("No email found for logged-in user");
-  const token = localStorage.getItem("token");
-  if (!token) {
-    navigate("/login");
-    return;
-  }
+    if (!user?.email) return alert("No email found for logged-in user");
+    const token = localStorage.getItem("token");
+    if (!token) {
+      navigate("/login");
+      return;
+    }
 
-  setIsLoading(true);
-  try {
-    // 1. Create subscription from backend
-    const response = await fetch(
-      buildApiUrl("/api/subscription/create-subscription"),
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email: user.email }),
-      }
-    );
-    const data = await response.json();
-    const subscriptionId = data.id;
-    console.log("Created subscription:", subscriptionId);
-
-    // 2. Configure Razorpay options
-    const options = {
-      key: import.meta.env.VITE_RAZORPAY_KEY_ID,
-      subscription_id: subscriptionId,
-      name: "Leepi AI",
-      description: "₹10 every 7 days",
-      handler: async function (response: RazorpayResponse) {
-        console.log("Razorpay Response:", response);
-
-        // Extract values from Razorpay response
-        const {
-          razorpay_payment_id,
-          razorpay_subscription_id,
-          razorpay_signature,
-        } = response;
-
-        // 3. Verify payment with backend
-        try {
-          const verificationRes = await fetch(
-            buildApiUrl("/api/subscription/verify"),
-            {
-              method: "POST",
-              headers: {
-                Authorization: `Bearer ${token}`,
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                razorpay_payment_id,
-                razorpay_subscription_id,
-                razorpay_signature,
-              }),
-            }
-          );
-
-          const verificationData = await verificationRes.json();
-          if (verificationData.success) {
-            alert("Subscription activated successfully!");
-          } else {
-            alert("Payment verification failed.");
-          }
-        } catch (err) {
-          console.error("Verification error:", err);
-          alert("Could not verify payment.");
+    setIsLoading(true);
+    try {
+      // 1. Create subscription from backend
+      const response = await fetch(
+        buildApiUrl("/api/subscription/create-subscription"),
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email: user.email }),
         }
-      },
-      theme: { color: "#002fffff" },
-      method:{
-        upi:true
-      }
-    };
+      );
+      const data = await response.json();
+      const subscriptionId = data.id;
+      console.log("Created subscription:", subscriptionId);
 
-    // 4. Open Razorpay Checkout
-    const rzp = new (window as { Razorpay: RazorpayConstructor }).Razorpay(options);
-    rzp.on("payment.failed", function (response: RazorpayError) {
-      console.error("Payment failed:", response.error);
-      alert("Payment failed: " + response.error.description);
-    });
-    rzp.open();
-  } catch (error) {
-    console.error("Error starting subscription:", error);
-    alert("Failed to create subscription");
-  } finally {
-    setIsLoading(false);
-  }
-};
+      // 2. Configure Razorpay options
+      const options = {
+        key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+        subscription_id: subscriptionId,
+        name: "Leepi AI",
+        description: "₹10 every 7 days",
+        handler: async function (response: RazorpayResponse) {
+          console.log("Razorpay Response:", response);
 
+          // Extract values from Razorpay response
+          const {
+            razorpay_payment_id,
+            razorpay_subscription_id,
+            razorpay_signature,
+          } = response;
+
+          // 3. Verify payment with backend
+          try {
+            const verificationRes = await fetch(
+              buildApiUrl("/api/subscription/verify"),
+              {
+                method: "POST",
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  razorpay_payment_id,
+                  razorpay_subscription_id,
+                  razorpay_signature,
+                }),
+              }
+            );
+
+            const verificationData = await verificationRes.json();
+            if (verificationData.success) {
+              alert("Subscription activated successfully!");
+            } else {
+              alert("Payment verification failed.");
+            }
+          } catch (err) {
+            console.error("Verification error:", err);
+            alert("Could not verify payment.");
+          }
+        },
+        prefill: {
+          //We recommend using the prefill parameter to auto-fill customer's contact information, especially their phone number
+          name: user.name, //your customer's name
+          email: user.email,
+          //Provide the customer's phone number for better conversion rates
+        },
+        theme: { color: "#002fffff" },
+        method: {
+          upi: true,
+        },
+      };
+
+      // 4. Open Razorpay Checkout
+      const rzp = new (window as { Razorpay: RazorpayConstructor }).Razorpay(
+        options
+      );
+      rzp.on("payment.failed", function (response: RazorpayError) {
+        console.error("Payment failed:", response.error);
+        alert("Payment failed: " + response.error.description);
+      });
+      rzp.open();
+    } catch (error) {
+      console.error("Error starting subscription:", error);
+      alert("Failed to create subscription");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   // Loading state
   if (isLoading) {
@@ -275,7 +283,9 @@ const Subscription: React.FC = () => {
           <div className="flex justify-center mb-6">
             <div className="text-red-500 text-5xl">⚠️</div>
           </div>
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">Subscription Error</h2>
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">
+            Subscription Error
+          </h2>
           <p className="text-gray-600 mb-6">{error}</p>
           <button
             onClick={() => window.location.reload()}
@@ -284,7 +294,7 @@ const Subscription: React.FC = () => {
             Try Again
           </button>
           <button
-            onClick={() => navigate('/dashboard')}
+            onClick={() => navigate("/dashboard")}
             className="bg-gray-200 text-gray-700 rounded-full px-6 py-3 font-medium transition duration-200 w-full hover:bg-gray-300"
           >
             Back to Dashboard
@@ -311,26 +321,37 @@ const Subscription: React.FC = () => {
             <div className="absolute top-0 right-0 bg-green-500 text-white px-4 py-1 rounded-bl-lg font-medium">
               ACTIVE
             </div>
-            <h2 className="text-2xl font-bold text-green-800 mt-4">You're Subscribed!</h2>
+            <h2 className="text-2xl font-bold text-green-800 mt-4">
+              You're Subscribed!
+            </h2>
             <p className="text-green-600 mt-1">
-              {subscriptionData.plan.charAt(0).toUpperCase() + subscriptionData.plan.slice(1)} Plan
+              {subscriptionData.plan.charAt(0).toUpperCase() +
+                subscriptionData.plan.slice(1)}{" "}
+              Plan
             </p>
-            
+
             <div className="mt-6 mb-2">
               <div className="text-5xl font-bold text-green-800">
                 {subscriptionData.remainingDays || 0}
-                <span className="text-xl font-normal text-green-600 ml-2">days left</span>
+                <span className="text-xl font-normal text-green-600 ml-2">
+                  days left
+                </span>
               </div>
               {subscriptionData.nextBillingDate && (
                 <p className="text-sm text-green-600 mt-1">
-                  Next billing: {new Date(subscriptionData.nextBillingDate).toLocaleDateString()}
+                  Next billing:{" "}
+                  {new Date(
+                    subscriptionData.nextBillingDate
+                  ).toLocaleDateString()}
                 </p>
               )}
             </div>
           </div>
 
-          <h3 className="font-semibold text-gray-800 text-xl mb-4">Your Active Benefits</h3>
-          
+          <h3 className="font-semibold text-gray-800 text-xl mb-4">
+            Your Active Benefits
+          </h3>
+
           <ul className="text-gray-700 text-left mb-6 space-y-2">
             <li className="flex items-start">
               <span className="text-green-500 mr-2">✓</span>
@@ -351,7 +372,7 @@ const Subscription: React.FC = () => {
           </ul>
 
           <button
-            onClick={() => navigate('/dashboard')}
+            onClick={() => navigate("/dashboard")}
             className="bg-gradient-to-r from-[#CB6CE6] to-[#2D65F5] text-white rounded-full px-6 py-3 font-medium transition duration-200 w-full hover:opacity-90"
           >
             Return to Dashboard
