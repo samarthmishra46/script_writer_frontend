@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import ReactMarkdown from 'react-markdown';
 import {
   Loader2,
   ChevronLeft,
@@ -23,7 +22,7 @@ import { buildApiUrl } from "../config/api";
 import Sidebar from "../components/Sidebar";
 import StoryboardGenerator from "../components/StoryboardGenerator";
 import { useBrands } from "../context/useBrands";
-import AdScriptViewer from "../components/AscriptViwerJSON.tsx"
+import { AdScriptViewer } from "../components/AscriptViwerJSON";
 interface Script {
   _id: string;
   scriptId?: string;
@@ -468,55 +467,6 @@ const ScriptGroup: React.FC = () => {
     }
   };
 
-  // Custom components for ReactMarkdown with enhanced styling
-  const MarkdownComponents = {
-    h1: ({ ...props }: React.HTMLProps<HTMLHeadingElement>) => (
-      <h1 className="text-2xl md:text-3xl font-bold mb-4 text-purple-700 border-b-2 border-purple-200 pb-2" {...props} />
-    ),
-    h2: ({ ...props }: React.HTMLProps<HTMLHeadingElement>) => (
-      <h2 className="text-xl md:text-2xl font-bold mb-3 text-blue-700 border-b border-blue-100 pb-1" {...props} />
-    ),
-    h3: ({ ...props }: React.HTMLProps<HTMLHeadingElement>) => (
-      <h3 className="text-lg md:text-xl font-semibold mb-2 text-green-700" {...props} />
-    ),
-    h4: ({ ...props }: React.HTMLProps<HTMLHeadingElement>) => (
-      <h4 className="text-base md:text-lg font-medium mb-2 text-orange-600" {...props} />
-    ),
-    p: ({ ...props }: React.HTMLProps<HTMLParagraphElement>) => (
-      <p className="mb-3 text-gray-800 leading-relaxed text-sm md:text-base" {...props} />
-    ),
-    strong: ({ ...props }: React.HTMLProps<HTMLElement>) => (
-      <strong className="font-bold text-indigo-700 bg-indigo-50 px-1 rounded" {...props} />
-    ),
-    em: ({ ...props }: React.HTMLProps<HTMLElement>) => (
-      <em className="italic text-pink-600 bg-pink-50 px-1 rounded" {...props} />
-    ),
-    ul: ({ ...props }: React.HTMLProps<HTMLUListElement>) => (
-      <ul className="list-disc pl-6 mb-4 space-y-2" {...props} />
-    ),
-    ol: ({ ...props }: React.HTMLProps<HTMLOListElement>) => (
-      <ol className="list-decimal pl-6 mb-4 space-y-2" {...(props as React.OlHTMLAttributes<HTMLOListElement>)} />
-    ),
-    li: ({ ...props }: React.HTMLProps<HTMLLIElement>) => (
-      <li className="text-gray-800 leading-relaxed text-sm md:text-base" {...props} />
-    ),
-    blockquote: ({ ...props }: React.HTMLProps<HTMLQuoteElement>) => (
-      <blockquote className="border-l-4 border-yellow-400 pl-4 italic text-gray-700 bg-yellow-50 py-2 my-4 rounded-r" {...props} />
-    ),
-    a: ({ ...props }: React.HTMLProps<HTMLAnchorElement>) => (
-      <a className="text-blue-600 hover:text-blue-800 underline hover:bg-blue-50 px-1 rounded transition-colors" {...props} />
-    ),
-    code: ({ ...props }: React.HTMLProps<HTMLElement>) => (
-      <code className="bg-gray-200 px-2 py-1 rounded text-sm font-mono text-gray-900 border" {...props} />
-    ),
-    pre: ({ ...props }: React.HTMLProps<HTMLPreElement>) => (
-      <pre className="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto mb-4 text-sm border" {...props} />
-    ),
-    hr: ({ ...props }: React.HTMLProps<HTMLHRElement>) => (
-      <hr className="border-gray-300 my-6" {...props} />
-    ),
-  };
-
   return (
     <div className="flex flex-col md:flex-row h-screen overflow-hidden bg-white">
       {/* Mobile Header */}
@@ -787,7 +737,7 @@ const ScriptGroup: React.FC = () => {
                   <div className="p-4 md:p-6 bg-gradient-to-br from-gray-50 to-white rounded-b-lg min-h-[40vh] md:min-h-[60vh] overflow-y-auto border-t">
                     <div className="max-w-none prose prose-sm md:prose-base prose-gray">
                      
-                      <AdScriptViewer scriptString= {selectedScript.content}/>
+                      <AdScriptViewer script= {selectedScript}/>
 <br />
                        <StoryboardGenerator scriptId={selectedScript._id} />
                     </div>

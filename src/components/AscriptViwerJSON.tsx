@@ -38,6 +38,7 @@ interface Script {
 
  const ScriptViewer: React.FC<{ script: Script }> = ({ script }) => {
   // Safety check - if script is null/undefined, show a fallback
+  console.log(script)
   if (!script) {
     return (
       <div className="max-w-5xl mx-auto space-y-6 p-6 font-serif">
@@ -159,4 +160,65 @@ interface Script {
     </div>
   );
 };
+
+// Wrapper component to handle scripts from ScriptGroup
+interface ScriptGroupScript {
+  _id: string;
+  scriptId?: string;
+  title: string;
+  content: string;
+  createdAt: string;
+  liked: boolean;
+  metadata?: {
+    brand_name?: string;
+    product?: string;
+    [key: string]: unknown;
+  };
+  brand_name?: string;
+  product?: string;
+  formattedDate?: string;
+}
+
+const AdScriptViewer: React.FC<{ script: ScriptGroupScript }> = ({ script }) => {
+  // Function to detect and parse JSON content
+  const parseScriptContent = (content: string) => {
+    try {
+      // Check if content contains JSON-like structure
+      if (content.includes('{') && content.includes('}')) {
+        // Extract JSON from markdown code blocks if present
+        const jsonMatch = content.match(/```json\s*([\s\S]*?)\s*```/);
+        if (jsonMatch) {
+          return JSON.parse(jsonMatch[1]);
+        }
+        
+        // Try to parse directly if it looks like JSON
+        if (content.trim().startsWith('{')) {
+          return JSON.parse(content);
+        }
+      }
+      return null;
+    } catch {
+      console.log('Content is not valid JSON, displaying as text');
+      return null;
+    }
+  };
+
+  const scriptData = parseScriptContent(script.content);
+  const isJsonFormat = scriptData !== null;
+
+  if (isJsonFormat && scriptData) {
+    return <ScriptViewer script={scriptData} />;
+  }
+
+  // Fallback to plain text display
+  return (
+    <div className="max-w-5xl mx-auto space-y-6 p-6 font-serif">
+      <div className="whitespace-pre-wrap text-gray-800">
+        {script.content}
+      </div>
+    </div>
+  );
+};
+
 export default ScriptViewer;
+export { AdScriptViewer };
