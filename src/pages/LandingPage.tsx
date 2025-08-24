@@ -391,72 +391,59 @@ const LandingPage: React.FC = () => {
           </div>
 
           <div className="space-y-12">
-            <div className="flex flex-col md:flex-row items-start bg-white rounded-xl shadow-lg p-6 border border-purple-100">
-              <div className="md:w-1/4 mb-4 md:mb-0">
-                <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center text-purple-600 font-bold text-xl">
-                  1
-                </div>
-              </div>
-              <div className="md:w-3/4">
-                <h4 className="text-xl font-semibold mb-2">
+           
+
+          
+<div className="flex flex-col md:flex-row items-center bg-white rounded-xl shadow-lg p-6 border border-purple-100">
+              
+              <div className=" items-center text-center justify-center">
+                <h4 className="text-xl tex-center font-semibold mb-2">
                   Step 1: Tell us about your product or offer
                 </h4>
                 <p className="text-gray-600 mb-4">
                   Provide details about your product, service, or offer. The
                   more details you provide, the better the results.
                 </p>
-                <div className="bg-gray-100 rounded-lg p-4">
-                  <div className="h-12 bg-gray-200 rounded mb-2"></div>
-                  <div className="h-8 w-20 bg-purple-500 rounded"></div>
+                <div>
+                  <img src="https://res.cloudinary.com/dvxqb1wge/image/upload/v1756001787/genrate_mwv0wp.gif" alt="genrate" />
                 </div>
               </div>
             </div>
 
-            <div className="flex flex-col md:flex-row items-start bg-white rounded-xl shadow-lg p-6 border border-purple-100">
-              <div className="md:w-1/4 mb-4 md:mb-0">
-                <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center text-purple-600 font-bold text-xl">
-                  2
-                </div>
-              </div>
-              <div className="md:w-3/4">
-                <h4 className="text-xl font-semibold mb-2">
+
+            <div className="flex flex-col md:flex-row items-center bg-white rounded-xl shadow-lg p-6 border border-purple-100">
+              
+              <div className=" items-center text-center justify-center">
+                <h4 className="text-xl tex-center font-semibold mb-2">
                   Step 2: That's it, simply wait for your ad scripts
                 </h4>
                 <p className="text-gray-600 mb-4">
                   Our AI generates high-converting ad scripts based on your
                   input and our database of successful ads.
                 </p>
-                <div className="grid grid-cols-4 gap-2">
-                  <div className="h-6 bg-gray-200 rounded"></div>
-                  <div className="h-6 bg-gray-200 rounded"></div>
-                  <div className="h-6 bg-gray-200 rounded"></div>
-                  <div className="h-6 bg-gray-200 rounded"></div>
+                <div>
+                  <img src="https://res.cloudinary.com/dvxqb1wge/image/upload/v1756001787/genrate_mwv0wp.gif" alt="genrate" />
                 </div>
               </div>
             </div>
 
-            <div className="flex flex-col md:flex-row items-start bg-white rounded-xl shadow-lg p-6 border border-purple-100">
-              <div className="md:w-1/4 mb-4 md:mb-0">
-                <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center text-purple-600 font-bold text-xl">
-                  3
-                </div>
-              </div>
-              <div className="md:w-3/4">
-                <h4 className="text-xl font-semibold mb-2">
-                  Step 3: Use the scripts in your ad campaigns
+
+            <div className="flex flex-col md:flex-row items-center bg-white rounded-xl shadow-lg p-6 border border-purple-100">
+              
+              <div className=" items-center text-center justify-center">
+                <h4 className="text-xl tex-center font-semibold mb-2">
+                  Step 3: Regenrate scripts based on your needs
                 </h4>
                 <p className="text-gray-600 mb-4">
-                  Copy the generated scripts directly into your Facebook or
-                  Instagram ad campaigns and watch your conversions grow.
+                  Regenrate the script with prompt, you can make any kind of changes
                 </p>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="h-24 bg-gray-100 rounded-lg"></div>
-                  <div className="h-24 bg-gray-100 rounded-lg"></div>
+                <div>
+                  <img src="https://res.cloudinary.com/dvxqb1wge/image/upload/v1756001253/regenrate_qt3fge.gif" alt="" />
                 </div>
               </div>
             </div>
           </div>
-
+              <br />
           <TryButton 
           user={user}/>
         </div>
