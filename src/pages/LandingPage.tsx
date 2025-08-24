@@ -405,7 +405,7 @@ const LandingPage: React.FC = () => {
                   more details you provide, the better the results.
                 </p>
                 <div>
-                  <img src="https://res.cloudinary.com/dvxqb1wge/image/upload/v1756001787/genrate_mwv0wp.gif" alt="genrate" />
+                  <img src="https://res.cloudinary.com/dvxqb1wge/image/upload/v1756003038/createscript_h0glnd.gif" alt="genrate" />
                 </div>
               </div>
             </div>
