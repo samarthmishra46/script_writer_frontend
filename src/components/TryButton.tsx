@@ -40,7 +40,7 @@ export function TryButton({ user }: TryButtonProps) {
   };
 
   const isLoggedIn = !!user;
-  const hasActiveSubscription = user?.subscription?.status === "active";
+  const hasActiveSubscription = user?.subscription?.plan === "individual";
 
   return (
     <div className="relative flex flex-col items-center text-center group mb-6 sm:mb-8 px- sm:px-4">
