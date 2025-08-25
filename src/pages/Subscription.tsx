@@ -247,7 +247,18 @@ const Subscription: React.FC = () => {
     userEmail: user?.email,
     paymentId: razorpay_payment_id,
   });
-              alert("Subscription activated successfully!");
+                // Update localStorage user plan to "individual"
+                const userString = localStorage.getItem("user");
+                if (userString) {
+                const userObj = JSON.parse(userString);
+                userObj.subscription = {
+                  ...(userObj.subscription || {}),
+                  plan: "individual",
+                  status: "active",
+                };
+                localStorage.setItem("user", JSON.stringify(userObj));
+                }
+                alert("Subscription activated successfully!");
               navigate("/dashboard");
             } else {
               alert("Payment verification failed.");
