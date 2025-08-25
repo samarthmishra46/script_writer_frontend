@@ -11,6 +11,10 @@ import { VideoRunning } from "../components/RunningVideoLtoR";
 interface UserData {
   name: string;
   email: string;
+  subscription?: {
+    plan: string;
+    status: string;
+  };
   
 }
 
@@ -27,6 +31,7 @@ const LandingPage: React.FC = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState<UserData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  
 
   // Function to get user from localStorage
   const getUserFromLocalStorage = (): UserData | null => {
@@ -38,10 +43,12 @@ const LandingPage: React.FC = () => {
         const parsedUser: Partial<UserData> = JSON.parse(userString);
         
         // Check if we have valid user data (name and email)
+        // Subscription is optional for new users
         if (parsedUser.name && parsedUser.email) {
           return {
             name: parsedUser.name,
             email: parsedUser.email,
+            subscription: parsedUser?.subscription || undefined,
             ...parsedUser,
           };
         }

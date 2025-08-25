@@ -1,5 +1,7 @@
 import { Link } from "react-router-dom";
 import { ChevronRight } from "lucide-react";
+import { useEffect } from "react";
+import ReactPixel from "react-facebook-pixel"; // ✅ Import Meta Pixel
 
 interface User {
   id?: string;
@@ -16,20 +18,34 @@ interface StickyFooterProps {
 }
 
 const StickyFooter: React.FC<StickyFooterProps> = ({ user }) => {
-  const hasActiveSubscription = user?.subscription?.status === "active";
+  const hasActiveSubscription = user?.subscription?.plan === "individual";
+
+  useEffect(() => {
+    console.log(user);
+  }, [user]);
 
   // ✅ If subscribed, don't render the footer
   if (hasActiveSubscription) {
     return null;
   }
 
+  // 🔹 Handle button click to fire Pixel event
+  const handleClick = () => {
+    ReactPixel.track("SubscribeButtonClick", {
+      location: "sticky_footer",
+      userStatus: user ? "logged_in" : "guest",
+    });
+    console.log("Meta Pixel Event: SubscribeButtonClick fired");
+  };
+
   return (
     <div className="fixed bottom-0 left-0 w-full z-50 bg-gradient-to-r from-[#1e1b22] to-[#241F26] border-t border-gray-700 shadow-lg">
       <div className="flex flex-col items-center text-center px-4 py-4 sm:py-6">
-        
+
         {/* Subscribe Button */}
         <Link
           to={user ? "/subscription" : "/login"}
+          onClick={handleClick} // ✅ Fire Pixel event here
           className="group relative inline-flex items-center justify-center 
                      overflow-hidden rounded-2xl
                      bg-gradient-to-r from-[#9F6AEA] to-purple-600 
@@ -39,16 +55,14 @@ const StickyFooter: React.FC<StickyFooterProps> = ({ user }) => {
         >
           <span className="flex items-center whitespace-nowrap truncate 
                            text-[13px] sm:text-[15px] md:text-lg lg:text-xl px-3 leading-none">
-                            
+
             {user ? (
-              <>
-                <span>Unlock</span>{" "}
-              </>
-            ) : <>
-             <span>Get</span>
-             </>}
-             <span className="mr-1"> </span>
-             Unlimited Winning Ad Scripts
+              <span>Unlock </span>
+            ) : (
+              <span>Get </span>
+            )}
+
+            Unlimited Winning Ad Scripts
             <span className="flex items-center ml-3 px-2 py-1 rounded-lg bg-black/20">
               <span className="text-gray-300 line-through font-normal 
                                text-[0.7rem] sm:text-sm md:text-base mr-2">
