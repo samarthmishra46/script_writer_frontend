@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { buildApiUrl } from "../config/api";
 import { useNavigate } from "react-router-dom";
-import ReactPixel from "react-facebook-pixel";
 
 // Add Razorpay type to window
 declare global {
@@ -19,7 +18,6 @@ interface RazorpayResponse {
 interface RazorpayError {
   error: {
     description: string;
-
   };
 }
 
@@ -87,14 +85,6 @@ const Subscription: React.FC = () => {
     activatedDate: new Date(),
     nextBillingDate: new Date(),
   });
-
-  useEffect(() => {
-  ReactPixel.pageView(); 
-  ReactPixel.track("ViewContent", {
-    page: "subscription_page",
-    userEmail: user?.email || "guest",
-  });
-}, []);
 
   // Load Razorpay script
   useEffect(() => {
@@ -172,13 +162,6 @@ const Subscription: React.FC = () => {
   }, [navigate]);
 
   const startSubscription = async () => {
-
-    ReactPixel.track("SubscribeInitiated", {
-    plan: "weekly_trial",   // or "individual" based on your plans
-    price: 1,
-    currency: "INR",
-    userEmail: user?.email,
-  });
     if (!user?.email) return alert("No email found for logged-in user");
     const token = localStorage.getItem("token");
     if (!token) {
@@ -240,26 +223,7 @@ const Subscription: React.FC = () => {
 
             const verificationData = await verificationRes.json();
             if (verificationData.success) {
-              ReactPixel.track("SubscribeCompleted", {
-    plan: "weekly_trial",
-    price: 1,
-    currency: "INR",
-    userEmail: user?.email,
-    paymentId: razorpay_payment_id,
-  });
-                // Update localStorage user plan to "individual"
-                const userString = localStorage.getItem("user");
-                if (userString) {
-                const userObj = JSON.parse(userString);
-                userObj.subscription = {
-                  ...(userObj.subscription || {}),
-                  plan: "individual",
-                  status: "active",
-                };
-                localStorage.setItem("user", JSON.stringify(userObj));
-                }
-                alert("Subscription activated successfully!");
-              navigate("/dashboard");
+              alert("Subscription activated successfully!");
             } else {
               alert("Payment verification failed.");
             }

@@ -707,7 +707,7 @@ const CreateScriptWizard: React.FC = () => {
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-medium text-white mb-4">Basic Information</h3>
         <div className="flex gap-2">
-        {/* <button
+         <button
           type="button"
           onClick={handleAutoFill}
           className="inline-flex items-center px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors text-sm"
@@ -720,7 +720,7 @@ const CreateScriptWizard: React.FC = () => {
           className="inline-flex items-center px-4 py-2 bg-pink-600 text-white rounded-lg hover:bg-pink-700 transition-colors text-sm"
         >
           🌸 Perfume AutoFill
-        </button> */}
+        </button> 
         </div>
       </div>
       

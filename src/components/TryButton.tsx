@@ -2,7 +2,6 @@ import { Link } from "react-router-dom";
 import { ChevronRight } from "lucide-react";
 import { useEffect, useState, useRef } from "react";
 import { useOrderTimerContext } from "../context/OrderTimerContext";
-import ReactPixel from "react-facebook-pixel"; // ✅ Added Pixel import
 
 interface User {
   id?: string;
@@ -40,7 +39,7 @@ export function TryButton({ user }: TryButtonProps) {
   };
 
   const isLoggedIn = !!user;
-  const hasActiveSubscription = user?.subscription?.plan === "individual";
+  const hasActiveSubscription = user?.subscription?.status === "active";
 
   return (
     <div className="relative flex flex-col items-center text-center group mb-6 sm:mb-8 px- sm:px-4">
@@ -62,14 +61,6 @@ export function TryButton({ user }: TryButtonProps) {
       {!isLoggedIn && (
         <Link
           to="/login"
-          onClick={() => {
-            ReactPixel.track("Lead", {
-              source: "try_button",
-              action: "login_redirect",
-              price: 1999,
-              currency: "INR",
-            });
-          }}
           className="group relative inline-flex items-center justify-center 
                      overflow-hidden rounded-lg 
                      bg-gradient-to-r from-[#9F6AEA] to-purple-600 
@@ -98,14 +89,6 @@ export function TryButton({ user }: TryButtonProps) {
       {isLoggedIn && !hasActiveSubscription && (
         <Link
           to="/subscription"
-          onClick={() => {
-            ReactPixel.track("SubscribeInitiated", {
-              source: "try_button",
-              plan: "individual",
-              price: 1999,
-              currency: "INR",
-            });
-          }}
           className="group relative inline-flex items-center justify-center 
                      overflow-hidden rounded-lg 
                      bg-gradient-to-r from-[#9F6AEA] to-purple-600 
@@ -134,15 +117,6 @@ export function TryButton({ user }: TryButtonProps) {
       {isLoggedIn && hasActiveSubscription && (
         <Link
           to="/dashboard"
-          onClick={() => {
-            ReactPixel.track("Subscribe", {
-              source: "try_button",
-              status: "already_subscribed",
-              plan: user?.subscription?.plan ?? "unknown",
-              price: 1999,
-              currency: "INR",
-            });
-          }}
           className="group relative inline-flex items-center justify-center 
                      overflow-hidden rounded-lg 
                      bg-green-600 
