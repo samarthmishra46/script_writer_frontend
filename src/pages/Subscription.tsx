@@ -192,7 +192,7 @@ const Subscription: React.FC = () => {
         key: import.meta.env.VITE_RAZORPAY_KEY_ID,
         subscription_id: subscriptionId,
         name: "Leepi AI",
-        description: "₹10 every 7 days",
+        description: "₹1999 every month",
         handler: async function (response: RazorpayResponse) {
           console.log("Razorpay Response:", response);
 
@@ -395,12 +395,12 @@ const Subscription: React.FC = () => {
         </div>
 
         <p className="text-gray-500 mb-6">
-          Unlock all features for just ₹1 every 7 days
+          Unlock all features for just ₹1999 every month
         </p>
 
         <div className="mb-6">
-          <span className="text-4xl font-semibold">₹1</span>
-          <span className="text-gray-500"> / 7 days</span>
+          <span className="text-4xl font-semibold">₹1999</span>
+          <span className="text-gray-500"> / month</span>
         </div>
 
         <ul className="text-gray-700 text-left mb-6 space-y-2">
