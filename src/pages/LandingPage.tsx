@@ -208,15 +208,17 @@ const LandingPage: React.FC = () => {
             </div>
           </div>
 
-         
-             <Vimeo
-            video={1113796386}
-            className="max-w-4xl"
-            autoplay
-            responsive
-            loop={true}
-            muted={false}/>
-          <br />
+         <div className="relative w-full pb-[56.25%] overflow-hidden rounded-xl">
+  <iframe
+    src="https://www.youtube.com/embed/iu9zJvAYbxA?si=4jhJzULNoyy0fJE3"
+    title="YouTube video player"
+    className="absolute top-0 left-0 w-full h-full border-0"
+    allow="accelerometer; autoplay;  picture-in-picture; web-share"
+    referrerPolicy="strict-origin-when-cross-origin"
+    allowFullScreen
+  ></iframe>
+</div>
+<br />
 
           <TryButton
           user={user} />
@@ -348,9 +350,8 @@ const LandingPage: React.FC = () => {
           <Brandcompo
             brandname="Photojewels"
             videadd="https://res.cloudinary.com/dvxqb1wge/image/upload/v1755442431/photojewels_aojp4i.gif"
-            scriptadd="https://res.cloudinary.com/dvxqb1wge/image/upload/v1755361770/Screenshot_from_2025-08-16_21-59-07_b0g8tl.png"
-            resultadd="https://res.cloudinary.com/dvxqb1wge/image/upload/v1754980416/Screenshot_from_2025-08-10_02-32-43_umhnri.png"
-          />
+            scriptadd="https://res.cloudinary.com/dvxqb1wge/image/upload/v1756378790/Screenshot_from_2025-08-28_16-29-32_revt6x.png"
+            resultadd="https://res.cloudinary.com/dvxqb1wge/image/upload/v1756379796/Screenshot_from_2025-08-28_16-46-19_ufa7bm.png"/>
           
           <p className="mt-8 text-[15px] sm:text-base md:text-lg font-bold text-center italic text-gray-700 max-w-xl mx-auto">
             "It knows exactly which hooks work in which 
@@ -361,8 +362,8 @@ const LandingPage: React.FC = () => {
           <Brandcompo
             brandname="Fictales"
             videadd="https://res.cloudinary.com/dvxqb1wge/image/upload/v1755506027/fictales_rim5pq.gif"
-            scriptadd="https://res.cloudinary.com/dvxqb1wge/image/upload/v1755362138/Screenshot_from_2025-08-16_22-05-18_kinkiv.png"
-            resultadd="https://res.cloudinary.com/dvxqb1wge/image/upload/v1754980416/Screenshot_from_2025-08-10_02-32-43_umhnri.png"
+            scriptadd="https://res.cloudinary.com/dvxqb1wge/image/upload/v1756378674/Screenshot_from_2025-08-28_16-27-30_mtexc7.png"
+            resultadd="https://res.cloudinary.com/dvxqb1wge/image/upload/v1756378531/cr1495be6oyq4qatjhil.png"
           />
           <p className="mt-8 text-[15px] sm:text-base md:text-lg font-bold text-center italic text-gray-700 max-w-xl mx-auto">
             "This tool doesn't just write ad scripts. It reverse-engineers what makes ads perform"
@@ -372,7 +373,7 @@ const LandingPage: React.FC = () => {
             brandname="Arabian Aroma"
             videadd="https://res.cloudinary.com/dvxqb1wge/image/upload/v1755359130/arabian_rogpzs.gif"
             scriptadd="https://res.cloudinary.com/dvxqb1wge/image/upload/v1754980416/Screenshot_from_2025-08-10_02-32-43_umhnri.png"
-            resultadd="https://res.cloudinary.com/dvxqb1wge/image/upload/v1754980416/Screenshot_from_2025-08-10_02-32-43_umhnri.png"
+            resultadd="https://res.cloudinary.com/dvxqb1wge/image/upload/v1756380535/Screenshot_from_2025-08-28_16-58-33_gt5a22.png"
           />
           <p className="mt-8 text-[15px] sm:text-base md:text-lg font-bold text-center italic text-gray-700 max-w-xl mx-auto">
             "Every script felt engineered to sell. My ROAS shot through the roof"
@@ -393,58 +394,46 @@ const LandingPage: React.FC = () => {
           </div>
 
           <div className="space-y-12">
-           
+  
+  {/* Step 1 */}
+  <div className="flex flex-col items-center text-center bg-white rounded-xl shadow-lg p-6 border border-purple-100">
+    <h4 className="text-xl font-semibold mb-2">Step 1: Tell us about your product or offer</h4>
+    <p className="text-gray-600 mb-4">
+      Provide details about your product, service, or offer. The more details you provide, the better the results.
+    </p>
+    <img
+      src="https://res.cloudinary.com/dvxqb1wge/image/upload/v1756381329/ezgif.com-video-to-gif-converter_cbndbp.gif"
+      alt="generate"
+      className="w-48 md:w-64 lg:w-72 rounded-lg shadow mx-auto"
+    />
+  </div>
 
-          
-<div className="flex flex-col md:flex-row items-center bg-white rounded-xl shadow-lg p-6 border border-purple-100">
-              
-              <div className=" items-center text-center justify-center">
-                <h4 className="text-xl tex-center font-semibold mb-2">
-                  Step 1: Tell us about your product or offer
-                </h4>
-                <p className="text-gray-600 mb-4">
-                  Provide details about your product, service, or offer. The
-                  more details you provide, the better the results.
-                </p>
-                <div>
-                  <img src="https://res.cloudinary.com/dvxqb1wge/image/upload/v1756003038/createscript_h0glnd.gif" alt="genrate" />
-                </div>
-              </div>
-            </div>
+  {/* Step 2 */}
+  <div className="flex flex-col items-center text-center bg-white rounded-xl shadow-lg p-6 border border-purple-100">
+    <h4 className="text-xl font-semibold mb-2">Step 2: That's it, simply wait for your ad scripts</h4>
+    <p className="text-gray-600 mb-4">
+      Our AI generates high-converting ad scripts based on your input and our database of successful ads.
+    </p>
+    <img
+      src="https://res.cloudinary.com/dvxqb1wge/image/upload/v1756001787/genrate_mwv0wp.gif"
+      alt="generate"
+      className="w-48 md:w-64 lg:w-72 rounded-lg shadow mx-auto"
+    />
+  </div>
 
-
-            <div className="flex flex-col md:flex-row items-center bg-white rounded-xl shadow-lg p-6 border border-purple-100">
-              
-              <div className=" items-center text-center justify-center">
-                <h4 className="text-xl tex-center font-semibold mb-2">
-                  Step 2: That's it, simply wait for your ad scripts
-                </h4>
-                <p className="text-gray-600 mb-4">
-                  Our AI generates high-converting ad scripts based on your
-                  input and our database of successful ads.
-                </p>
-                <div>
-                  <img src="https://res.cloudinary.com/dvxqb1wge/image/upload/v1756001787/genrate_mwv0wp.gif" alt="genrate" />
-                </div>
-              </div>
-            </div>
-
-
-            <div className="flex flex-col md:flex-row items-center bg-white rounded-xl shadow-lg p-6 border border-purple-100">
-              
-              <div className=" items-center text-center justify-center">
-                <h4 className="text-xl tex-center font-semibold mb-2">
-                  Step 3: Regenrate scripts based on your needs
-                </h4>
-                <p className="text-gray-600 mb-4">
-                  Regenrate the script with prompt, you can make any kind of changes
-                </p>
-                <div>
-                  <img src="https://res.cloudinary.com/dvxqb1wge/image/upload/v1756001253/regenrate_qt3fge.gif" alt="" />
-                </div>
-              </div>
-            </div>
-          </div>
+  {/* Step 3 */}
+  <div className="flex flex-col items-center text-center bg-white rounded-xl shadow-lg p-6 border border-purple-100">
+    <h4 className="text-xl font-semibold mb-2">Step 3: Regenerate scripts based on your needs</h4>
+    <p className="text-gray-600 mb-4">
+      Regenerate the script with prompt, you can make any kind of changes
+    </p>
+    <img
+      src="https://res.cloudinary.com/dvxqb1wge/image/upload/v1756001253/regenrate_qt3fge.gif"
+      alt="regenerate"
+      className="w-48 md:w-64 lg:w-72 rounded-lg shadow mx-auto"
+    />
+  </div>
+</div>
               <br />
           <TryButton 
           user={user}/>

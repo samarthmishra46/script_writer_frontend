@@ -19,6 +19,7 @@ export function Brandcompo({
   brandname,
   videadd,
   scriptadd,
+  resultadd
  
 }: BrandProps) {
   return (
@@ -71,9 +72,9 @@ export function Brandcompo({
         </h4>
          <div className="relative w-full pb-[177.78%] rounded-lg shadow overflow-hidden">
         <img
-          src={scriptadd}
+          src={resultadd}
           alt="Ad Script"
-          className="absolute top-0 left-0 w-full h-full"
+          className="absolute top-0 left-0  h-full"
         />
         </div>
       </div>
