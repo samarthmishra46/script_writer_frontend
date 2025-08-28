@@ -8,6 +8,7 @@ import CompanyGrid from "../components/CompneyGrid";
 import StickyFooter from "../components/StickeyFooter";
 import { VideoRunning } from "../components/RunningVideoLtoR";
 import Vimeo from '@u-wave/react-vimeo';
+import VideoLanding from '../components/AdVideo'
 interface UserData {
   name: string;
   email: string;
@@ -208,16 +209,9 @@ const LandingPage: React.FC = () => {
             </div>
           </div>
 
-         <div className="relative w-full pb-[56.25%] overflow-hidden rounded-xl">
-  <iframe
-    src="https://www.youtube.com/embed/iu9zJvAYbxA?si=4jhJzULNoyy0fJE3"
-    title="YouTube video player"
-    className="absolute top-0 left-0 w-full h-full border-0"
-    allow="accelerometer; autoplay;  picture-in-picture; web-share"
-    referrerPolicy="strict-origin-when-cross-origin"
-    allowFullScreen
-  ></iframe>
-</div>
+
+        
+ <VideoLanding/>
 <br />
 
           <TryButton
@@ -351,7 +345,7 @@ const LandingPage: React.FC = () => {
             brandname="Photojewels"
             videadd="https://res.cloudinary.com/dvxqb1wge/image/upload/v1755442431/photojewels_aojp4i.gif"
             scriptadd="https://res.cloudinary.com/dvxqb1wge/image/upload/v1756378790/Screenshot_from_2025-08-28_16-29-32_revt6x.png"
-            resultadd="https://res.cloudinary.com/dvxqb1wge/image/upload/v1756379796/Screenshot_from_2025-08-28_16-46-19_ufa7bm.png"/>
+            resultadd="https://res.cloudinary.com/dvxqb1wge/image/upload/v1756391770/3_cbgixk.png"/>
           
           <p className="mt-8 text-[15px] sm:text-base md:text-lg font-bold text-center italic text-gray-700 max-w-xl mx-auto">
             "It knows exactly which hooks work in which 
@@ -363,7 +357,7 @@ const LandingPage: React.FC = () => {
             brandname="Fictales"
             videadd="https://res.cloudinary.com/dvxqb1wge/image/upload/v1755506027/fictales_rim5pq.gif"
             scriptadd="https://res.cloudinary.com/dvxqb1wge/image/upload/v1756378674/Screenshot_from_2025-08-28_16-27-30_mtexc7.png"
-            resultadd="https://res.cloudinary.com/dvxqb1wge/image/upload/v1756378531/cr1495be6oyq4qatjhil.png"
+            resultadd="https://res.cloudinary.com/dvxqb1wge/image/upload/v1756391556/2_avrqaw.png"
           />
           <p className="mt-8 text-[15px] sm:text-base md:text-lg font-bold text-center italic text-gray-700 max-w-xl mx-auto">
             "This tool doesn't just write ad scripts. It reverse-engineers what makes ads perform"
@@ -373,7 +367,7 @@ const LandingPage: React.FC = () => {
             brandname="Arabian Aroma"
             videadd="https://res.cloudinary.com/dvxqb1wge/image/upload/v1755359130/arabian_rogpzs.gif"
             scriptadd="https://res.cloudinary.com/dvxqb1wge/image/upload/v1754980416/Screenshot_from_2025-08-10_02-32-43_umhnri.png"
-            resultadd="https://res.cloudinary.com/dvxqb1wge/image/upload/v1756380535/Screenshot_from_2025-08-28_16-58-33_gt5a22.png"
+            resultadd="https://res.cloudinary.com/dvxqb1wge/image/upload/v1756391474/1_a5kr0j.png"
           />
           <p className="mt-8 text-[15px] sm:text-base md:text-lg font-bold text-center italic text-gray-700 max-w-xl mx-auto">
             "Every script felt engineered to sell. My ROAS shot through the roof"

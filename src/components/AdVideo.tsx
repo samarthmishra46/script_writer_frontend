@@ -1,30 +1,50 @@
-import React, { useEffect } from "react";
+import { useState } from "react";
+import Vimeo from "@u-wave/react-vimeo";
 
-const VimeoPlayer: React.FC = () => {
-  useEffect(() => {
-    // Dynamically load the Vimeo Player API script
-    const script = document.createElement("script");
-    script.src = "https://player.vimeo.com/api/player.js";
-    script.async = true;
-    document.body.appendChild(script);
-
-    return () => {
-      document.body.removeChild(script);
-    };
-  }, []);
+export default function VideoLanding() {
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
 
   return (
-    <div style={{ padding: "56.25% 0 0 0", position: "relative" }}>
-      <iframe
-        src="https://player.vimeo.com/video/1113796386?badge=0&autopause=0&player_id=0&app_id=58479"
-        frameBorder="0"
-        allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share"
-        referrerPolicy="strict-origin-when-cross-origin"
-        style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%" }}
-        title="leepy ai landscape final"
-      ></iframe>
+    <div className="relative w-full max-w-3xl mx-auto aspect-video">
+      {!isPlaying ? (
+        <div className="relative cursor-pointer" onClick={() => setIsPlaying(true)}>
+          {/* Custom Thumbnail GIF */}
+          <img
+            src="https://res.cloudinary.com/dvxqb1wge/image/upload/v1756389496/ezgif.com-video-to-gif-converter_1_yxkorv.gif"
+            alt="Video Thumbnail"
+            className="w-full h-full object-cover rounded-xl shadow-lg"
+          />
+
+          {/* Play Button Overlay */}
+          <div className="absolute inset-0 flex items-center justify-center">
+            <button
+              className="bg-white/80 rounded-full p-4 shadow-lg hover:scale-110 transition-transform"
+              aria-label="Play video"
+            >
+              ▶
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div className="relative w-full h-full">
+          {/* Vimeo Player */}
+          <Vimeo
+            video="1113796386"
+            autoplay
+            responsive
+            muted={false}
+            onLoaded={() => setIsLoaded(true)} // callback when video iframe is ready
+          />
+
+          {/* Loading Overlay (shows until Vimeo loads) */}
+          {!isLoaded && !isPlaying && (
+            <div className="absolute inset-0 flex items-center justify-center bg-black/70 rounded-xl">
+              <div className="w-12 h-12 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
-};
-
-export default VimeoPlayer;
+}
