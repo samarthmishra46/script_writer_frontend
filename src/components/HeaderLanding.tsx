@@ -265,15 +265,10 @@ function DropdownItem({ icon, label, onClick }: DropdownItemProps) {
 function AuthButtons() {
   return (
     <>
-      <Link to="/login" className="text-gray-700 hover:text-purple-600 font-medium px-4 py-2 rounded-lg">
-        Login
+      <Link to="/subscription" className="text-gray-700 hover:text-purple-600 font-bold px-4 py-2 rounded-lg">
+        Get Subscription
       </Link>
-      <Link
-        to="/signup"
-        className="px-6 py-2 bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 text-white rounded-lg hover:from-pink-600 hover:via-purple-600 hover:to-blue-600 transition-all duration-500 shadow-lg hover:shadow-xl hover:scale-105 transform font-medium"
-      >
-        Sign Up
-      </Link>
+      
     </>
   );
 }

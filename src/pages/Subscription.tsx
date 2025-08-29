@@ -11,7 +11,8 @@ declare global {
 
 interface RazorpayResponse {
   razorpay_payment_id: string;
-  razorpay_subscription_id: string;
+  razorpay_order_id?: string;
+  razorpay_subscription_id?: string;
   razorpay_signature: string;
 }
 
@@ -26,8 +27,26 @@ interface RazorpayInstance {
   on(event: string, callback: (response: RazorpayError) => void): void;
 }
 
+interface RazorpayOptions {
+  key: string;
+  amount?: number;
+  currency?: string;
+  name?: string;
+  description?: string;
+  order_id?: string;
+  subscription_id?: string;
+  prefill?: {
+    email?: string;
+    contact?: string;
+  };
+  handler: (response: RazorpayResponse) => void;
+  modal?: {
+    ondismiss: () => void;
+  };
+}
+
 interface RazorpayConstructor {
-  new (options: unknown): RazorpayInstance;
+  new (options: RazorpayOptions): RazorpayInstance;
 }
 
 interface UserData {
@@ -40,6 +59,7 @@ interface UserData {
     remainingDays?: number;
   };
 }
+
 interface ScriptResponse {
   isActive?: boolean;
   plan: string;
@@ -48,28 +68,45 @@ interface ScriptResponse {
   status?: string;
   message?: string;
 }
-function getUserFromLocalStorage(): UserData {
-  let user: UserData = { name: "", email: "" };
 
+interface GuestSubscriptionData {
+  email: string;
+  mobile: string;
+  selectedPlan?: string;
+}
+
+interface GuestFormErrors {
+  email?: string;
+  mobile?: string;
+}
+
+function getUserFromLocalStorage(): UserData | null {
   try {
     const userString = localStorage.getItem("user");
-    if (userString) {
+    const token = localStorage.getItem("token");
+    
+    if (userString && token) {
       const parsedUser: Partial<UserData> = JSON.parse(userString);
-      user = {
-        name: parsedUser.name || "",
-        email: parsedUser.email || "",
-        ...parsedUser,
-      };
+      
+      // Check if we have valid user data (name and email)
+      if (parsedUser.name && parsedUser.email) {
+        return {
+          name: parsedUser.name,
+          email: parsedUser.email,
+          subscription: parsedUser.subscription,
+          ...parsedUser,
+        };
+      }
     }
   } catch (err) {
     console.error("Error parsing user data from localStorage:", err);
   }
 
-  return user;
+  return null;
 }
 
 const Subscription: React.FC = () => {
-  const user = getUserFromLocalStorage();
+  const [user, setUser] = useState<UserData | null>(null);
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -86,6 +123,14 @@ const Subscription: React.FC = () => {
     nextBillingDate: new Date(),
   });
 
+  // User contact data state (for both guest and logged-in users)
+  const [showGuestForm, setShowGuestForm] = useState(false);
+  const [contactData, setContactData] = useState<GuestSubscriptionData>({
+    email: "",
+    mobile: "",
+  });
+  const [contactFormErrors, setContactFormErrors] = useState<GuestFormErrors>({});
+
   // Load Razorpay script
   useEffect(() => {
     const script = document.createElement("script");
@@ -100,15 +145,34 @@ const Subscription: React.FC = () => {
     };
   }, []);
 
-  // Check subscription status
+  // Check if user is logged in and has subscription
   useEffect(() => {
-    const checkSubscription = async () => {
+    const checkUserAndSubscription = async () => {
       try {
         setIsLoading(true);
         setError(null);
+        
+        // Get user from localStorage
+        const userData = getUserFromLocalStorage();
+        setUser(userData);
+        
+        // Prefill contact data if user is logged in
+        if (userData) {
+          setContactData({
+            email: userData.email || "",
+            mobile: "", // Will be filled by user
+          });
+        }
+        
+        if (!userData) {
+          setShowGuestForm(true);
+          setIsLoading(false);
+          return;
+        }
+
         const token = localStorage.getItem("token");
         if (!token) {
-          navigate("/login");
+          setShowGuestForm(true);
           setIsLoading(false);
           return;
         }
@@ -122,7 +186,6 @@ const Subscription: React.FC = () => {
         });
 
         const data: ScriptResponse = await response.json();
-        console.log("Subscription API response:", data);
 
         if (!response.ok) {
           throw new Error(data.message || "Failed to fetch subscription data");
@@ -132,9 +195,7 @@ const Subscription: React.FC = () => {
         let remainingDays = 0;
         if (data.nextBillingDate && data.activatedDate) {
           const currentDate = new Date();
-
           const nextDate = new Date(data.nextBillingDate);
-
           const diffMs = nextDate.getTime() - currentDate.getTime();
           remainingDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
         }
@@ -158,15 +219,227 @@ const Subscription: React.FC = () => {
       }
     };
 
-    checkSubscription();
-  }, [navigate]);
+    checkUserAndSubscription();
+  }, []); // Empty dependency array to run only once on mount
+
+  // Validate contact form data
+  const validateContactForm = (): boolean => {
+    const errors: GuestFormErrors = {};
+    
+    if (!contactData.email) {
+      errors.email = "Email is required";
+    } else if (!/\S+@\S+\.\S+/.test(contactData.email)) {
+      errors.email = "Please enter a valid email address";
+    }
+    
+    if (!contactData.mobile) {
+      errors.mobile = "Mobile number is required";
+    } else if (!/^\+?[\d\s-()]{10,}$/.test(contactData.mobile)) {
+      errors.mobile = "Please enter a valid mobile number";
+    }
+    
+    setContactFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  // Check if email exists in database
+  const checkEmailExists = async (email: string): Promise<boolean> => {
+    try {
+      const response = await fetch(buildApiUrl("/api/auth/check-email"), {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await response.json();
+      return data.exists || false;
+    } catch (error) {
+      console.error("Error checking email:", error);
+      return false;
+    }
+  };
+
+  // Handle contact form input changes
+  const handleContactInputChange = async (field: 'email' | 'mobile', value: string) => {
+    setContactData(prev => ({ ...prev, [field]: value }));
+    // Clear error for this field when user starts typing
+    if (contactFormErrors[field]) {
+      setContactFormErrors(prev => ({ ...prev, [field]: undefined }));
+    }
+
+    // If email field is being changed and it's a valid email, check if it exists
+    if (field === 'email' && value && /\S+@\S+\.\S+/.test(value)) {
+      const emailExists = await checkEmailExists(value);
+      if (emailExists) {
+        setContactFormErrors(prev => ({ 
+          ...prev, 
+          email: "This email is already registered. Please login instead." 
+        }));
+        
+        // Show confirmation dialog to redirect to login
+        const shouldRedirect = window.confirm(
+          "This email is already registered. Would you like to go to the login page?"
+        );
+        
+        if (shouldRedirect) {
+          navigate("/login");
+        }
+      }
+    }
+  };
+
+  // Handle guest subscription flow
+  const handleGuestSubscription = async (plan: string) => {
+    if (!validateContactForm()) {
+      return;
+    }
+    
+    // Check if email already exists in the database
+    const emailExists = await checkEmailExists(contactData.email);
+    if (emailExists) {
+      setContactFormErrors(prev => ({ 
+        ...prev, 
+        email: "This email is already registered. Please login instead." 
+      }));
+      
+      // Show confirmation dialog to redirect to login
+      const shouldRedirect = window.confirm(
+        "This email is already registered. Would you like to go to the login page?"
+      );
+      
+      if (shouldRedirect) {
+        navigate("/login");
+      }
+      return;
+    }
+    
+    setContactData(prev => ({ ...prev, selectedPlan: plan }));
+    // Proceed with Razorpay checkout for guest
+    handleGuestPayment(plan);
+  };
+
+  // Modified payment handler for guest users
+  const handleGuestPayment = async (plan: string) => {
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      // Create subscription order for guest
+      const response = await fetch(buildApiUrl("/api/subscription/create-guest"), {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          plan,
+          email: contactData.email,
+          mobile: contactData.mobile,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to create subscription order");
+      }
+
+      // Initialize Razorpay checkout
+      const options = {
+        key: "rzp_test_your_key_id", // Replace with your actual key
+        amount: data.amount,
+        currency: "INR",
+        name: "Script Writer",
+        description: `${plan} Plan Subscription`,
+        order_id: data.orderId,
+        prefill: {
+          email: contactData.email,
+          contact: contactData.mobile,
+        },
+        handler: async (response: RazorpayResponse) => {
+          // Handle successful payment
+          await handleGuestPaymentSuccess(response, plan);
+        },
+        modal: {
+          ondismiss: () => {
+            setIsLoading(false);
+          },
+        },
+      };
+
+      const razorpay = new (window as unknown as { Razorpay: RazorpayConstructor }).Razorpay(options);
+      razorpay.open();
+    } catch (error) {
+      console.error("Payment error:", error);
+      setError(
+        error instanceof Error ? error.message : "Payment failed"
+      );
+      setIsLoading(false);
+    }
+  };
+
+  // Handle successful guest payment
+  const handleGuestPaymentSuccess = async (paymentResponse: RazorpayResponse, plan: string) => {
+    try {
+      // Verify payment and create user account
+      const response = await fetch(buildApiUrl("/api/subscription/verify-guest-payment"), {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          ...paymentResponse,
+          plan,
+          email: contactData.email,
+          mobile: contactData.mobile,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Payment verification failed");
+      }
+
+      // Show success message
+      alert("Subscription activated successfully! Login credentials have been sent to your email.");
+      
+      // Redirect to login page
+      window.location.href = "/login";
+    } catch (error) {
+      console.error("Payment verification error:", error);
+      setError(
+        error instanceof Error ? error.message : "Payment verification failed"
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const startSubscription = async () => {
+    // Validate contact information before proceeding
+    if (!validateContactForm()) {
+      return;
+    }
+
     if (!user?.email) return alert("No email found for logged-in user");
     const token = localStorage.getItem("token");
     if (!token) {
       navigate("/login");
       return;
+    }
+
+    // If the user is changing their email (different from their logged-in email), check if the new email exists
+    if (contactData.email !== user.email) {
+      const emailExists = await checkEmailExists(contactData.email);
+      if (emailExists) {
+        setContactFormErrors(prev => ({ 
+          ...prev, 
+          email: "This email is already registered. Please use a different email or login with this email." 
+        }));
+        return;
+      }
     }
 
     setIsLoading(true);
@@ -180,7 +453,7 @@ const Subscription: React.FC = () => {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ email: user.email }),
+          body: JSON.stringify({ email: contactData.email || user.email }),
         }
       );
       const data = await response.json();
@@ -235,7 +508,8 @@ const Subscription: React.FC = () => {
         prefill: {
           //We recommend using the prefill parameter to auto-fill customer's contact information, especially their phone number
           name: user.name, //your customer's name
-          email: user.email,
+          email: contactData.email || user.email,
+          contact: contactData.mobile, // Use the mobile number from the form
           //Provide the customer's phone number for better conversion rates
         },
         theme: { color: "#002fffff" },
@@ -382,7 +656,7 @@ const Subscription: React.FC = () => {
     );
   }
 
-  // If user doesn't have an active subscription
+  // If user doesn't have an active subscription or is guest
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-gray-50 to-gray-200 px-4">
       <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full p-8 text-center">
@@ -394,33 +668,160 @@ const Subscription: React.FC = () => {
           </div>
         </div>
 
-        <p className="text-gray-500 mb-6">
-          Unlock all features for just ₹1999 every month
-        </p>
+        {showGuestForm && !user ? (
+          // Guest form for collecting email and mobile
+          <div>
+            <p className="text-gray-600 mb-6">
+              Enter your details to get started with your subscription
+            </p>
 
-        <div className="mb-6">
-          <span className="text-4xl font-semibold">₹1999</span>
-          <span className="text-gray-500"> / month</span>
-        </div>
+            <div className="space-y-4 mb-6">
+              <div>
+                <input
+                  type="email"
+                  placeholder="Email address"
+                  value={contactData.email}
+                  onChange={(e) => handleContactInputChange('email', e.target.value)}
+                  className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 ${
+                    contactFormErrors.email ? 'border-red-500' : 'border-gray-300'
+                  }`}
+                />
+                {contactFormErrors.email && (
+                  <p className="text-red-500 text-sm mt-1">{contactFormErrors.email}</p>
+                )}
+              </div>
 
-        <ul className="text-gray-700 text-left mb-6 space-y-2">
-          <li>✔ Unlimited access to AD Script Generation</li>
-          <li>✔ Unlimited access to Story Board Generation</li>
-          <li>✔ Priority customer support</li>
-          <li>✔ Early feature access</li>
-          <li>✔ Secure recurring billing</li>
-        </ul>
+              <div>
+                <input
+                  type="tel"
+                  placeholder="Mobile number"
+                  value={contactData.mobile}
+                  onChange={(e) => handleContactInputChange('mobile', e.target.value)}
+                  className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 ${
+                    contactFormErrors.mobile ? 'border-red-500' : 'border-gray-300'
+                  }`}
+                />
+                {contactFormErrors.mobile && (
+                  <p className="text-red-500 text-sm mt-1">{contactFormErrors.mobile}</p>
+                )}
+              </div>
+            </div>
 
-        <p className="text-xs text-gray-400 mb-4">
-          Payments will auto-renew every 7 days until canceled.
-        </p>
+            <div className="mb-6">
+              <span className="text-4xl font-semibold">₹1999</span>
+              <span className="text-gray-500"> / month</span>
+            </div>
 
-        <button
-          onClick={startSubscription}
-          className="bg-black hover:bg-gray-800 text-white rounded-full px-6 py-3 font-medium transition duration-200 w-full"
-        >
-          Start Subscription
-        </button>
+            <ul className="text-gray-700 text-left mb-6 space-y-2">
+              <li>✔ Unlimited access to AD Script Generation</li>
+              <li>✔ Unlimited access to Story Board Generation</li>
+              <li>✔ Priority customer support</li>
+              <li>✔ Early feature access</li>
+              <li>✔ Secure recurring billing</li>
+            </ul>
+
+            <p className="text-xs text-gray-400 mb-4">
+              A user account will be created automatically. Login credentials will be sent to your email.
+            </p>
+
+            <button
+              onClick={() => handleGuestSubscription('individual')}
+              disabled={isLoading}
+              className="bg-black hover:bg-gray-800 text-white rounded-full px-6 py-3 font-medium transition duration-200 w-full disabled:opacity-50"
+            >
+              {isLoading ? "Processing..." : "Subscribe Now"}
+            </button>
+
+            <div className="mt-4">
+              <p className="text-sm text-gray-500">
+                Already have an account?{" "}
+                <button
+                  onClick={() => navigate("/login")}
+                  className="text-purple-600 hover:underline"
+                >
+                  Sign in
+                </button>
+              </p>
+            </div>
+          </div>
+        ) : (
+          // Regular subscription form for logged-in users
+          <div>
+            <p className="text-gray-500 mb-6">
+              Unlock all features for just ₹1999 every month
+            </p>
+
+            {/* Contact information form for all users */}
+            <div className="space-y-4 mb-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Email Address
+                </label>
+                <input
+                  type="email"
+                  placeholder="Email address"
+                  value={contactData.email}
+                  onChange={(e) => handleContactInputChange('email', e.target.value)}
+                  className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 ${
+                    contactFormErrors.email ? 'border-red-500' : 'border-gray-300'
+                  }`}
+                />
+                {contactFormErrors.email && (
+                  <p className="text-red-500 text-sm mt-1">{contactFormErrors.email}</p>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Mobile Number
+                </label>
+                <input
+                  type="tel"
+                  placeholder="Mobile number"
+                  value={contactData.mobile}
+                  onChange={(e) => handleContactInputChange('mobile', e.target.value)}
+                  className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 ${
+                    contactFormErrors.mobile ? 'border-red-500' : 'border-gray-300'
+                  }`}
+                />
+                {contactFormErrors.mobile && (
+                  <p className="text-red-500 text-sm mt-1">{contactFormErrors.mobile}</p>
+                )}
+              </div>
+            </div>
+
+            <div className="mb-6">
+              <span className="text-4xl font-semibold">₹1999</span>
+              <span className="text-gray-500"> / month</span>
+            </div>
+
+            <ul className="text-gray-700 text-left mb-6 space-y-2">
+              <li>✔ Unlimited access to AD Script Generation</li>
+              <li>✔ Unlimited access to Story Board Generation</li>
+              <li>✔ Priority customer support</li>
+              <li>✔ Early feature access</li>
+              <li>✔ Secure recurring billing</li>
+            </ul>
+
+            <p className="text-xs text-gray-400 mb-4">
+              Payments will auto-renew every 7 days until canceled.
+            </p>
+
+            <button
+              onClick={startSubscription}
+              disabled={isLoading}
+              className="bg-black hover:bg-gray-800 text-white rounded-full px-6 py-3 font-medium transition duration-200 w-full disabled:opacity-50"
+            >
+              {isLoading ? "Processing..." : "Start Subscription"}
+            </button>
+          </div>
+        )}
+
+        {error && (
+          <div className="mt-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+            {error}
+          </div>
+        )}
       </div>
     </div>
   );

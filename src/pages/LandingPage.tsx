@@ -28,6 +28,7 @@ interface ScriptResponse {
   message?: string;
 }
 
+
 const LandingPage: React.FC = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState<UserData | null>(null);
@@ -64,50 +65,13 @@ const LandingPage: React.FC = () => {
     return null;
   };
 
-  // Effect to check user and subscription status on every load
+  // Effect to check user status on mount only - removed subscription check to prevent infinite API calls
   useEffect(() => {
-    // Function to check subscription status
-    const checkSubscription = async () => {
-      try {
-        const token = localStorage.getItem('token');
-        if (!token) {
-          setIsLoading(false);
-          return;
-        }
-        
-        const response = await fetch('/api/subscription', {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          },
-        });
-
-        const data: ScriptResponse = await response.json();
-        
-        if (response.ok) {
-          // Check if user has active individual or organization plan
-          const hasActiveSubscription = (data.plan === 'individual' || data.plan === 'organization') && data.isActive;
-          
-          if (hasActiveSubscription) {
-            navigate('/dashboard');
-            return; // Exit early since we're redirecting
-          }
-        }
-      } catch (error) {
-        console.error('Error checking subscription:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     const loadData = async () => {
-      // First get user data
+      // Get user data from localStorage
       const userData = getUserFromLocalStorage();
       setUser(userData);
-
-      // Then check subscription
-      await checkSubscription();
+      setIsLoading(false);
     };
 
     loadData();
