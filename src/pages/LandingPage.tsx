@@ -7,7 +7,6 @@ import { TryButton } from "../components/TryButton";
 import CompanyGrid from "../components/CompneyGrid";
 import StickyFooter from "../components/StickeyFooter";
 import { VideoRunning } from "../components/RunningVideoLtoR";
-import Vimeo from '@u-wave/react-vimeo';
 import VideoLanding from '../components/AdVideo'
 interface UserData {
   name: string;
