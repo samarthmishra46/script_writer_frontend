@@ -347,10 +347,10 @@ const Subscription: React.FC = () => {
 
       // Initialize Razorpay checkout
       const options = {
-        key: "rzp_test_your_key_id", // Replace with your actual key
+        key: import.meta.env.VITE_RAZORPAY_KEY_ID, // Replace with your actual key
         amount: data.amount,
         currency: "INR",
-        name: "Script Writer",
+        name: "Leepi AI",
         description: `${plan} Plan Subscription`,
         order_id: data.orderId,
         prefill: {
