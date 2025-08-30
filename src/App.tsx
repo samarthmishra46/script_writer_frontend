@@ -1,6 +1,9 @@
+import { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { GoogleOAuthProvider } from '@react-oauth/google';
+import ReactPixel from 'react-facebook-pixel';
+
 import LandingPage from './pages/LandingPage';
 import Dashboard from './pages/Dashboard';
 import CreateScriptWizard from './pages/CreateScriptWizard';
@@ -21,86 +24,90 @@ import Settings from './pages/Settings';
 import { BrandsProvider } from './context/BrandsContext';
 import { OrderTimerProvider } from "./context/OrderTimerContext"; // <-- 1. IMPORT
 
-
 function App() {
   // Use environment variable for client ID
   const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || '';
-  
-  // Log client ID status on app start
-  console.log(`Google OAuth Client ID ${googleClientId ? 'is configured' : 'is MISSING'}`);
-  
+
+  // Meta Pixel ID from env
+  const pixelId = import.meta.env.VITE_META_PIXEL_ID || '';
+
+  useEffect(() => {
+    if (pixelId) {
+      ReactPixel.init(pixelId);
+      ReactPixel.pageView(); // Track initial page load
+      console.log('Meta Pixel initialized:');
+    } else {
+      console.warn('Meta Pixel ID is missing. Set VITE_META_PIXEL_ID in .env file.');
+    }
+  }, [pixelId]);
+
   return (
     <GoogleOAuthProvider clientId={googleClientId}>
       <BrandsProvider>
-       <OrderTimerProvider> 
-        <Router>
-          <div className="App">
-            <Toaster 
-              position="top-right"
-              toastOptions={{
-                duration: 4000,
-                style: {
-                  background: '#363636',
-                  color: '#fff',
-                },
-              }}
-            />
-          <Routes>
-            {/* Public Routes */}
-          <Route path="/" element={<LandingPage />} />
-          <Route path="/pricing" element={<Pricing />} />
-          <Route path="/contact" element={<ContactUs />} />
-          <Route path="/about" element={<AboutUs />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
-          <Route path="/google-auth-test" element={<GoogleAuthTestPage />} />
-          <Route path="*" element={<NotFound />} />
-          
-          {/* Protected Routes */}
-          <Route path="/dashboard" element={
-            <ProtectedRoute>
-              <Dashboard />
-            </ProtectedRoute>
-          } />
-          <Route path="/create-script" element={
-            <ProtectedRoute>
-              <CreateScriptWizard />
-            </ProtectedRoute>
-          } />
-          <Route path="/scripts" element={
-            <ProtectedRoute>
-              <GeneratedScripts />
-            </ProtectedRoute>
-          } />
-          <Route path="/script/:scriptId" element={
-            <ProtectedRoute>
-              <ScriptView />
-            </ProtectedRoute>
-          } />
-          <Route path="/subscription" element={
-            
-              <Subscription />
-            
-          } />
-          <Route path="/subscription/callback" element={
-            <ProtectedRoute>
-              <SubscriptionCallback />
-            </ProtectedRoute>
-          } />
-          <Route path="/script-group/:brandName/:product/:scriptId" element={
-            <ProtectedRoute>
-              <ScriptGroup />
-            </ProtectedRoute>
-          } />
-          <Route path="/settings" element={<Settings />} />
-          
-          {/* Redirect unknown routes to dashboard */}
-          <Route path="*" element={<Navigate to="/dashboard" replace />} />
-        </Routes>
-      </div>
-    </Router>
-     
-    </OrderTimerProvider>
+        <OrderTimerProvider>
+          <Router>
+            <div className="App">
+              <Toaster 
+                position="top-right"
+                toastOptions={{
+                  duration: 4000,
+                  style: {
+                    background: '#363636',
+                    color: '#fff',
+                  },
+                }}
+              />
+              <Routes>
+                {/* Public Routes */}
+                <Route path="/" element={<LandingPage />} />
+                <Route path="/pricing" element={<Pricing />} />
+                <Route path="/contact" element={<ContactUs />} />
+                <Route path="/about" element={<AboutUs />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/signup" element={<Signup />} />
+                <Route path="/google-auth-test" element={<GoogleAuthTestPage />} />
+                <Route path="*" element={<NotFound />} />
+
+                {/* Protected Routes */}
+                <Route path="/dashboard" element={
+                  <ProtectedRoute>
+                    <Dashboard />
+                  </ProtectedRoute>
+                } />
+                <Route path="/create-script" element={
+                  <ProtectedRoute>
+                    <CreateScriptWizard />
+                  </ProtectedRoute>
+                } />
+                <Route path="/scripts" element={
+                  <ProtectedRoute>
+                    <GeneratedScripts />
+                  </ProtectedRoute>
+                } />
+                <Route path="/script/:scriptId" element={
+                  <ProtectedRoute>
+                    <ScriptView />
+                  </ProtectedRoute>
+                } />
+                <Route path="/subscription" element={<Subscription />} />
+                <Route path="/subscription/callback" element={
+                  <ProtectedRoute>
+                    <SubscriptionCallback />
+                  </ProtectedRoute>
+                } />
+                <Route path="/script-group/:brandName/:product/:scriptId" element={
+                  <ProtectedRoute>
+                    <ScriptGroup />
+                  </ProtectedRoute>
+                } />
+                <Route path="/settings" element={<Settings />} />
+
+                {/* Redirect unknown routes to dashboard */}
+                <Route path="*" element={<Navigate to="/dashboard" replace />} />
+              </Routes>
+            </div>
+          </Router>
+        </OrderTimerProvider>
       </BrandsProvider>
     </GoogleOAuthProvider>
   );

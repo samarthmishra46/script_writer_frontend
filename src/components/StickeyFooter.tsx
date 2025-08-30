@@ -1,6 +1,8 @@
 import { Link } from "react-router-dom";
 import { ChevronRight } from "lucide-react";
 import { useEffect } from "react";
+import ReactPixel from "react-facebook-pixel"; // ✅ Added Pixel import
+
 interface User {
   id?: string;
   name?: string;
@@ -33,6 +35,15 @@ const StickyFooter: React.FC<StickyFooterProps> = ({ user }) => {
         {/* Subscribe Button */}
         <Link
           to={ "/subscription"}
+           onClick={() => {
+                      ReactPixel.track("Lead", {
+                        source: "stickey_footer",
+                        action: "subscribe_redirect",
+                        price: 1999,
+                        currency: "INR",
+                      });
+                      console.log("META PIXEL LEAD")
+                       }}
           className="group relative inline-flex items-center justify-center 
                      overflow-hidden rounded-2xl
                      bg-gradient-to-r from-[#9F6AEA] to-purple-600 

@@ -353,43 +353,51 @@ const LandingPage: React.FC = () => {
           <div className="space-y-12">
   
   {/* Step 1 */}
-  <div className="flex flex-col items-center text-center bg-white rounded-xl shadow-lg p-6 border border-purple-100">
-    <h4 className="text-xl font-semibold mb-2">Step 1: Tell us about your product or offer</h4>
-    <p className="text-gray-600 mb-4">
-      Provide details about your product, service, or offer. The more details you provide, the better the results.
-    </p>
-    <img
-      src="https://res.cloudinary.com/dvxqb1wge/image/upload/v1756381329/ezgif.com-video-to-gif-converter_cbndbp.gif"
-      alt="generate"
-      className="w-48 md:w-64 lg:w-72 rounded-lg shadow mx-auto"
-    />
-  </div>
+  <div className="flex flex-col items-center text-center bg-white rounded-xl shadow-lg px-1 md:px-6 py-6 border border-purple-100">
+  <h4 className="text-xl font-semibold mb-2">
+Step 1: Tell us about your product or offer  </h4>
+  <p className="text-gray-600 mb-4">
+    Provide details about your product, service, or offer. The more details you provide, the better the results.
+  </p>
+  <img
+    src="https://res.cloudinary.com/dvxqb1wge/image/upload/v1756553139/ezgif.com-video-to-gif-converter_3_mpop2k.gif"
+    alt="generate"
+    className="w-full max-w-5xl h-auto rounded-lg shadow mx-auto"
+  />
+</div>
 
   {/* Step 2 */}
-  <div className="flex flex-col items-center text-center bg-white rounded-xl shadow-lg p-6 border border-purple-100">
-    <h4 className="text-xl font-semibold mb-2">Step 2: That's it, simply wait for your ad scripts</h4>
-    <p className="text-gray-600 mb-4">
-      Our AI generates high-converting ad scripts based on your input and our database of successful ads.
-    </p>
-    <img
-      src="https://res.cloudinary.com/dvxqb1wge/image/upload/v1756001787/genrate_mwv0wp.gif"
-      alt="generate"
-      className="w-48 md:w-64 lg:w-72 rounded-lg shadow mx-auto"
-    />
-  </div>
+  <div className="flex flex-col items-center text-center bg-white rounded-xl shadow-lg px-1 md:px-6 py-6 border border-purple-100">
+  <h4 className="text-xl font-semibold mb-2">
+    Step 2: That's it, simply wait for your ad scripts
+  </h4>
+  <p className="text-gray-600 mb-4">
+    Our AI generates high-converting ad scripts based on your input and our database of successful ads.
+  </p>
+  <img
+    src="https://res.cloudinary.com/dvxqb1wge/image/upload/v1756547047/ezgif.com-video-to-gif-converter_2_yejjuc.gif"
+    alt="generate"
+    className="w-full max-w-5xl h-auto rounded-lg shadow mx-auto"
+  />
+</div>
 
   {/* Step 3 */}
-  <div className="flex flex-col items-center text-center bg-white rounded-xl shadow-lg p-6 border border-purple-100">
-    <h4 className="text-xl font-semibold mb-2">Step 3: Regenerate scripts based on your needs</h4>
-    <p className="text-gray-600 mb-4">
-      Regenerate the script with prompt, you can make any kind of changes
-    </p>
-    <img
-      src="https://res.cloudinary.com/dvxqb1wge/image/upload/v1756001253/regenrate_qt3fge.gif"
-      alt="regenerate"
-      className="w-48 md:w-64 lg:w-72 rounded-lg shadow mx-auto"
-    />
-  </div>
+  <div className="flex flex-col items-center text-center bg-white rounded-xl shadow-lg px-1 md:px-6 py-6 border border-purple-100">
+  <h4 className="text-xl font-semibold mb-2">
+    Step 3: Regenerate scripts based on your needs
+  </h4>
+  <p className="text-gray-600 mb-4">
+   Regenerate the script with prompt, you can make any kind of changes
+  </p>
+  <img
+    src="https://res.cloudinary.com/dvxqb1wge/image/upload/v1756558051/ezgif.com-video-to-gif-converter_4_nsd0uc.gif"
+    alt="generate"
+    className="w-full max-w-5xl h-auto rounded-lg shadow mx-auto"
+  />
+</div>
+
+
+  
 </div>
               <br />
           <TryButton 

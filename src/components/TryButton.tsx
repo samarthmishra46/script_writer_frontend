@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { ChevronRight } from "lucide-react";
 import { useEffect, useState, useRef } from "react";
 import { useOrderTimerContext } from "../context/OrderTimerContext";
+import ReactPixel from "react-facebook-pixel"; // ✅ Added Pixel import
 
 interface User {
   id?: string;
@@ -61,6 +62,16 @@ export function TryButton({ user }: TryButtonProps) {
       {!isLoggedIn && (
         <Link
           to="/subscription"
+          onClick={() => {
+
+            ReactPixel.track("Lead", {
+              source: "try_button",
+              action: "subscription_redirect",
+              price: 1999,
+              currency: "INR",
+            });
+            console.log("META PIXEL LEAD")
+             }}
           className="group relative inline-flex items-center justify-center 
                      overflow-hidden rounded-lg 
                      bg-gradient-to-r from-[#9F6AEA] to-purple-600 
@@ -89,6 +100,15 @@ export function TryButton({ user }: TryButtonProps) {
       {isLoggedIn && !hasActiveSubscription && (
         <Link
           to="/subscription"
+          onClick={() => {
+            ReactPixel.track("Lead", {
+              source: "try_button",
+              action: "subscription_redirect",
+              price: 1999,
+              currency: "INR",
+            });
+            console.log("META PIXEL LEAD")
+             }}
           className="group relative inline-flex items-center justify-center 
                      overflow-hidden rounded-lg 
                      bg-gradient-to-r from-[#9F6AEA] to-purple-600 
