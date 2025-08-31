@@ -3,7 +3,6 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { Toaster } from 'react-hot-toast';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import ReactPixel from 'react-facebook-pixel';
-
 import LandingPage from './pages/LandingPage';
 import Dashboard from './pages/Dashboard';
 import CreateScriptWizard from './pages/CreateScriptWizard';
