@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { buildApiUrl } from "../config/api";
 import { useNavigate } from "react-router-dom";
+import { trackSubscriptionStart, trackSubscriptionComplete } from "../utils/pixelTracking";
 
 // Add Razorpay type to window
 declare global {
@@ -296,6 +297,9 @@ const Subscription: React.FC = () => {
       return;
     }
     
+    // Track subscription start
+    trackSubscriptionStart(plan);
+    
     // Check if email already exists in the database
     const emailExists = await checkEmailExists(contactData.email);
     if (emailExists) {
@@ -402,6 +406,9 @@ const Subscription: React.FC = () => {
         throw new Error(data.message || "Payment verification failed");
       }
 
+      // Track successful subscription purchase
+      trackSubscriptionComplete(plan, plan === 'individual' ? 1999 : 1999);
+
       // Show success message
       alert("Subscription activated successfully! Login credentials have been sent to your email.");
       
@@ -429,6 +436,9 @@ const Subscription: React.FC = () => {
       navigate("/login");
       return;
     }
+
+    // Track subscription start
+    trackSubscriptionStart('individual');
 
     // If the user is changing their email (different from their logged-in email), check if the new email exists
     if (contactData.email !== user.email) {
@@ -496,6 +506,8 @@ const Subscription: React.FC = () => {
 
             const verificationData = await verificationRes.json();
             if (verificationData.success) {
+              // Track successful subscription purchase
+              trackSubscriptionComplete('individual', 1999);
               alert("Subscription activated successfully!");
             } else {
               alert("Payment verification failed.");

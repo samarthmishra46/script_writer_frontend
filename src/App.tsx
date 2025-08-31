@@ -33,9 +33,14 @@ function App() {
 
   useEffect(() => {
     if (pixelId) {
-      ReactPixel.init(pixelId);
+      const options = {
+        autoConfig: true, // set pixel's autoConfig
+        debug: import.meta.env.DEV, // enable logs in development mode
+      };
+      
+      ReactPixel.init(pixelId, undefined, options);
       ReactPixel.pageView(); // Track initial page load
-      console.log('Meta Pixel initialized:');
+      console.log('Meta Pixel initialized with ID:', pixelId);
     } else {
       console.warn('Meta Pixel ID is missing. Set VITE_META_PIXEL_ID in .env file.');
     }
