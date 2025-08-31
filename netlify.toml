@@ -2,3 +2,8 @@
   from = "/*"
   to = "/index.html"
   status = 200
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Content-Security-Policy = "default-src 'self'; script-src 'self' https://connect.facebook.net; img-src 'self' https://www.facebook.com; style-src 'self' 'unsafe-inline'; frame-src 'self' https://www.facebook.com"
