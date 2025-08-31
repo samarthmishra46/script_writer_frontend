@@ -39,7 +39,15 @@ function App() {
       };
       
       ReactPixel.init(pixelId, undefined, options);
-      ReactPixel.pageView(); // Track initial page load
+      setTimeout(() => {
+    if (typeof window.fbq === "function") {
+      console.log("✅ fbq loaded, firing pageView");
+      ReactPixel.pageView();
+    } else {
+      console.error("❌ fbq not available");
+    }
+  }, 1000);
+
       console.log('Meta Pixel initialized with ID:', pixelId);
     } else {
       console.warn('Meta Pixel ID is missing. Set VITE_META_PIXEL_ID in .env file.');
