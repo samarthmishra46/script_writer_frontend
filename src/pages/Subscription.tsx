@@ -344,32 +344,33 @@ const Subscription: React.FC = () => {
       });
 
       const data = await response.json();
-
+      console.log(data);
       if (!response.ok) {
         throw new Error(data.message || "Failed to create subscription order");
       }
 
-      // Initialize Razorpay checkout
+      // Initialize Razorpay checkout for subscription
       const options = {
-        key: import.meta.env.VITE_RAZORPAY_KEY_ID, // Replace with your actual key
-        amount: data.amount,
-        currency: "INR",
+        key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+        subscription_id: data.subscriptionId, // Use subscription_id instead of order_id
+        customer_id: data.customerId, // Include customer ID
         name: "Leepi AI",
-        description: `${plan} Plan Subscription`,
-        order_id: data.orderId,
+        description: `₹1999 every month - ${plan} Plan`,
         prefill: {
+          name: contactData.email.split('@')[0], // Use email prefix as name
           email: contactData.email,
           contact: contactData.mobile,
         },
         handler: async (response: RazorpayResponse) => {
           // Handle successful payment
-          await handleGuestPaymentSuccess(response, plan);
+          await handleGuestPaymentSuccess(response, plan, data.customerId);
         },
         modal: {
           ondismiss: () => {
             setIsLoading(false);
           },
         },
+        theme: { color: "#CB6CE6" },
       };
 
       const razorpay = new (window as unknown as { Razorpay: RazorpayConstructor }).Razorpay(options);
@@ -384,7 +385,7 @@ const Subscription: React.FC = () => {
   };
 
   // Handle successful guest payment
-  const handleGuestPaymentSuccess = async (paymentResponse: RazorpayResponse, plan: string) => {
+  const handleGuestPaymentSuccess = async (paymentResponse: RazorpayResponse, plan: string, customerId?: string) => {
     try {
       // Verify payment and create user account
       const response = await fetch(buildApiUrl("/api/subscription/verify-guest-payment"), {
@@ -397,6 +398,7 @@ const Subscription: React.FC = () => {
           plan,
           email: contactData.email,
           mobile: contactData.mobile,
+          customerId, // Include customer ID in the verification request
         }),
       });
 
@@ -425,6 +427,7 @@ const Subscription: React.FC = () => {
   };
 
   const startSubscription = async () => {
+    console.log("startSubscription called"); // Add this
     // Validate contact information before proceeding
     if (!validateContactForm()) {
       return;
@@ -467,13 +470,15 @@ const Subscription: React.FC = () => {
         }
       );
       const data = await response.json();
+      console.log("API response:", data); // Add this
       const subscriptionId = data.id;
-      console.log("Created subscription:", subscriptionId);
+      console.log("Created subscription:", subscriptionId); // Already present
 
       // 2. Configure Razorpay options
       const options = {
         key: import.meta.env.VITE_RAZORPAY_KEY_ID,
         subscription_id: subscriptionId,
+        customer_id: data.customerId, // Include customer ID
         name: "Leepi AI",
         description: "₹1999 every month",
         handler: async function (response: RazorpayResponse) {
