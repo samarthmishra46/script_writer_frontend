@@ -81,7 +81,7 @@ const StickyFooter: React.FC<StickyFooterProps> = ({ user }) => {
 
         {/* Guarantee Text */}
         <div className="mt-3 text-gray-300 text-sm sm:text-lg md:text-xl lg:text-2xl font-semibold">
-          (30 Days Access) · <span className="text-green-400">100% Refund Guarantee!</span>
+          (7 Days Access) · <span className="text-green-400">100% Refund Guarantee!</span>
         </div>
       </div>
     </div>
