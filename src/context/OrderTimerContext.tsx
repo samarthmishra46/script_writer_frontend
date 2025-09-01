@@ -20,23 +20,21 @@ const OrderTimerContext = createContext<OrderTimerContextType | undefined>(
 
 // This function runs once when the component first loads.
 const getInitialTimeLeft = () => {
-  // 1. Try to get a saved expiration time from localStorage.
   const storedExpiration = localStorage.getItem("timerExpiration");
 
   if (storedExpiration) {
     const expirationTime = parseInt(storedExpiration, 10);
     const remainingTime = Math.round((expirationTime - Date.now()) / 1000);
 
-    // 2. If time is still left, return it.
     if (remainingTime > 0) {
       return remainingTime;
     }
   }
 
-  // 3. If no timer is saved or it has expired, create a NEW 5-minute timer.
-  const newExpirationTime = Date.now() + 600 * 1000; // 600 seconds = 10 minutes
+  // Create a NEW 1-hour timer
+  const newExpirationTime = Date.now() + 3600 * 1000; // 3600 seconds = 1 hour
   localStorage.setItem("timerExpiration", newExpirationTime.toString());
-  return 300;
+  return 3600; // Return 1 hour
 };
 
 // --- MODIFIED LOGIC ENDS HERE ---
