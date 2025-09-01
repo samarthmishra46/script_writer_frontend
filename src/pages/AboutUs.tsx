@@ -222,7 +222,7 @@ const AboutUs: React.FC = () => {
             
             <div className="mt-12 flex flex-col sm:flex-row gap-6 justify-center">
               <Link
-                to="/signup"
+                to="/subscription"
                 className="inline-flex items-center px-8 py-4 bg-white text-purple-600 font-bold rounded-xl hover:bg-gray-50 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 text-lg"
               >
                 Start Creating Winners

@@ -49,9 +49,9 @@ const Pricing: React.FC = () => {
   const plans = [
     {
       name: "Individual",
-      price: "₹1,999",
-      originalPrice: "₹4,999",
-      period: "/month",
+      price: "₹399",
+      originalPrice: "₹999",
+      period: "/week",
       description: "For serious marketers and entrepreneurs",
       features: [
         "Unlimited AI-generated scripts",
@@ -184,7 +184,7 @@ const Pricing: React.FC = () => {
                   </div>
                   
                   <Link
-                    to={plan.name === 'Enterprise' ? '/contact' : '/signup'}
+                    to={plan.name === 'Enterprise' ? '/contact' : '/subscription'}
                     className={`block w-full py-3 px-6 rounded-lg font-semibold transition-all duration-500 shadow-lg hover:shadow-xl transform hover:scale-105 ${
                       plan.popular 
                         ? 'bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 text-white hover:from-pink-600 hover:via-purple-600 hover:to-blue-600' 
