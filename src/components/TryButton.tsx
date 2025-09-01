@@ -78,11 +78,11 @@ export function TryButton({ user }: TryButtonProps) {
             <span className="flex items-center ml-2 px-1.5 py-0.5 rounded">
               <span className="text-gray-300 line-through font-normal 
                                text-[0.65rem] sm:text-[0.75rem] md:text-sm lg:text-md mr-1">
-                ₹7,999
+                ₹999
               </span>
               <span className="font-extrabold text-yellow-300 
                                text-[0.85rem] sm:text-[0.95rem] md:text-xl lg:text-lg">
-                ₹1,999
+                ₹399 / Week
               </span>
               <ChevronRight className="ml-1 w-3 h-3 transition-transform group-hover:translate-x-0.5" />
             </span>

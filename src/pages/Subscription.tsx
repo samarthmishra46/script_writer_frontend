@@ -355,7 +355,7 @@ const Subscription: React.FC = () => {
         subscription_id: data.subscriptionId, // Use subscription_id instead of order_id
         customer_id: data.customerId, // Include customer ID
         name: "Leepi AI",
-        description: `₹1999 every month - ${plan} Plan`,
+        description: `₹399 every Week - ${plan} Plan`,
         prefill: {
           name: contactData.email.split('@')[0], // Use email prefix as name
           email: contactData.email,
@@ -740,9 +740,9 @@ const Subscription: React.FC = () => {
 
             {/* Pricing */}
             <div className="relative z-10 mb-4 text-center">
-              <span className="text-base font-medium text-gray-400 line-through mr-1">₹7999</span>
-              <span className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-green-500 animate-gradient-x">₹1999</span>
-              <span className="text-gray-500 text-sm"> / month</span>
+              <span className="text-base font-medium text-gray-400 line-through mr-1">₹999</span>
+              <span className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-green-500 animate-gradient-x">₹399</span>
+              <span className="text-gray-500 text-sm"> / Week</span>
               <p className="text-xs text-gray-500 mt-1 italic">(costs less than a dinner)</p>
             </div>
 

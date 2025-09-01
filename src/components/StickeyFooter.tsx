@@ -60,11 +60,11 @@ const StickyFooter: React.FC<StickyFooterProps> = ({ user }) => {
             <span className="flex items-center ml-3 px-2 py-1 rounded-lg bg-black/20">
               <span className="text-gray-300 line-through font-normal 
                                text-[0.7rem] sm:text-sm md:text-base mr-2">
-                ₹7,999
+                ₹999
               </span>
               <span className="font-extrabold text-yellow-300 
                                text-[0.95rem] sm:text-lg md:text-xl">
-                ₹1,999
+                ₹399 / Week
               </span>
               <ChevronRight className="ml-2 w-4 h-4 transition-transform group-hover:translate-x-1" />
             </span>
