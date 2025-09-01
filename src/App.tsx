@@ -22,7 +22,7 @@ import ScriptGroup from './pages/ScriptGroup';
 import Settings from './pages/Settings';
 import { BrandsProvider } from './context/BrandsContext';
 import { OrderTimerProvider } from "./context/OrderTimerContext"; // <-- 1. IMPORT
-
+import Sub2 from "./pages/Sub2";
 function App() {
   // Use environment variable for client ID
   const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || '';
