@@ -371,7 +371,7 @@ const Subscription: React.FC = () => {
             setIsLoading(false);
           },
         },
-        theme: { color: "#CB6CE6" },
+        theme: { color: "#002fffff" },
       };
 
       const razorpay = new (window as unknown as { Razorpay: RazorpayConstructor }).Razorpay(options);
