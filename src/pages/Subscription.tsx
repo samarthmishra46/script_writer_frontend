@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { buildApiUrl } from "../config/api";
 import { useNavigate } from "react-router-dom";
 import { trackSubscriptionStart, trackSubscriptionComplete } from "../utils/pixelTracking";
+import { MailSearch ,Phone} from 'lucide-react';
 
 // Add Razorpay type to window
 declare global {
@@ -676,7 +677,7 @@ const Subscription: React.FC = () => {
   // If user doesn't have an active subscription or is guest
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-gray-50 to-gray-200 px-4">
-      <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full p-8 text-center">
+      <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full p-4 text-center">
         <div className="flex justify-center mb-6">
           <div className="relative inline-block">
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold bg-gradient-to-r from-[#CB6CE6] to-[#2D65F5] bg-clip-text text-transparent mb-2 transition-all duration-300 hover:scale-105">
@@ -687,118 +688,105 @@ const Subscription: React.FC = () => {
 
         {showGuestForm && !user ? (
           // Guest form for collecting email and mobile (elegant version)
-          <div className="relative bg-gradient-to-br from-purple-50 via-white to-green-50 rounded-3xl shadow-2xl p-10 border border-purple-100 max-w-lg mx-auto overflow-hidden">
-            {/* Decorative Gradient Circles (smaller, less intrusive) */}
-            <div className="absolute -top-6 -left-6 w-20 h-20 bg-purple-100 rounded-full opacity-20 blur-xl z-0"></div>
-            <div className="absolute -bottom-8 -right-8 w-28 h-28 bg-green-100 rounded-full opacity-10 blur-xl z-0"></div>
+          <div className="relative bg-white rounded-2xl shadow-lg p-2 border border-gray-200 max-w-sm mx-auto">
+  {/* Headline */}
+  <h2 className="text-center text-lg font-semibold text-gray-800 mb-2">
+    Try <span className="text-purple-600 font-bold">Leepi AI</span> For 7 Days
+  </h2>
+  <p className="text-center text-sm text-gray-500 mb-3">
+    Boost ROAS (Guaranteed) Or 100% Refund
+  </p>
 
-            {/* Headline */}
-            <h2 className="relative z-10 text-xl md:text-2xl font-extrabold text-center mb-3 text-gray-900 leading-snug tracking-tight">
-              <span className="inline-block bg-gradient-to-r from-purple-600 to-green-500 bg-clip-text text-transparent animate-gradient-x">Ads Written by Leepi AI</span>
-              <br />
-              <span className="text-base font-medium text-gray-700">Can Take You</span>
-              <br />
-              <span className="inline-block text-green-600 font-bold text-lg">100 Orders a Day</span>
-              <span className="inline-block text-gray-500 font-bold text-lg mx-1">→</span>
-              <span className="inline-block text-green-600 font-bold text-lg">1000</span>
-            </h2>
+  {/* Pricing */}
+  <div className="text-center mb-4">
+    <span className="text-purple-600 line-through text-lg mr-2">Rs.999</span>
+    <span className=" font-bold text-xl">Rs.399</span>
+    <span className="text-sm text-gray-600"> / Week</span>
+  </div>
 
-            <p className="relative z-10 text-gray-600 text-center mb-4 text-sm">
-              Enter your details to get started with your subscription
-            </p>
+  {/* Form */}
+  <div className="space-y-3 mb-4">
+    
+   <div className="relative">
+  <MailSearch className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+  <input
+    type="email"
+    placeholder="Email Address"
+    value={contactData.email}
+    onChange={(e) => handleContactInputChange("email", e.target.value)}
+    className="w-full border rounded-lg pl-10 pr-3 py-2 text-sm outline-none focus:ring-2 focus:ring-purple-400"
+  />
+</div>
 
-            {/* Form */}
-            <div className="relative z-10 space-y-3 mb-4">
-              <div className="flex items-center bg-white border rounded-lg px-3 py-2 shadow-sm focus-within:ring-2 focus-within:ring-purple-400 transition">
-                <svg className="w-4 h-4 text-purple-400 mr-2" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M16 12a4 4 0 01-8 0m8 0V8a4 4 0 10-8 0v4m8 0a4 4 0 01-8 0m8 0v4a4 4 0 01-8 0v-4" /></svg>
-                <input
-                  type="email"
-                  placeholder="Email address"
-                  value={contactData.email}
-                  onChange={(e) => handleContactInputChange('email', e.target.value)}
-                  className={`flex-1 bg-transparent outline-none text-gray-900 placeholder-gray-400 text-sm ${contactFormErrors.email ? 'border-b-2 border-red-500' : ''}`}
-                />
-              </div>
-              {contactFormErrors.email && (
-                <p className="text-red-500 text-xs mt-1 ml-2">{contactFormErrors.email}</p>
-              )}
+    {contactFormErrors.email && (
+      <p className="text-red-500 text-xs ml-1">{contactFormErrors.email}</p>
+    )}
+<div className="relative">
+  <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+  <input
+    type="tel"
+    placeholder="Mobile Number"
+    value={contactData.mobile}
+    onChange={(e) => handleContactInputChange("mobile", e.target.value)}
+    className="w-full border rounded-lg pl-10 pr-3 py-2 text-sm outline-none focus:ring-2 focus:ring-purple-400"
+  />
+</div>
 
-              <div className="flex items-center bg-white border rounded-lg px-3 py-2 shadow-sm focus-within:ring-2 focus-within:ring-purple-400 transition">
-                <svg className="w-4 h-4 text-green-400 mr-2" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H5a2 2 0 01-2-2V5zm0 12a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H5a2 2 0 01-2-2v-2zm12-12a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zm0 12a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>
-                <input
-                  type="tel"
-                  placeholder="Mobile number"
-                  value={contactData.mobile}
-                  onChange={(e) => handleContactInputChange('mobile', e.target.value)}
-                  className={`flex-1 bg-transparent outline-none text-gray-900 placeholder-gray-400 text-sm ${contactFormErrors.mobile ? 'border-b-2 border-red-500' : ''}`}
-                />
-              </div>
-              {contactFormErrors.mobile && (
-                <p className="text-red-500 text-xs mt-1 ml-2">{contactFormErrors.mobile}</p>
-              )}
-            </div>
+    {contactFormErrors.mobile && (
+      <p className="text-red-500 text-xs ml-1">{contactFormErrors.mobile}</p>
+    )}
+  </div>
 
-            {/* Pricing */}
-            <div className="relative z-10 mb-4 text-center">
-              <span className="text-base font-medium text-gray-400 line-through mr-1">₹999</span>
-              <span className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-green-500 animate-gradient-x">₹399</span>
-              <span className="text-gray-500 text-sm"> / Week</span>
-              <p className="text-xs text-gray-500 mt-1 italic">(costs less than a dinner)</p>
-            </div>
+  {/* Button */}
+  <button
+    onClick={() => handleGuestSubscription("individual")}
+    disabled={isLoading}
+    className="w-full bg-purple-600 hover:bg-purple-700 text-white rounded-lg py-2 font-semibold text-sm transition disabled:opacity-50"
+  >
+    {isLoading ? "Processing..." : "Subscribe Now"}
+  </button>
 
-            {/* Features */}
-            <ul className="relative z-10 text-gray-700 text-left mb-4 space-y-2 text-xs">
-              <li className="flex items-center gap-2">
-                <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-green-100 text-green-600 text-base shadow">✓</span>
-                <span className="font-medium">Unlimited Ad Scripts <span className="text-gray-400 font-normal">→ Never run out of proven hooks & CTAs that sell.</span></span>
-              </li>
-              <li className="flex items-center gap-2">
-                <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-green-100 text-green-600 text-base shadow">✓</span>
-                <span className="font-medium">Unlimited Storyboards <span className="text-gray-400 font-normal">→ Scroll-stopping creatives for higher CTR.</span></span>
-              </li>
-              <li className="flex items-center gap-2">
-                <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-green-100 text-green-600 text-base shadow">✓</span>
-                <span className="font-medium">Trained on ₹50Cr+ Ad Spend Data <span className="text-gray-400 font-normal">→ Tested angles, not guesswork.</span></span>
-              </li>
-              <li className="flex items-center gap-2">
-                <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-green-100 text-green-600 text-base shadow">✓</span>
-                <span className="font-medium">100% Money-Back Guarantee <span className="text-gray-400 font-normal">→ If 3 ads don’t perform, you get a full refund.</span></span>
-              </li>
-            </ul>
+  <p className="text-xs text-gray-700 font-semibold text-center mt-2">
+    No Commitments Cancel Anytime
+  </p>
 
-            <p className="relative z-10 text-xs text-gray-400 mb-2 text-center">
-              <span className="inline-block bg-gray-100 rounded px-2 py-1">A user account will be created automatically. Login credentials will be sent to your email.</span>
-            </p>
+  {/* Features */}
+  <ul className="text-gray-700 text-sm mt-4 space-y-2">
+    <li className="flex items-start gap-2">
+      <span className="text-green-500">✔</span>
+      <span>Unlimited Ad Scripts → <span className="text-gray-400">Never run out of proven hooks & CTAs that sell.</span></span>
+    </li>
+    <li className="flex items-start gap-2">
+      <span className="text-green-500">✔</span>
+      <span>Unlimited Storyboards → <span className="text-gray-400">Scroll-stopping creatives for higher CTR.</span></span>
+    </li>
+    <li className="flex items-start gap-2">
+      <span className="text-green-500">✔</span>
+      <span>Trained on ₹50Cr+ Ad Spend Data → <span className="text-gray-400">Tested angles, not guesswork.</span></span>
+    </li>
+    <li className="flex items-start gap-2">
+      <span className="text-green-500">✔</span>
+      <span>100% Money-Back Guarantee → <span className="text-gray-400">If 3 ads don’t perform, you get a full refund.</span></span>
+    </li>
+  </ul>
 
-            {/* Subscribe Button */}
-            <button
-              onClick={() => handleGuestSubscription('individual')}
-              disabled={isLoading}
-              className="relative z-10 bg-gradient-to-r from-purple-600 to-green-500 hover:from-purple-700 hover:to-green-600 text-white rounded-full px-5 py-2 font-semibold text-base transition duration-200 w-full disabled:opacity-50 shadow-xl shadow-purple-100/40 focus:outline-none focus:ring-2 focus:ring-purple-400"
-            >
-              {isLoading ? (
-                <span className="flex items-center justify-center gap-2">
-                  <svg className="animate-spin h-4 w-4 text-white" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path></svg>
-                  Processing...
-                </span>
-              ) : (
-                <span>Subscribe Now</span>
-              )}
-            </button>
+  {/* Auto account note */}
+  <p className="text-xs text-gray-400 bg-gray-100 rounded px-3 py-2 mt-4 text-center">
+    A user account will be created automatically. Login credentials will be sent to your email.
+  </p>
 
-            {/* Sign-in Link */}
-            <div className="relative z-10 mt-3 text-center">
-              <p className="text-xs text-gray-500">
-                Already have an account?{' '}
-                <button
-                  onClick={() => navigate("/login")}
-                  className="text-purple-600 hover:underline font-semibold transition"
-                >
-                  Sign in
-                </button>
-              </p>
-            </div>
-          </div>
+  {/* Sign-in link */}
+  <p className="text-xs text-gray-500 text-center mt-3">
+    Already have an account?{" "}
+    <button
+      onClick={() => navigate("/login")}
+      className="text-purple-600 hover:underline font-semibold"
+    >
+      Sign In
+    </button>
+  </p>
+</div>
+
 
         ) : (
           // Regular subscription form for logged-in users
