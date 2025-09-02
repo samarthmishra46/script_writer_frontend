@@ -354,7 +354,7 @@ const Subscription: React.FC = () => {
       const options = {
         key: import.meta.env.VITE_RAZORPAY_KEY_ID,
         subscription_id: data.subscriptionId, // Use subscription_id instead of order_id
-        customer_id: data.customerId, // Include customer ID
+         // Include customer ID
         name: "Leepi AI",
         description: `₹399 every Week - ${plan} Plan`,
         prefill: {
@@ -364,7 +364,7 @@ const Subscription: React.FC = () => {
         },
         handler: async (response: RazorpayResponse) => {
           // Handle successful payment
-          await handleGuestPaymentSuccess(response, plan, data.customerId);
+          await handleGuestPaymentSuccess(response, plan);
         },
         modal: {
           ondismiss: () => {
@@ -386,7 +386,7 @@ const Subscription: React.FC = () => {
   };
 
   // Handle successful guest payment
-  const handleGuestPaymentSuccess = async (paymentResponse: RazorpayResponse, plan: string, customerId?: string) => {
+  const handleGuestPaymentSuccess = async (paymentResponse: RazorpayResponse, plan: string) => {
     try {
       // Verify payment and create user account
       const response = await fetch(buildApiUrl("/api/subscription/verify-guest-payment"), {
@@ -399,7 +399,7 @@ const Subscription: React.FC = () => {
           plan,
           email: contactData.email,
           mobile: contactData.mobile,
-          customerId, // Include customer ID in the verification request
+           // Include customer ID in the verification request
         }),
       });
 
@@ -479,7 +479,7 @@ const Subscription: React.FC = () => {
       const options = {
         key: import.meta.env.VITE_RAZORPAY_KEY_ID,
         subscription_id: subscriptionId,
-        customer_id: data.customerId, // Include customer ID
+         // Include customer ID
         name: "Leepi AI",
         description: "₹1999 every month",
         handler: async function (response: RazorpayResponse) {
