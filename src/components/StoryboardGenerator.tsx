@@ -164,6 +164,16 @@ Image: ${scene.image_url}
     return text.substring(0, maxLength) + '...';
   };
 
+  const getImageUrl = (url: string) => {
+    if (!url) return '';
+    // If already absolute (http/https), return as is
+    if (/^https?:\/\//i.test(url)) return url;
+    // Otherwise, prepend backend base URL
+    const BASE = import.meta.env.VITE_BACKEND_URL || '';
+    // Ensure no double slashes
+    return BASE.replace(/\/$/, '') + '/' + url.replace(/^\//, '');
+  };
+
   return (
     <div className="bg-white rounded-lg shadow-lg p-6 max-w-6xl mx-auto">
       {/* Header */}
@@ -363,7 +373,7 @@ Image: ${scene.image_url}
                           <div>
   <span className="font-medium text-gray-700">Scene Image:</span>
   <img
-    src={scene.image_url}  // comes from backend JSON
+    src={getImageUrl(scene.image_url)}
     alt={`Storyboard ${scene.scene_number}`}
     className="mt-2 rounded-lg shadow-md w-full max-w-md"
   />
@@ -430,4 +440,4 @@ Image: ${scene.image_url}
   );
 };
 
-export default StoryboardGenerator; 
+export default StoryboardGenerator;
