@@ -3,6 +3,7 @@ import { buildApiUrl } from "../config/api";
 import { useNavigate } from "react-router-dom";
 import { trackSubscriptionStart, trackSubscriptionComplete } from "../utils/pixelTracking";
 import { MailSearch ,Phone} from 'lucide-react';
+import { trackEvent } from "@/utils/mixpanel";
 
 // Add Razorpay type to window
 declare global {
@@ -414,7 +415,7 @@ const Subscription: React.FC = () => {
 
       // Show success message
       alert("Subscription activated successfully! Login credentials have been sent to your email.");
-      
+         
       // Redirect to login page
       window.location.href = "/login";
     } catch (error) {
@@ -739,7 +740,12 @@ const Subscription: React.FC = () => {
 
   {/* Button */}
   <button
-    onClick={() => handleGuestSubscription("individual")}
+    onClick={() => {handleGuestSubscription("individual");
+   trackEvent("Subscription Initiated", { plan: "Individual", location: "Subscription Page" });
+    }
+    }
+    
+    
     disabled={isLoading}
     className="w-full bg-purple-600 hover:bg-purple-700 text-white rounded-lg py-2 font-semibold text-sm transition disabled:opacity-50"
   >

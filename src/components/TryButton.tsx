@@ -3,7 +3,7 @@ import { ChevronRight } from "lucide-react";
 import { useEffect, useState, useRef } from "react";
 import { useOrderTimerContext } from "../context/OrderTimerContext";
 import { trackTryButtonClick } from "../utils/pixelTracking";
-
+import { trackEvent } from "@/utils/mixpanel";
 interface User {
   id?: string;
   name?: string;
@@ -64,7 +64,9 @@ export function TryButton({ user }: TryButtonProps) {
           to="/subscription"
           onClick={() => {
             trackTryButtonClick("hero_section");
+            trackEvent("TryNow Clicked", { plan: "Individual", location: "Homepage" });
           }}
+          
           className="group relative inline-flex items-center justify-center 
                      overflow-hidden rounded-lg 
                      bg-gradient-to-r from-[#9F6AEA] to-purple-600 
@@ -95,6 +97,7 @@ export function TryButton({ user }: TryButtonProps) {
           to="/subscription"
           onClick={() => {
             trackTryButtonClick("logged_in_section");
+            trackEvent("TryNow Clicked", { plan: "Individual", location: "Homepage" });
           }}
           className="group relative inline-flex items-center justify-center 
                      overflow-hidden rounded-lg 

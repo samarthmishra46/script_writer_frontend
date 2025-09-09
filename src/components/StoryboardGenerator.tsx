@@ -15,6 +15,7 @@ interface StoryboardScene {
   duration: string;
   special_effects: string;
   audio_notes: string;
+  image_url:string;
 }
 
 interface StoryboardData {
@@ -104,6 +105,7 @@ Duration: ${sceneData.duration} seconds
 Props: ${sceneData.props.join(', ')}
 Special Effects: ${sceneData.special_effects}
 Audio Notes: ${sceneData.audio_notes}
+Image: ${sceneData.image_url}
       `.trim();
 
       await navigator.clipboard.writeText(sceneText);
@@ -135,6 +137,7 @@ Duration: ${scene.duration} seconds
 Props: ${scene.props.join(', ')}
 Special Effects: ${scene.special_effects}
 Audio Notes: ${scene.audio_notes}
+Image: ${scene.image_url}
 `).join('\n')}
     `.trim();
 
@@ -276,7 +279,7 @@ Audio Notes: ${scene.audio_notes}
                         </span>
                       </div>
                       <span className="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded">
-                        {scene.duration}s
+                        {scene.duration}
                       </span>
                     </div>
                     <button
@@ -357,6 +360,15 @@ Audio Notes: ${scene.audio_notes}
                             <span className="font-medium text-gray-700">Expressions:</span>
                             <p className="text-gray-600">{scene.actor_expressions}</p>
                           </div>
+                          <div>
+  <span className="font-medium text-gray-700">Scene Image:</span>
+  <img
+    src={scene.image_url}  // comes from backend JSON
+    alt={`Storyboard ${scene.scene_number}`}
+    className="mt-2 rounded-lg shadow-md w-full max-w-md"
+  />
+</div>
+
                         </div>
                       </div>
 

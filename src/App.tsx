@@ -22,8 +22,15 @@ import ScriptGroup from './pages/ScriptGroup';
 import Settings from './pages/Settings';
 import { BrandsProvider } from './context/BrandsContext';
 import { OrderTimerProvider } from "./context/OrderTimerContext"; // <-- 1. IMPORT
-import Sub2 from "./pages/Sub2";
+
+
+
 function App() {
+
+  //Import Mixpanel SDK
+
+// Near entry of your product, init Mixpanel
+
   // Use environment variable for client ID
   const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || '';
 
@@ -36,7 +43,6 @@ function App() {
         autoConfig: true, // set pixel's autoConfig
         debug: import.meta.env.DEV, // enable logs in development mode
       };
-      
       ReactPixel.init(pixelId, undefined, options);
       setTimeout(() => {
     if (typeof window.fbq === "function") {

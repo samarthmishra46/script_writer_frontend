@@ -21,6 +21,8 @@
     "clsx": "^2.1.1",
     "file-loader": "^6.2.0",
     "lucide-react": "^0.344.0",
+    "mixpanel": "^0.18.1",
+    "mixpanel-browser": "^2.69.1",
     "motion": "^12.23.12",
     "razorpay": "^2.9.6",
     "react": "^18.3.1",

@@ -8,6 +8,7 @@ import CompanyGrid from "../components/CompneyGrid";
 import StickyFooter from "../components/StickeyFooter";
 import { VideoRunning } from "../components/RunningVideoLtoR";
 import VideoLanding from '../components/AdVideo'
+
 interface UserData {
   name: string;
   email: string;

@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { ChevronRight } from "lucide-react";
 import { useEffect } from "react";
 import { trackCTAClick } from "../utils/pixelTracking";
-
+import { trackEvent } from "@/utils/mixpanel";
 interface User {
   id?: string;
   name?: string;
@@ -37,6 +37,7 @@ const StickyFooter: React.FC<StickyFooterProps> = ({ user }) => {
           to={ "/subscription"}
            onClick={() => {
              trackCTAClick("Subscribe Button", "sticky_footer");
+             trackEvent("Stickey footer Clicked", { plan: "Individual", location: "Homepage" });
            }}
           className="group relative inline-flex items-center justify-center 
                      overflow-hidden rounded-2xl
