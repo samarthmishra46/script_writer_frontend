@@ -20,6 +20,10 @@ import GoogleAuthTestPage from './pages/GoogleAuthTestPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import ScriptGroup from './pages/ScriptGroup';
 import Settings from './pages/Settings';
+import VideoGeneratorPage from './pages/VideoGeneratorPage';
+import AdTypeSelector from './pages/AdTypeSelector';
+import CreateImageAds from './pages/CreateImageAds';
+import ViewImageAds from './pages/ViewImageAds';
 import { BrandsProvider } from './context/BrandsContext';
 import { OrderTimerProvider } from "./context/OrderTimerContext"; // <-- 1. IMPORT
 
@@ -92,9 +96,29 @@ function App() {
                     <Dashboard />
                   </ProtectedRoute>
                 } />
+                <Route path="/ad-type-selector" element={
+                  <ProtectedRoute>
+                    <AdTypeSelector />
+                  </ProtectedRoute>
+                } />
                 <Route path="/create-script" element={
                   <ProtectedRoute>
                     <CreateScriptWizard />
+                  </ProtectedRoute>
+                } />
+                <Route path="/create-script-wizard" element={
+                  <ProtectedRoute>
+                    <CreateScriptWizard />
+                  </ProtectedRoute>
+                } />
+                <Route path="/create-image-ads" element={
+                  <ProtectedRoute>
+                    <CreateImageAds />
+                  </ProtectedRoute>
+                } />
+                <Route path="/image-ads/view/:adId" element={
+                  <ProtectedRoute>
+                    <ViewImageAds />
                   </ProtectedRoute>
                 } />
                 <Route path="/scripts" element={
@@ -119,6 +143,7 @@ function App() {
                   </ProtectedRoute>
                 } />
                 <Route path="/settings" element={<Settings />} />
+                <Route path="/video-generator" element={<VideoGeneratorPage />} />
 
                 {/* Redirect unknown routes to dashboard */}
                 <Route path="*" element={<Navigate to="/dashboard" replace />} />

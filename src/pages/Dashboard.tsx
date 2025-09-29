@@ -22,6 +22,12 @@ interface Script {
   metadata?: {
     brand_name?: string;
     product?: string;
+    adType?: string;
+    imageUrl?: string;
+    campaign?: {
+      theme?: string;
+      headline?: string;
+    };
     [key: string]: unknown;
   };
   brand_name?: string;
@@ -37,6 +43,9 @@ interface ScriptGroup {
   preview: string;
   firstScriptId: string;
   latestScriptId: string;
+  adType?: string;
+  imageUrl?: string;
+  campaignTheme?: string;
 }
 
 interface Brand {
@@ -288,6 +297,9 @@ const Dashboard: React.FC = () => {
           preview: "/api/placeholder/150/100",
           firstScriptId: script._id,
           latestScriptId: script._id,
+          adType: script.metadata?.adType as string,
+          imageUrl: script.metadata?.imageUrl as string,
+          campaignTheme: script.metadata?.campaign?.theme as string,
         });
       } else {
         // Update existing group
@@ -298,6 +310,9 @@ const Dashboard: React.FC = () => {
         if (scriptDate > group.latestDate) {
           group.latestDate = scriptDate;
           group.latestScriptId = script._id;
+          group.adType = script.metadata?.adType as string;
+          group.imageUrl = script.metadata?.imageUrl as string;
+          group.campaignTheme = script.metadata?.campaign?.theme as string;
         }
       }
     });
@@ -410,12 +425,12 @@ const Dashboard: React.FC = () => {
 
                   <div className="flex space-x-2">
                     <button
-                      onClick={() => navigate("/create-script")}
+                      onClick={() => navigate("/ad-type-selector")}
                       className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 flex items-center transition-colors"
                     >
                       <Plus className="w-4 h-4 mr-1" />
-                      <span className="hidden md:inline">Create Script</span>
-                      <span className="md:hidden">Create Script</span>
+                      <span className="hidden md:inline">Create Ad</span>
+                      <span className="md:hidden">Create Ad</span>
                     </button>
                   </div>
                 </div>
@@ -453,11 +468,11 @@ const Dashboard: React.FC = () => {
                   <div></div>
                   {!searchTerm && (
                     <Link
-                      to="/create-script"
+                      to="/ad-type-selector"
                       className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purplr-700 hover:to-pink-700 transition-all duration-300"
                     >
                       <FolderPlus className="w-4 h-4 mr-2" />
-                      Share Product Info
+                      Create New Ad
                     </Link>
                   )}
 
@@ -475,46 +490,105 @@ const Dashboard: React.FC = () => {
                     key={group.key}
                     className="bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow duration-200"
                   >
-                    <Link
-                      to={`/script-group/${encodeURIComponent(
-                        group.brand_name
-                      )}/${encodeURIComponent(group.product)}/${
-                        group.latestScriptId
-                      }`}
-                      className="block p-4"
-                    >
-                      <div className="flex items-center justify-between mb-3">
-                        <h3 className="font-semibold text-gray-900 truncate">
-                          {group.brand_name}
-                        </h3>
-                        <div className="flex items-center">
-                          <div className="bg-purple-100 text-purple-800 text-xs font-medium px-2 py-0.5 rounded-full">
-                            {group.scriptCount}{" "}
-                            {group.scriptCount === 1 ? "Script" : "Scripts"}
+                    {group.adType === 'image' ? (
+                      // Image Ad Layout - Click to view image ad details
+                      <div 
+                        className="block p-4 cursor-pointer"
+                        onClick={() => navigate(`/image-ads/view/${group.latestScriptId}`)}
+                      >
+                        <div className="flex items-center justify-between mb-3">
+                          <h3 className="font-semibold text-gray-900 truncate">
+                            {group.brand_name}
+                          </h3>
+                          <div className="flex items-center gap-2">
+                            <div className="bg-green-100 text-green-800 text-xs font-medium px-2 py-0.5 rounded-full">
+                              🎨 Image Ad
+                            </div>
+                            <div className="bg-purple-100 text-purple-800 text-xs font-medium px-2 py-0.5 rounded-full">
+                              {group.scriptCount}{" "}
+                              {group.scriptCount === 1 ? "Ad" : "Ads"}
+                            </div>
                           </div>
                         </div>
-                      </div>
 
-                      {/* Product Info */}
-                      <div className="mb-3">
-                        <p className="text-sm text-blue-600 font-medium">
-                          📦 {group.product}
+                        {/* Product Info */}
+                        <div className="mb-3">
+                          <p className="text-sm text-blue-600 font-medium">
+                            📦 {group.product}
+                          </p>
+                          {group.campaignTheme && (
+                            <p className="text-xs text-gray-500 italic">
+                              Theme: {group.campaignTheme}
+                            </p>
+                          )}
+                        </div>
+
+                        {/* Generated Image Display */}
+                        <div className="justify-center text-center flex items-center bg-gray-50 rounded-lg p-3 mb-3">
+                          {group.imageUrl ? (
+                            <img
+                              src={group.imageUrl}
+                              alt="Generated Ad"
+                              className="w-32 h-24 object-cover rounded-md shadow-sm"
+                            />
+                          ) : (
+                            <div className="w-32 h-24 bg-gradient-to-br from-purple-100 to-pink-100 rounded-md flex items-center justify-center">
+                              <span className="text-xs text-gray-500">Image Ad</span>
+                            </div>
+                          )}
+                        </div>
+
+                        <p className="text-sm text-gray-500">
+                          Updated{" "}
+                          {new Date(group.latestDate).toLocaleDateString()}
                         </p>
                       </div>
+                    ) : (
+                      // Regular Video Script Layout - Navigate to ScriptGroup
+                      <Link
+                        to={`/script-group/${encodeURIComponent(
+                          group.brand_name
+                        )}/${encodeURIComponent(group.product)}/${
+                          group.latestScriptId
+                        }`}
+                        className="block p-4"
+                      >
+                        <div className="flex items-center justify-between mb-3">
+                          <h3 className="font-semibold text-gray-900 truncate">
+                            {group.brand_name}
+                          </h3>
+                          <div className="flex items-center gap-2">
+                            <div className="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded-full">
+                              🎬 Video Script
+                            </div>
+                            <div className="bg-purple-100 text-purple-800 text-xs font-medium px-2 py-0.5 rounded-full">
+                              {group.scriptCount}{" "}
+                              {group.scriptCount === 1 ? "Script" : "Scripts"}
+                            </div>
+                          </div>
+                        </div>
 
-                      <div className=" justify-center  text-center flex items-center bg-white rounded-lg  p-3 mb-3">
-                        <img
-                          src="https://png.pngtree.com/png-vector/20230412/ourmid/pngtree-script-writing-line-icon-vector-png-image_6703231.png"
-                          alt=""
-                          className="w-32 items-center"
-                        />
-                      </div>
+                        {/* Product Info */}
+                        <div className="mb-3">
+                          <p className="text-sm text-blue-600 font-medium">
+                            📦 {group.product}
+                          </p>
+                        </div>
 
-                      <p className="text-sm text-gray-500">
-                        Updated{" "}
-                        {new Date(group.latestDate).toLocaleDateString()}
-                      </p>
-                    </Link>
+                        <div className="justify-center text-center flex items-center bg-white rounded-lg p-3 mb-3">
+                          <img
+                            src="https://png.pngtree.com/png-vector/20230412/ourmid/pngtree-script-writing-line-icon-vector-png-image_6703231.png"
+                            alt="Script Icon"
+                            className="w-32 items-center"
+                          />
+                        </div>
+
+                        <p className="text-sm text-gray-500">
+                          Updated{" "}
+                          {new Date(group.latestDate).toLocaleDateString()}
+                        </p>
+                      </Link>
+                    )}
 
                     {/* Action buttons */}
                     {/* <div className="px-4 py-3 border-t border-white flex justify-end space-x-2">

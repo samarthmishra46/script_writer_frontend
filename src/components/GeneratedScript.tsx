@@ -45,10 +45,6 @@ const GeneratedScript: React.FC<GeneratedScriptProps> = ({
     setEditedContent(script.content);
     setLiked(script.liked || false);
   }, [script]);
-  
-  useEffect(() => {
-    checkStoryboardAccess();
-  }, []);
 
   // Function to detect and parse JSON content
   const parseScriptContent = (content: string) => {
@@ -131,10 +127,16 @@ const GeneratedScript: React.FC<GeneratedScriptProps> = ({
     document.body.removeChild(element);
   };
 
-  const handleStoryboardClick = () => {
+  const handleStoryboardClick = async () => {
+    // If we haven't checked access yet, check it now
+    if (hasStoryboardAccess === null) {
+      await checkStoryboardAccess();
+      return; // The access check will update state, and user can click again
+    }
+    
     if (hasStoryboardAccess) {
       setShowStoryboard(true);
-    } else if (hasStoryboardAccess === false) {
+    } else {
       // Prompt to upgrade
       const confirmUpgrade = window.confirm(
         'Storyboard generation requires an Individual or Organization plan. Would you like to upgrade your subscription?'
@@ -143,9 +145,6 @@ const GeneratedScript: React.FC<GeneratedScriptProps> = ({
       if (confirmUpgrade) {
         window.location.href = '/subscription';
       }
-    } else {
-      // Still checking access
-      alert('Please wait, checking subscription status...');
     }
   };
 
@@ -259,7 +258,7 @@ const GeneratedScript: React.FC<GeneratedScriptProps> = ({
               ${checkingAccess ? 'text-gray-400 cursor-wait' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'}
             `}
             disabled={checkingAccess}
-            title="Generate storyboard"
+            title={checkingAccess ? "Checking access..." : "Generate storyboard"}
           >
             <Video className="w-5 h-5" />
             <span className="ml-1 text-sm hidden md:inline">Storyboard</span>

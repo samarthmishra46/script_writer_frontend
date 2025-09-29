@@ -78,6 +78,9 @@ const ScriptGroup: React.FC = () => {
   // Add new state for dropdown
   const [isScriptDropdownOpen, setIsScriptDropdownOpen] = useState(false);
 
+  // Video generation state
+  const [isGeneratingVideo, setIsGeneratingVideo] = useState(false);
+
   // Add a ref to detect clicks outside the dropdown
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -467,6 +470,64 @@ const ScriptGroup: React.FC = () => {
     }
   };
 
+  const handleGenerateVideo = async () => {
+    if (!selectedScript) return;
+    
+    try {
+      setIsGeneratingVideo(true);
+      setError(null);
+
+      const token = localStorage.getItem('token');
+      if (!token) {
+        navigate('/login');
+        return;
+      }
+
+      // Generate a unique ad ID for this video
+      const adId = `AD-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+
+      console.log('Starting video generation for script:', selectedScript);
+
+      const response = await fetch(buildApiUrl('api/genrate-video'), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ adId })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to generate video');
+      }
+
+      if (data.success) {
+        // Show success message with video URL
+        alert(`Video generated successfully! 
+        
+Processed: ${data.processedScenes}/${data.totalScenes} scenes
+Final video: ${data.finalVideoUrl}
+
+You can download your video from the provided URL.`);
+        
+        // Optionally open the video URL
+        if (data.finalVideoUrl) {
+          window.open(data.finalVideoUrl, '_blank');
+        }
+      } else {
+        throw new Error(data.message || 'Video generation failed');
+      }
+
+    } catch (error) {
+      console.error('Video generation error:', error);
+      setError(error instanceof Error ? error.message : 'Failed to generate video');
+    } finally {
+      setIsGeneratingVideo(false);
+    }
+  };
+
   return (
     <div className="flex flex-col md:flex-row h-screen overflow-hidden bg-white">
       {/* Mobile Header */}
@@ -737,9 +798,15 @@ const ScriptGroup: React.FC = () => {
                   <div className="p-4 md:p-6 bg-gradient-to-br from-gray-50 to-white rounded-b-lg min-h-[40vh] md:min-h-[60vh] overflow-y-auto border-t">
                     <div className="max-w-none prose prose-sm md:prose-base prose-gray">
                      
-                      <AdScriptViewer script= {selectedScript}/>
+                      <AdScriptViewer 
+                        script={selectedScript}
+                        isGeneratingVideo={isGeneratingVideo}
+                        onGenerateVideo={handleGenerateVideo}
+                        videoUrl={selectedScript?.metadata?.videoUrl}
+                        metadata={selectedScript?.metadata}
+                      />
 <br />
-                       <StoryboardGenerator scriptId={selectedScript._id} />
+                      
                     </div>
                   </div>
                 </div>
@@ -892,7 +959,7 @@ const ScriptGroup: React.FC = () => {
         </div>
       </div>
 
-      {/* Storyboard Modal */}
+      {/* Storyboard Modal
       {showStoryboard && selectedScript && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
@@ -910,7 +977,7 @@ const ScriptGroup: React.FC = () => {
             </div>
           </div>
         </div>
-      )}
+      )} */}
 
       {/* Regenerate Script Modal */}
       {showRegenerateModal && selectedScript && (

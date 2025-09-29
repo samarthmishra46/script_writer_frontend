@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { Video, Loader2, AlertCircle, Download, Copy, Eye, EyeOff } from 'lucide-react';
+import React, { useState } from 'react';
+import { Video, Loader2, AlertCircle, Download, Copy, Eye, EyeOff, Play } from 'lucide-react';
 import { buildApiUrl } from '../config/api';
+import { useNavigate } from 'react-router-dom';
 
 interface StoryboardScene {
   scene_number: string;
@@ -44,6 +45,7 @@ const StoryboardGenerator: React.FC<StoryboardGeneratorProps> = ({
   scriptContent,
   onClose
 }) => {
+  const navigate = useNavigate();
   const [isGenerating, setIsGenerating] = useState(false);
   const [storyboard, setStoryboard] = useState<StoryboardData | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -265,13 +267,27 @@ Image: ${scene.image_url}
                   {storyboard.total_scenes} scenes • {storyboard.estimated_duration} seconds total
                 </p>
               </div>
-              <button
-                onClick={handleDownloadStoryboard}
-                className="flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-              >
-                <Download className="w-4 h-4 mr-2" />
-                Download Storyboard
-              </button>
+              <div className="flex space-x-3">
+                <button
+                  onClick={() => navigate('/video-generator', { 
+                    state: { 
+                      storyboard: storyboard, 
+                      scriptId: scriptId 
+                    } 
+                  })}
+                  className="flex items-center px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+                >
+                  <Play className="w-4 h-4 mr-2" />
+                  Generate Video
+                </button>
+                <button
+                  onClick={handleDownloadStoryboard}
+                  className="flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                >
+                  <Download className="w-4 h-4 mr-2" />
+                  Download Storyboard
+                </button>
+              </div>
             </div>
           </div>
 

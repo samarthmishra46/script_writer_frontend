@@ -5,6 +5,8 @@ import { buildApiUrl } from '../config/api';
 import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
 import GeneratedScript from '../components/GeneratedScript';
+import ScriptConceptSelector from '../components/ScriptConceptSelector';
+import ScriptDisplay from '../components/ScriptDisplay';
 
 interface Brand {
   name: string;
@@ -94,6 +96,26 @@ interface StepNineData {
   ad_format: string; // Preferred format
   ad_duration: string; // Ad duration
   language: string; // Language preference
+}
+
+interface AdConcept {
+  id: number;
+  title: string;
+  emotionalTone: string;
+  coreMessage: string;
+  scriptSummary: string;
+  featureTieIn: string;
+  tagline: string;
+  format: string;
+}
+
+interface ConceptData {
+  adCampaign: string;
+  ads: AdConcept[];
+}
+
+interface ScriptData {
+  videoAdScript?: Record<string, unknown>;
 }
 
 interface ScriptResponse {
@@ -207,7 +229,82 @@ const CreateScriptWizard: React.FC = () => {
   });
 
   const [generatedScript, setGeneratedScript] = useState<ScriptResponse['script'] | null>(null);
+  const [scriptConcepts, setScriptConcepts] = useState<ConceptData | null>(null);
+  const [finalScript, setFinalScript] = useState<ScriptData | null>(null);
+  const [currentView, setCurrentView] = useState<'form' | 'concepts' | 'script'>('form');
+  const [isGeneratingFinalScript, setIsGeneratingFinalScript] = useState(false);
+  const [isGeneratingVideo, setIsGeneratingVideo] = useState(false);
   const topRef = useRef<HTMLDivElement>(null);
+
+  const handleBackToForm = () => {
+    setCurrentView('form');
+    setScriptConcepts(null);
+    setError(null);
+  };
+
+  const handleBackToConcepts = () => {
+    setCurrentView('concepts');
+    setFinalScript(null);
+    setError(null);
+  };
+
+  const handleGenerateVideo = async () => {
+    if (!finalScript) return;
+    
+    try {
+      setIsGeneratingVideo(true);
+      setError(null);
+
+      const token = localStorage.getItem('token');
+      if (!token) {
+        navigate('/login');
+        return;
+      }
+
+      // Generate a unique ad ID for this video
+      const adId = `AD-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+
+      console.log('Starting video generation for script:', finalScript);
+
+      const response = await fetch(buildApiUrl('api/genrate-video'), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ adId })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to generate video');
+      }
+
+      if (data.success) {
+        // Show success message with video URL
+        alert(`Video generated successfully! 
+        
+Processed: ${data.processedScenes}/${data.totalScenes} scenes
+Final video: ${data.finalVideoUrl}
+
+You can download your video from the provided URL.`);
+        
+        // Optionally open the video URL
+        if (data.finalVideoUrl) {
+          window.open(data.finalVideoUrl, '_blank');
+        }
+      } else {
+        throw new Error(data.message || 'Video generation failed');
+      }
+
+    } catch (error) {
+      console.error('Video generation error:', error);
+      setError(error instanceof Error ? error.message : 'Failed to generate video');
+    } finally {
+      setIsGeneratingVideo(false);
+    }
+  };
 
   // Toggle section expansion
   const toggleSection = (section: string) => {
@@ -247,7 +344,7 @@ const CreateScriptWizard: React.FC = () => {
     }, 50); // Typing speed
 
     return () => clearInterval(typeInterval);
-  }, [currentIndex, isLoading, messages.length]);
+  }, [currentIndex, isLoading]);
 
   // Reset animation when loading starts
   useEffect(() => {
@@ -434,6 +531,62 @@ const CreateScriptWizard: React.FC = () => {
         ...stepNineData
       };
 
+      // First, generate concepts
+      const conceptsResponse = await fetch(buildApiUrl('api/scripts/concepts'), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify(combinedData)
+      });
+
+      const conceptsData = await conceptsResponse.json();
+
+      if (!conceptsResponse.ok) {
+        throw new Error(conceptsData.message || 'Failed to generate concepts');
+      }
+
+      if (!conceptsData.success || !conceptsData.concepts) {
+        throw new Error('Invalid response from concepts generation');
+      }
+
+      // Set concepts and switch to concept selection view
+      setScriptConcepts(conceptsData.concepts);
+      setCurrentView('concepts');
+      
+    } catch (error) {
+      console.error('Concepts generation error:', error);
+      setError(error instanceof Error ? error.message : 'Failed to generate concepts');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleConceptSelect = async (selectedConcept: AdConcept) => {
+    setIsGeneratingFinalScript(true);
+    setError(null);
+
+    try {
+      const combinedData = {
+        ...stepOneData,
+        ...stepTwoData,
+        ...stepThreeData,
+        ...stepFourData,
+        ...stepFiveData,
+        ...stepSixData,
+        ...stepSevenData,
+        ...stepEightData,
+        ...stepNineData,
+        ad_concept: `Title: ${selectedConcept.title}
+Emotional Tone: ${selectedConcept.emotionalTone}
+Core Message: ${selectedConcept.coreMessage}
+Script Summary: ${selectedConcept.scriptSummary}
+Feature Tie-in: ${selectedConcept.featureTieIn}
+Tagline: ${selectedConcept.tagline}
+Format: ${selectedConcept.format}`
+      };
+
       const response = await fetch(buildApiUrl('api/scripts/generate'), {
         method: 'POST',
         headers: {
@@ -453,20 +606,48 @@ const CreateScriptWizard: React.FC = () => {
         throw new Error('Invalid response from server');
       }
 
+      // Parse the JSON script content and set the final script
+      let parsedScript;
+      try {
+        let scriptContent = data.script.content;
+        
+        // Check if the content is wrapped in markdown code blocks
+        if (scriptContent.includes('```json')) {
+          // Extract JSON from markdown code blocks
+          const jsonMatch = scriptContent.match(/```json\s*([\s\S]*?)\s*```/);
+          if (jsonMatch) {
+            scriptContent = jsonMatch[1].trim();
+          }
+        } else if (scriptContent.includes('```')) {
+          // Handle generic code blocks
+          const codeMatch = scriptContent.match(/```\s*([\s\S]*?)\s*```/);
+          if (codeMatch) {
+            scriptContent = codeMatch[1].trim();
+          }
+        }
+        
+        parsedScript = JSON.parse(scriptContent);
+      } catch (parseError) {
+        console.error('Error parsing script JSON:', parseError);
+        console.error('Script content:', data.script.content);
+        throw new Error('Failed to parse generated script');
+      }
+      
+      setFinalScript(parsedScript);
+      setCurrentView('script');
+      
+      // Store the generated script
       setGeneratedScript(data.script);
       localStorage.setItem('currentGeneratedScript', JSON.stringify(data.script));
       
       // Clear saved form data after successful generation
       localStorage.removeItem('createScriptWizardData');
       
-      navigate(`/script-group/${data.script.brand_name}/${data.script.product}/${data.script._id}`);
-      handleNewScript();
-      
     } catch (error) {
       console.error('Script generation error:', error);
       setError(error instanceof Error ? error.message : 'Failed to generate script');
     } finally {
-      setIsLoading(false);
+      setIsGeneratingFinalScript(false);
     }
   };
 
@@ -1887,9 +2068,7 @@ const CreateScriptWizard: React.FC = () => {
               </div>
             )}
 
-            {generatedScript ? (
-              renderGeneratedScript()
-            ) : (
+{currentView === 'form' && !generatedScript ? (
               <div className="bg-[#474747] rounded-lg shadow-sm p-6">
                 <div className="mb-6">
                   <h2 className="text-2xl font-bold text-white mb-2">Create New Script</h2>
@@ -1914,7 +2093,30 @@ const CreateScriptWizard: React.FC = () => {
                   {currentStep === 1 ? renderStepOne() : currentStep === 2 ? renderStepTwo() : currentStep === 3 ? renderStepThree() : currentStep === 4 ? renderStepFour() : currentStep === 5 ? renderStepFive() : currentStep === 6 ? renderStepSix() : currentStep === 7 ? renderStepSeven() : currentStep === 8 ? renderStepEight() : renderStepNine()}
                 </form>
               </div>
-            )}
+            ) : currentView === 'concepts' && scriptConcepts ? (
+              <ScriptConceptSelector
+                concepts={scriptConcepts}
+                onSelectConcept={handleConceptSelect}
+                onBack={handleBackToForm}
+                isGenerating={isGeneratingFinalScript}
+              />
+            ) : currentView === 'script' && finalScript ? (
+              <ScriptDisplay 
+                script={finalScript} 
+                onBack={handleBackToConcepts}
+                onNewScript={() => {
+                  setCurrentView('form');
+                  setScriptConcepts(null);
+                  setFinalScript(null);
+                  setCurrentStep(1);
+                }}
+                onGenerateVideo={handleGenerateVideo}
+                isGeneratingVideo={isGeneratingVideo}
+                videoUrl={finalScript.metadata?.videoUrl}
+              />
+            ) : generatedScript ? (
+              renderGeneratedScript()
+            ) : null}
           </div>
         </main>
       </div>

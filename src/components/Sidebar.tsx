@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { FolderPlus, LayoutDashboard,Search , Wallet, ChevronDown, ChevronRight, Building2, LogOut, Package, X, Settings, ChevronUp } from 'lucide-react';
 import { useBrands } from '../context/useBrands';
+import { buildApiUrl } from '../config/api';
 
 // Define user interface to fix TypeScript errors
 interface UserData {
@@ -116,15 +117,45 @@ const Sidebar: React.FC<SidebarProps> = ({
     }));
   };
 
-  const handleProductClick = (brandName: string, productName: string, firstScriptId: string) => {
-    // Navigate to script group for this brand and product
-    navigate(`/script-group/${encodeURIComponent(brandName)}/${encodeURIComponent(productName)}/${firstScriptId}`);
+  const handleProductClick = async (brandName: string, productName: string, firstScriptId: string) => {
+    try {
+      // First, check if this script is an image ad by fetching its details
+      const token = localStorage.getItem('token');
+      if (!token) {
+        navigate('/auth');
+        return;
+      }
+
+      // Try to fetch as image ad first
+      const imageAdResponse = await fetch(buildApiUrl(`api/image-ads/${firstScriptId}`), {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (imageAdResponse.ok) {
+        const imageAdData = await imageAdResponse.json();
+        if (imageAdData.success && imageAdData.ad) {
+          // This is an image ad, navigate to image ad view
+          navigate(`/image-ads/view/${firstScriptId}`);
+          return;
+        }
+      }
+
+      // If not an image ad, navigate to script group as usual
+      navigate(`/script-group/${encodeURIComponent(brandName)}/${encodeURIComponent(productName)}/${firstScriptId}`);
+    } catch (error) {
+      console.error('Error determining script type:', error);
+      // Fallback to script group navigation
+      navigate(`/script-group/${encodeURIComponent(brandName)}/${encodeURIComponent(productName)}/${firstScriptId}`);
+    }
   };
 
   const handleCreateForBrand = (e: React.MouseEvent, brandName: string) => {
     e.stopPropagation(); // Prevent toggling expansion
-    // Navigate to create script with pre-filled brand name
-    navigate('/create-script', { state: { prefillBrand: brandName } });
+    // Navigate to ad type selector with pre-filled brand name
+    navigate('/ad-type-selector', { state: { prefillBrand: brandName } });
   };
 
   const handleLogout = () => {
@@ -165,9 +196,9 @@ const Sidebar: React.FC<SidebarProps> = ({
         <div className="space-y-1">
 
           <Link
-            to="/create-script"
+            to="/ad-type-selector"
             className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
-              location.pathname === '/create-script'
+              location.pathname === '/ad-type-selector'
                 ? 'bg-[#474747] text-white'
                 : 'text-[#272727] hover:bg-[#474747] hover:text-white'
             }`}
@@ -198,7 +229,7 @@ const Sidebar: React.FC<SidebarProps> = ({
               Your Brands
             </h3>
             <Link
-              to="/create-script"
+              to="/ad-type-selector"
               className="text-xs text-purple-400 hover:text-purple-300 transition-colors"
             >
               + New
@@ -290,10 +321,10 @@ const Sidebar: React.FC<SidebarProps> = ({
                   <p className="text-gray-400 text-sm mb-2">No brands yet</p>
                 )}
                 <Link
-                  to="/create-script"
+                  to="/ad-type-selector"
                   className="text-xs text-purple-400 hover:text-purple-300 transition-colors"
                 >
-                  Create your first script
+                  Create your first ad
                 </Link>
               </div>
             )}
