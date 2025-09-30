@@ -23,7 +23,7 @@ import Settings from './pages/Settings';
 import VideoGeneratorPage from './pages/VideoGeneratorPage';
 import AdTypeSelector from './pages/AdTypeSelector';
 import CreateImageAds from './pages/CreateImageAds';
-import ViewImageAds from './pages/ViewImageAds';
+import ViewImageAd from './pages/ViewImageAd';
 import { BrandsProvider } from './context/BrandsContext';
 import { OrderTimerProvider } from "./context/OrderTimerContext"; // <-- 1. IMPORT
 
@@ -118,7 +118,7 @@ function App() {
                 } />
                 <Route path="/image-ads/view/:adId" element={
                   <ProtectedRoute>
-                    <ViewImageAds />
+                    <ViewImageAd />
                   </ProtectedRoute>
                 } />
                 <Route path="/scripts" element={

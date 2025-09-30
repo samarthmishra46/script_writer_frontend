@@ -39,6 +39,14 @@ interface CampaignData {
   ads: Campaign[];
 }
 
+interface ImageVariation {
+  styleKey: string;
+  styleName: string;
+  imageUrl: string;
+  originalUrl: string;
+  prompt: string;
+}
+
 interface GeneratedImageAd {
   _id: string;
   title: string;
@@ -55,6 +63,8 @@ interface GeneratedImageAd {
   product: string;
   imageUrl?: string;
   videoUrl?: string;
+  imageVariations?: ImageVariation[];
+  totalGenerated?: number;
 }
 
 const CreateImageAds: React.FC = () => {
@@ -163,7 +173,7 @@ const CreateImageAds: React.FC = () => {
       console.log('Generating campaigns with data:', formData);
 
       // If product image is provided, upload it first
-      let productImageUrl = null;
+      let productImageUrl: string | null = null;
       if (formData.product_image) {
         console.log('📸 Uploading product image...');
         
@@ -191,7 +201,7 @@ const CreateImageAds: React.FC = () => {
           // Update form data with the Google Cloud Storage URL
           setFormData(prev => ({
             ...prev,
-            product_image_url: productImageUrl
+            product_image_url: productImageUrl || ''
           }));
         }
       }
@@ -686,66 +696,213 @@ You can now view your video below or download it.`);
               </div>
 
               <div className="space-y-6">
-                {generatedAd.imageUrl ? (
-                  // Image successfully generated and available
-                  <>
-                    <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden relative">
-                      <img 
-                        src={generatedAd.imageUrl} 
-                        alt={`${generatedAd.brand_name} ${generatedAd.product} ad`}
-                        className="w-full h-full object-cover"
-                        onLoad={() => console.log('Image loaded successfully')}
-                        onError={(e) => console.error('Image failed to load:', e)}
-                      />
-                      <div className="absolute top-2 right-2 bg-green-500 text-white px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1">
-                        <CheckCircle className="h-3 w-3" />
-                        Generated
-                      </div>
-                    </div>
-                    <div className="text-center">
-                      <p className="text-green-600 font-medium mb-4">🎉 Your image ad is ready!</p>
-                      <button
-                        onClick={handleRegenerateImage}
-                        disabled={isGeneratingImage}
-                        className="flex items-center justify-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
-                      >
-                        {isGeneratingImage ? (
-                          <>
-                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                            Regenerating...
-                          </>
-                        ) : (
-                          <>
-                            <RefreshCw className="h-4 w-4 mr-2" />
-                            Regenerate Image
-                          </>
-                        )}
-                      </button>
-                    </div>
-                  </>
-                ) : (
-                  // Placeholder while image is generating or not yet generated
-                  <>
-                    <div className="aspect-square bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg flex items-center justify-center border-2 border-dashed border-gray-300 relative">
-                      <div className="text-center">
-                        <div className="animate-spin rounded-full h-16 w-16 border-4 border-purple-200 border-t-purple-600 mx-auto mb-4"></div>
-                        <p className="text-gray-600 mb-2 font-medium">Generating Your Image...</p>
-                        <p className="text-gray-500 text-sm">AI is creating visuals from your campaign</p>
-                        <p className="text-gray-400 text-xs mt-2">This may take 30-60 seconds</p>
-                      </div>
-                    </div>
-                    <div className="text-center">
-                      <p className="text-gray-600 text-sm mb-4">
-                        Your image is being generated automatically based on your selected campaign.
-                        <br />Please wait while we create your professional ad visual.
-                      </p>
-                      <div className="flex items-center justify-center gap-2 text-gray-500 text-sm">
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                        <span>Processing campaign data and generating image...</span>
-                      </div>
-                    </div>
-                  </>
-                )}
+                {(() => {
+                  // First check for imageVariations array (new 6-image format)
+                  if (generatedAd.imageVariations && generatedAd.imageVariations.length > 0) {
+                    return (
+                      <>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                          {generatedAd.imageVariations.map((variation, index) => (
+                            <div key={variation.styleKey} className="group cursor-pointer transform transition-all duration-300 hover:scale-105">
+                              <div className="bg-white rounded-xl shadow-lg overflow-hidden border-2 border-transparent hover:border-purple-500 transition-all">
+                                <div className="aspect-square bg-gray-100 overflow-hidden relative">
+                                  <img 
+                                    src={variation.imageUrl} 
+                                    alt={`${generatedAd.brand_name} ${generatedAd.product} - ${variation.styleName}`}
+                                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                                    onLoad={() => console.log(`${variation.styleName} loaded successfully`)}
+                                    onError={(e) => console.error(`${variation.styleName} failed to load:`, e)}
+                                  />
+                                  <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-300 flex items-center justify-center">
+                                    <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-center text-white">
+                                      <Image className="h-6 w-6 mx-auto mb-1" />
+                                      <p className="text-xs font-medium">View Full Size</p>
+                                    </div>
+                                  </div>
+                                  <div className="absolute top-2 right-2 bg-green-500 text-white px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1">
+                                    <CheckCircle className="h-3 w-3" />
+                                    #{index + 1}
+                                  </div>
+                                  {/* Download button for each image */}
+                                  <button
+                                    onClick={() => {
+                                      const link = document.createElement('a');
+                                      link.href = variation.imageUrl;
+                                      link.download = `${generatedAd.brand_name}_${generatedAd.product}_${variation.styleName.replace(/[^a-zA-Z0-9]/g, '_')}.png`;
+                                      document.body.appendChild(link);
+                                      link.click();
+                                      document.body.removeChild(link);
+                                    }}
+                                    className="absolute top-2 left-2 bg-white bg-opacity-90 text-gray-700 p-1.5 rounded-full hover:bg-white transition-all opacity-0 group-hover:opacity-100"
+                                    title="Download Image"
+                                  >
+                                    <Download className="h-3 w-3" />
+                                  </button>
+                                </div>
+                                <div className="p-4">
+                                  <h3 className="font-semibold text-gray-900 mb-1">{variation.styleName}</h3>
+                                  <p className="text-sm text-gray-600 line-clamp-2">
+                                    {variation.styleName === "Features & Benefits" && "Focus on product benefits with clear callouts"}
+                                    {variation.styleName === "Us vs Them Comparison" && "Comparison layout showing competitive advantages"}
+                                    {variation.styleName === "Bold Headline Dominant" && "Large headline with minimal design approach"}
+                                    {variation.styleName === "Customer Testimonials" && "Social proof with customer reviews and ratings"}
+                                    {variation.styleName === "Educational Value-First" && "Informative content with expert positioning"}
+                                    {variation.styleName === "Data-Driven Statistics" && "Numbers and stats to prove effectiveness"}
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                        <div className="text-center">
+                          <p className="text-green-600 font-medium mb-4">🎉 Your {generatedAd.imageVariations.length} creative variations are ready!</p>
+                          <p className="text-gray-600 text-sm">Each image uses a different advertising approach. Click any image to download it individually.</p>
+                        </div>
+                      </>
+                    );
+                  }
+                  
+                  // Fallback: Check if imageUrl exists and handle both single and comma-separated URLs
+                  if (generatedAd.imageUrl) {
+                    const imageUrls = generatedAd.imageUrl.split(',').map(url => url.trim()).filter(url => url.length > 0);
+                    
+                    if (imageUrls.length > 1) {
+                      // Multiple URLs in comma-separated format - display as grid
+                      return (
+                        <>
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            {imageUrls.map((imageUrl, index) => (
+                              <div key={`image-${index}`} className="group cursor-pointer">
+                                <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden relative">
+                                  <img 
+                                    src={imageUrl} 
+                                    alt={`${generatedAd.brand_name} ${generatedAd.product} ad ${index + 1}`}
+                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+                                    onLoad={() => console.log(`Image ${index + 1} loaded successfully`)}
+                                    onError={(e) => console.error(`Image ${index + 1} failed to load:`, e)}
+                                  />
+                                  <div className="absolute top-2 right-2 bg-green-500 text-white px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1">
+                                    <CheckCircle className="h-3 w-3" />
+                                    #{index + 1}
+                                  </div>
+                                  {/* Download button for each image */}
+                                  <button
+                                    onClick={() => {
+                                      const link = document.createElement('a');
+                                      link.href = imageUrl;
+                                      link.download = `${generatedAd.brand_name}_${generatedAd.product}_image_${index + 1}.png`;
+                                      document.body.appendChild(link);
+                                      link.click();
+                                      document.body.removeChild(link);
+                                    }}
+                                    className="absolute top-2 left-2 bg-white bg-opacity-90 text-gray-700 p-1.5 rounded-full hover:bg-white transition-all opacity-0 group-hover:opacity-100"
+                                    title="Download Image"
+                                  >
+                                    <Download className="h-3 w-3" />
+                                  </button>
+                                </div>
+                                <div className="mt-2 text-center">
+                                  <p className="text-sm font-medium text-gray-900">Image {index + 1}</p>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                          <div className="text-center">
+                            <p className="text-green-600 font-medium mb-4">🎉 Your {imageUrls.length} image variations are ready!</p>
+                            <p className="text-gray-600 text-sm">Click any image to download it individually, or use the download button above to get the first image.</p>
+                          </div>
+                        </>
+                      );
+                    } else {
+                      // Single image URL - display as before
+                      return (
+                        <>
+                          <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden relative">
+                            <img 
+                              src={imageUrls[0]} 
+                              alt={`${generatedAd.brand_name} ${generatedAd.product} ad`}
+                              className="w-full h-full object-cover"
+                              onLoad={() => console.log('Image loaded successfully')}
+                              onError={(e) => console.error('Image failed to load:', e)}
+                            />
+                            <div className="absolute top-2 right-2 bg-green-500 text-white px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1">
+                              <CheckCircle className="h-3 w-3" />
+                              Generated
+                            </div>
+                          </div>
+                          <div className="text-center">
+                            <p className="text-green-600 font-medium mb-4">🎉 Your image ad is ready!</p>
+                            <button
+                              onClick={handleRegenerateImage}
+                              disabled={isGeneratingImage}
+                              className="flex items-center justify-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 mx-auto"
+                            >
+                              {isGeneratingImage ? (
+                                <>
+                                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                  Regenerating...
+                                </>
+                              ) : (
+                                <>
+                                  <RefreshCw className="h-4 w-4 mr-2" />
+                                  Regenerate Image
+                                </>
+                              )}
+                            </button>
+                          </div>
+                        </>
+                      );
+                    }
+                  } else {
+                    // No image generated yet
+                    return (
+                      <>
+                        <div className="aspect-square bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg flex items-center justify-center border-2 border-dashed border-gray-300 relative">
+                          <div className="text-center">
+                            {isGeneratingImage ? (
+                              // Image generating state
+                              <>
+                                <div className="animate-spin rounded-full h-16 w-16 border-4 border-purple-200 border-t-purple-600 mx-auto mb-4"></div>
+                                <p className="text-gray-600 mb-2 font-medium">Generating Image...</p>
+                                <p className="text-gray-500 text-sm">Creating your custom ad visual</p>
+                                <p className="text-gray-400 text-xs mt-2">This may take 1-2 minutes</p>
+                              </>
+                            ) : (
+                              // Image not generated
+                              <>
+                                <Image className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+                                <p className="text-gray-600 mb-2">Generate Image from Your Campaign</p>
+                                <p className="text-gray-500 text-sm">Create a visual ad using your selected campaign</p>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                        <div className="text-center">
+                          <button
+                            onClick={handleRegenerateImage}
+                            disabled={isGeneratingImage}
+                            className="flex items-center justify-center px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl hover:from-purple-700 hover:to-pink-700 transition-all duration-300 disabled:opacity-50 shadow-lg hover:shadow-xl transform hover:scale-105 mx-auto"
+                          >
+                            {isGeneratingImage ? (
+                              <>
+                                <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+                                Generating Image...
+                              </>
+                            ) : (
+                              <>
+                                <Sparkles className="h-5 w-5 mr-2" />
+                                Generate Image Ad
+                              </>
+                            )}
+                          </button>
+                          <p className="text-gray-500 text-sm mt-3">
+                            Transform your campaign into a visual advertisement
+                          </p>
+                        </div>
+                      </>
+                    );
+                  }
+                })()}
               </div>
             </div>
 
