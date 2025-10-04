@@ -62,6 +62,36 @@ export interface User {
     [key: string]: unknown;
   };
   
+  // Free trial information
+  freeTrial?: {
+    scriptsRemaining?: number;
+    storyboardsRemaining?: number;
+    videosRemaining?: number;
+    imagesRemaining?: number;
+    isActive?: boolean;
+    startDate?: string;
+    endDate?: string;
+    durationDays?: number;
+    hasExpired?: boolean;
+    remindersSent?: number;
+  };
+  
+  // Trial status (computed on backend)
+  trialStatus?: {
+    isActive: boolean;
+    hasExpired: boolean;
+    daysRemaining: number;
+    endDate: string;
+    usage: {
+      scripts: number;
+      storyboards: number;
+      videos: number;
+      images: number;
+    };
+  };
+  
+  shouldShowUpgradePrompt?: boolean;
+  
   // Authentication info
   authProvider?: 'email' | 'google' | 'github';
   googleId?: string;
@@ -86,8 +116,30 @@ export interface UserContextType {
  * Helper function to determine if user should be redirected to subscription page
  */
 export const shouldRedirectToSubscription = (user: User): boolean => {
-  // Check if hasActiveSubscription flag exists and is set to false
-  if (user.hasActiveSubscription === false) {
+  // If user has active paid subscription, don't redirect
+  const hasActiveSubscription = user.subscription?.status === 'active' && 
+                                 user.subscription?.plan !== 'free';
+  
+  if (hasActiveSubscription) {
+    return false;
+  }
+  
+  // Check trial status
+  const trialStatus = user.trialStatus;
+  if (trialStatus) {
+    // If trial is active, don't redirect to subscription page yet
+    if (trialStatus.isActive) {
+      return false;
+    }
+    
+    // If trial has expired, redirect to subscription
+    if (trialStatus.hasExpired) {
+      return true;
+    }
+  }
+  
+  // Check legacy flags
+  if (user.hasActiveSubscription === false || user.shouldShowUpgradePrompt === true) {
     return true;
   }
   
@@ -111,15 +163,11 @@ export const shouldRedirectToSubscription = (user: User): boolean => {
     }
   }
   
-  // Default behavior if none of the above conditions are met:
-  // - If user has active subscription flag, don't redirect
-  // - If subscription status is active, don't redirect
-  // - If subscription.isValid is explicitly set to true, don't redirect
-  // - If no subscription info available, redirect to subscription page
-  return !(
-    user.hasActiveSubscription === true || 
-    user.subscriptionStatus === 'active' ||
-    user.subscription?.status === 'active' ||
-    user.subscription?.isValid === true
-  );
+  // If user is on free plan and has no trial info, consider redirecting
+  if (user.subscription?.plan === 'free' && !trialStatus) {
+    return true;
+  }
+  
+  // Default to not redirecting if we can't determine status
+  return false;
 };

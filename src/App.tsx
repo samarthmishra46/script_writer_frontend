@@ -24,6 +24,11 @@ import VideoGeneratorPage from './pages/VideoGeneratorPage';
 import AdTypeSelector from './pages/AdTypeSelector';
 import CreateImageAds from './pages/CreateImageAds';
 import ViewImageAd from './pages/ViewImageAd';
+import UGCDashboard from './pages/UGCDashboard';
+import CreateUGCAd from './pages/CreateUGCAd';
+import CharacterSelection from './pages/CharacterSelection';
+import ScriptGeneration from './pages/ScriptGeneration';
+import VideoGeneration from './pages/VideoGeneration';
 import { BrandsProvider } from './context/BrandsContext';
 import { OrderTimerProvider } from "./context/OrderTimerContext"; // <-- 1. IMPORT
 
@@ -119,6 +124,31 @@ function App() {
                 <Route path="/image-ads/view/:adId" element={
                   <ProtectedRoute>
                     <ViewImageAd />
+                  </ProtectedRoute>
+                } />
+                <Route path="/ugc-ads" element={
+                  <ProtectedRoute>
+                    <UGCDashboard />
+                  </ProtectedRoute>
+                } />
+                <Route path="/ugc-ads/create" element={
+                  <ProtectedRoute>
+                    <CreateUGCAd />
+                  </ProtectedRoute>
+                } />
+                <Route path="/ugc-ads/:id/character-selection" element={
+                  <ProtectedRoute>
+                    <CharacterSelection />
+                  </ProtectedRoute>
+                } />
+                <Route path="/ugc-ads/:id/script-generation" element={
+                  <ProtectedRoute>
+                    <ScriptGeneration />
+                  </ProtectedRoute>
+                } />
+                <Route path="/ugc-ads/:id/video-generation" element={
+                  <ProtectedRoute>
+                    <VideoGeneration />
                   </ProtectedRoute>
                 } />
                 <Route path="/scripts" element={

@@ -51,11 +51,18 @@ const Login: React.FC = () => {
       const user = data.user as User;
       console.log('User login successful:', user);
       
+      // Enhanced logic for trial users
       if (shouldRedirectToSubscription(user)) {
-        console.log('User needs subscription. Redirecting to subscription page');
+        console.log('User needs subscription or trial has expired. Redirecting to subscription page');
         navigate('/subscription');
-      } else {
+      } else if (user.trialStatus?.isActive) {
+        console.log('User has active trial. Redirecting to dashboard with trial status');
+        navigate('/dashboard');
+      } else if (user.subscription?.status === 'active' && user.subscription?.plan !== 'free') {
         console.log('User has active subscription. Redirecting to dashboard');
+        navigate('/dashboard');
+      } else {
+        console.log('Redirecting to dashboard');
         navigate('/dashboard');
       }
     } catch (error) {

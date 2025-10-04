@@ -55,7 +55,7 @@ const AdTypeSelector: React.FC = () => {
     },
     {
       id: 'ugc',
-      title: 'AI Avatar UGC Ads',
+      title: 'UGC Video Ads',
       description: 'Create user-generated content style ads with AI avatars and authentic storytelling',
       icon: UserCircle,
       features: [
@@ -66,8 +66,8 @@ const AdTypeSelector: React.FC = () => {
         'Natural speech patterns',
         'Social proof focus'
       ],
-      isAvailable: false,
-      comingSoon: true,
+      isAvailable: true,
+      comingSoon: false,
       bgGradient: 'from-orange-500 to-red-600',
       iconColor: 'text-orange-600'
     }
@@ -101,7 +101,7 @@ const AdTypeSelector: React.FC = () => {
         navigate('/create-image-ads');
         break;
       case 'ugc':
-        // Handle UGC navigation when available
+        navigate('/ugc-ads/create');
         break;
       default:
         break;
