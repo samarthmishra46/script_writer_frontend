@@ -137,10 +137,18 @@ const VideoGeneration: React.FC = () => {
 
         const data = await response.json();
         
+        console.log('📊 Polling video status:', {
+          videoStatus: data.videoStatus,
+          completionPercentage: data.completionPercentage,
+          hasVideoUrl: !!data.generatedVideo?.videoUrl,
+          generatedVideo: data.generatedVideo
+        });
+        
         if (data.success) {
           setProgress(data.completionPercentage || 0);
           
           if (data.videoStatus === 'completed') {
+            console.log('✅ Video completed! Updating state with:', data.generatedVideo);
             setUgcAd(prev => prev ? {
               ...prev,
               generatedVideo: data.generatedVideo,
@@ -195,7 +203,8 @@ const VideoGeneration: React.FC = () => {
   const isVideoFailed = ugcAd.generatedVideo?.status === 'failed';
   const isImageCompleted = ugcAd.generatedImage?.status === 'completed';
   const isImageProcessing = ugcAd.generatedImage?.status === 'processing';
-  const isPipelineCompleted = isVideoCompleted && (isImageCompleted || !ugcAd.generatedImage);
+  // Show video when video generation is completed, regardless of image status
+  const isPipelineCompleted = isVideoCompleted;
 
   return (
     <div className="min-h-screen bg-gray-50">

@@ -46,6 +46,10 @@ interface ScriptGroup {
   adType?: string;
   imageUrl?: string;
   campaignTheme?: string;
+  // UGC-specific fields
+  videoUrl?: string;
+  thumbnailUrl?: string;
+  selectedCharacter?: string;
 }
 
 interface Brand {
@@ -143,6 +147,7 @@ const Dashboard: React.FC = () => {
         return;
       }
 
+      // Fetch unified data from scripts endpoint (includes both regular scripts and UGC ads)
       const response = await fetch(buildApiUrl("api/scripts"), {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -151,16 +156,16 @@ const Dashboard: React.FC = () => {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to fetch scripts");
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
 
       const result = await response.json();
+      const allData = result.success ? result.data : result;
 
-      // Check if response is in new format with success flag
-      const data = result.success ? result.data : result;
+      console.log('📊 Unified data fetched from scripts endpoint:', allData.length, 'items');
 
       // Sort by creation date (newest first)
-      const sortedScripts = [...data].sort(
+      const sortedScripts = allData.sort(
         (a: Script, b: Script) =>
           new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
       );
@@ -300,6 +305,10 @@ const Dashboard: React.FC = () => {
           adType: script.metadata?.adType as string,
           imageUrl: script.metadata?.imageUrl as string,
           campaignTheme: script.metadata?.campaign?.theme as string,
+          // UGC-specific fields
+          videoUrl: script.metadata?.videoUrl as string,
+          thumbnailUrl: script.metadata?.thumbnailUrl as string,
+          selectedCharacter: script.metadata?.selectedCharacter as string,
         });
       } else {
         // Update existing group
@@ -313,6 +322,10 @@ const Dashboard: React.FC = () => {
           group.adType = script.metadata?.adType as string;
           group.imageUrl = script.metadata?.imageUrl as string;
           group.campaignTheme = script.metadata?.campaign?.theme as string;
+          // UGC-specific fields
+          group.videoUrl = script.metadata?.videoUrl as string;
+          group.thumbnailUrl = script.metadata?.thumbnailUrl as string;
+          group.selectedCharacter = script.metadata?.selectedCharacter as string;
         }
       }
     });
@@ -534,6 +547,67 @@ const Dashboard: React.FC = () => {
                           ) : (
                             <div className="w-32 h-24 bg-gradient-to-br from-purple-100 to-pink-100 rounded-md flex items-center justify-center">
                               <span className="text-xs text-gray-500">Image Ad</span>
+                            </div>
+                          )}
+                        </div>
+
+                        <p className="text-sm text-gray-500">
+                          Updated{" "}
+                          {new Date(group.latestDate).toLocaleDateString()}
+                        </p>
+                      </div>
+                    ) : group.adType === 'ugc' ? (
+                      // UGC Ad Layout - Click to view UGC ad details
+                      <div 
+                        className="block p-4 cursor-pointer"
+                        onClick={() => navigate(`/ugc-ads/${group.latestScriptId}/video-generation`)}
+                      >
+                        <div className="flex items-center justify-between mb-3">
+                          <h3 className="font-semibold text-gray-900 truncate">
+                            {group.brand_name}
+                          </h3>
+                          <div className="flex items-center gap-2">
+                            <div className="bg-orange-100 text-orange-800 text-xs font-medium px-2 py-0.5 rounded-full">
+                              🎬 UGC Video
+                            </div>
+                            <div className="bg-purple-100 text-purple-800 text-xs font-medium px-2 py-0.5 rounded-full">
+                              {group.scriptCount}{" "}
+                              {group.scriptCount === 1 ? "Video" : "Videos"}
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Product Info */}
+                        <div className="mb-3">
+                          <p className="text-sm text-blue-600 font-medium">
+                            📦 {group.product}
+                          </p>
+                          {group.selectedCharacter && (
+                            <p className="text-xs text-gray-500 italic">
+                              Character: {group.selectedCharacter}
+                            </p>
+                          )}
+                        </div>
+
+                        {/* Generated Video/Image Display */}
+                        <div className="justify-center text-center flex items-center bg-gray-50 rounded-lg p-3 mb-3">
+                          {group.videoUrl ? (
+                            <video
+                              src={group.videoUrl}
+                              className="w-32 h-24 object-cover rounded-md shadow-sm"
+                              controls={false}
+                              muted
+                              poster={group.thumbnailUrl}
+                            />
+                          ) : group.imageUrl ? (
+                            <img
+                              src={group.imageUrl}
+                              alt="Generated UGC"
+                              className="w-32 h-24 object-cover rounded-md shadow-sm"
+                            />
+                          ) : (
+                            <div className="w-32 h-24 bg-gradient-to-br from-orange-100 to-red-100 rounded-md flex items-center justify-center">
+                              <span className="text-xs text-gray-500">UGC Video</span>
                             </div>
                           )}
                         </div>
