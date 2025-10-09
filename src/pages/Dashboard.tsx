@@ -593,15 +593,15 @@ const Dashboard: React.FC = () => {
                         <div className="justify-center text-center flex items-center bg-gray-50 rounded-lg p-3 mb-3">
                           {group.videoUrl ? (
                             <video
-                              src={group.videoUrl}
+                              src={buildApiUrl(group.videoUrl)}
                               className="w-32 h-24 object-cover rounded-md shadow-sm"
                               controls={false}
                               muted
-                              poster={group.thumbnailUrl}
+                              poster={group.thumbnailUrl ? buildApiUrl(group.thumbnailUrl) : undefined}
                             />
                           ) : group.imageUrl ? (
                             <img
-                              src={group.imageUrl}
+                              src={buildApiUrl(group.imageUrl)}
                               alt="Generated UGC"
                               className="w-32 h-24 object-cover rounded-md shadow-sm"
                             />

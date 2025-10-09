@@ -188,7 +188,7 @@ const VideoGeneration: React.FC = () => {
         <div className="text-center">
           <p className="text-gray-600">UGC ad not found</p>
           <button
-            onClick={() => navigate('/ugc-ads')}
+            onClick={() => navigate('/dashboard')}
             className="mt-4 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
           >
             Back to Dashboard
@@ -212,11 +212,11 @@ const VideoGeneration: React.FC = () => {
         {/* Header */}
         <div className="mb-8">
           <button
-            onClick={() => navigate(`/ugc-ads/${id}/script-generation`)}
+            onClick={() => navigate('/dashboard')}
             className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 mb-4"
           >
             <ArrowLeft className="h-5 w-5" />
-            <span>Back to Script Generation</span>
+            <span>Back to Dashboard</span>
           </button>
           
           <div className="flex items-center space-x-3 mb-4">
@@ -313,12 +313,31 @@ const VideoGeneration: React.FC = () => {
             {ugcAd.generatedImage?.imageUrl && (
               <div className="mb-6">
                 <h4 className="text-lg font-medium text-gray-900 mb-3 text-center">Generated Composite Image</h4>
-                <div className="flex justify-center">
+                <div className="flex justify-center mb-3">
                   <img
-                    src={ugcAd.generatedImage.imageUrl}
+                    src={buildApiUrl(ugcAd.generatedImage.imageUrl)}
                     alt="Generated composite image"
                     className="max-w-sm rounded-lg shadow-lg border border-gray-200"
                   />
+                </div>
+                <div className="flex justify-center">
+                  <button
+                    onClick={() => {
+                      if (ugcAd.generatedImage?.imageUrl) {
+                        const link = document.createElement('a');
+                        link.href = buildApiUrl(ugcAd.generatedImage.imageUrl);
+                        link.download = `${ugcAd.productDetails.name}_composite_image.png`;
+                        link.target = '_blank';
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                      }
+                    }}
+                    className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm"
+                  >
+                    <Download className="h-4 w-4" />
+                    <span>Download Image</span>
+                  </button>
                 </div>
               </div>
             )}
@@ -338,12 +357,25 @@ const VideoGeneration: React.FC = () => {
             )}
 
             <div className="flex justify-center space-x-4">
-              <button className="flex items-center space-x-2 bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors">
+              <button 
+                onClick={() => {
+                  if (ugcAd.generatedVideo?.videoUrl) {
+                    const link = document.createElement('a');
+                    link.href = buildApiUrl(ugcAd.generatedVideo.videoUrl);
+                    link.download = `${ugcAd.productDetails.name}_UGC_video.mp4`;
+                    link.target = '_blank';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                  }
+                }}
+                className="flex items-center space-x-2 bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors"
+              >
                 <Download className="h-5 w-5" />
                 <span>Download Video</span>
               </button>
               <button 
-                onClick={() => navigate('/ugc-ads')}
+                onClick={() => navigate('/dashboard')}
                 className="flex items-center space-x-2 border border-gray-300 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-50 transition-colors"
               >
                 <span>Back to Dashboard</span>
@@ -400,10 +432,10 @@ const VideoGeneration: React.FC = () => {
                 Try Again
               </button>
               <button 
-                onClick={() => navigate(`/ugc-ads/${id}/script-generation`)}
+                onClick={() => navigate('/dashboard')}
                 className="border border-gray-300 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-50 transition-colors"
               >
-                Back to Scripts
+                Back to Dashboard
               </button>
             </div>
           </div>
