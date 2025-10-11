@@ -170,6 +170,16 @@ const Dashboard: React.FC = () => {
           new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
       );
 
+      // Debug UGC videos
+      const ugcScripts = sortedScripts.filter(script => script.metadata?.adType === 'ugc');
+      console.log('🎬 UGC Videos in dashboard data:', ugcScripts.map(script => ({
+        id: script._id,
+        product: script.metadata?.product,
+        hasVideoUrl: !!script.metadata?.videoUrl,
+        videoUrl: script.metadata?.videoUrl,
+        status: script.metadata?.status
+      })));
+
       setScripts(sortedScripts || []);
     } catch (error) {
       console.error("Error fetching scripts:", error);
@@ -560,7 +570,17 @@ const Dashboard: React.FC = () => {
                       // UGC Ad Layout - Click to view UGC ad details
                       <div 
                         className="block p-4 cursor-pointer"
-                        onClick={() => navigate(`/ugc-ads/${group.latestScriptId}/video-generation`)}
+                        onClick={() => {
+                          console.log('🎬 UGC card clicked:', {
+                            key: group.key,
+                            product: group.product,
+                            hasVideoUrl: !!group.videoUrl,
+                            videoUrl: group.videoUrl,
+                            hasImageUrl: !!group.imageUrl,
+                            imageUrl: group.imageUrl
+                          });
+                          navigate(`/ugc-ads/${group.latestScriptId}/video-generation`);
+                        }}
                       >
                         <div className="flex items-center justify-between mb-3">
                           <h3 className="font-semibold text-gray-900 truncate">
@@ -593,15 +613,15 @@ const Dashboard: React.FC = () => {
                         <div className="justify-center text-center flex items-center bg-gray-50 rounded-lg p-3 mb-3">
                           {group.videoUrl ? (
                             <video
-                              src={buildApiUrl(group.videoUrl)}
+                              src={group.videoUrl.startsWith('http') ? group.videoUrl : buildApiUrl(group.videoUrl)}
                               className="w-32 h-24 object-cover rounded-md shadow-sm"
                               controls={false}
                               muted
-                              poster={group.thumbnailUrl ? buildApiUrl(group.thumbnailUrl) : undefined}
+                              poster={group.thumbnailUrl ? (group.thumbnailUrl.startsWith('http') ? group.thumbnailUrl : buildApiUrl(group.thumbnailUrl)) : undefined}
                             />
                           ) : group.imageUrl ? (
                             <img
-                              src={buildApiUrl(group.imageUrl)}
+                              src={group.imageUrl.startsWith('http') ? group.imageUrl : buildApiUrl(group.imageUrl)}
                               alt="Generated UGC"
                               className="w-32 h-24 object-cover rounded-md shadow-sm"
                             />

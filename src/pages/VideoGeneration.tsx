@@ -315,7 +315,7 @@ const VideoGeneration: React.FC = () => {
                 <h4 className="text-lg font-medium text-gray-900 mb-3 text-center">Generated Composite Image</h4>
                 <div className="flex justify-center mb-3">
                   <img
-                    src={buildApiUrl(ugcAd.generatedImage.imageUrl)}
+                    src={ugcAd.generatedImage.imageUrl.startsWith('http') ? ugcAd.generatedImage.imageUrl : buildApiUrl(ugcAd.generatedImage.imageUrl)}
                     alt="Generated composite image"
                     className="max-w-sm rounded-lg shadow-lg border border-gray-200"
                   />
@@ -325,7 +325,7 @@ const VideoGeneration: React.FC = () => {
                     onClick={() => {
                       if (ugcAd.generatedImage?.imageUrl) {
                         const link = document.createElement('a');
-                        link.href = buildApiUrl(ugcAd.generatedImage.imageUrl);
+                        link.href = ugcAd.generatedImage.imageUrl.startsWith('http') ? ugcAd.generatedImage.imageUrl : buildApiUrl(ugcAd.generatedImage.imageUrl);
                         link.download = `${ugcAd.productDetails.name}_composite_image.png`;
                         link.target = '_blank';
                         document.body.appendChild(link);
@@ -350,10 +350,10 @@ const VideoGeneration: React.FC = () => {
                   className="w-full max-w-md mx-auto rounded-lg shadow-lg"
                   poster={ugcAd.generatedVideo.thumbnailUrl}
                 >
-                  <source src={buildApiUrl(ugcAd.generatedVideo.videoUrl)} type="video/mp4" />
+                  <source src={ugcAd.generatedVideo.videoUrl.startsWith('http') ? ugcAd.generatedVideo.videoUrl : buildApiUrl(ugcAd.generatedVideo.videoUrl)} type="video/mp4" />
                   Your browser does not support the video tag.
                 </video>
-              </div>
+              </div> 
             )}
 
             <div className="flex justify-center space-x-4">
@@ -361,7 +361,7 @@ const VideoGeneration: React.FC = () => {
                 onClick={() => {
                   if (ugcAd.generatedVideo?.videoUrl) {
                     const link = document.createElement('a');
-                    link.href = buildApiUrl(ugcAd.generatedVideo.videoUrl);
+                    link.href = ugcAd.generatedVideo.videoUrl.startsWith('http') ? ugcAd.generatedVideo.videoUrl : buildApiUrl(ugcAd.generatedVideo.videoUrl);
                     link.download = `${ugcAd.productDetails.name}_UGC_video.mp4`;
                     link.target = '_blank';
                     document.body.appendChild(link);
