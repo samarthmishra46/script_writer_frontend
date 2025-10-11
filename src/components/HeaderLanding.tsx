@@ -265,8 +265,8 @@ function DropdownItem({ icon, label, onClick }: DropdownItemProps) {
 function AuthButtons() {
   return (
     <>
-      <Link to="/subscription" className="text-gray-700 hover:text-purple-600 font-bold px-4 py-2 rounded-lg">
-        Get Subscription
+      <Link to="/login" className="text-gray-700 hover:text-purple-600 font-bold px-4 py-2 rounded-lg">
+        Login
       </Link>
       
     </>

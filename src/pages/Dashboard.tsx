@@ -313,7 +313,10 @@ const Dashboard: React.FC = () => {
           firstScriptId: script._id,
           latestScriptId: script._id,
           adType: script.metadata?.adType as string,
-          imageUrl: script.metadata?.imageUrl as string,
+          imageUrl: (script.metadata?.imageUrl as string) || 
+                   (Array.isArray(script.metadata?.allImageUrls) && script.metadata.allImageUrls.length > 0 
+                    ? script.metadata.allImageUrls[0] as string 
+                    : undefined),
           campaignTheme: script.metadata?.campaign?.theme as string,
           // UGC-specific fields
           videoUrl: script.metadata?.videoUrl as string,
@@ -330,7 +333,10 @@ const Dashboard: React.FC = () => {
           group.latestDate = scriptDate;
           group.latestScriptId = script._id;
           group.adType = script.metadata?.adType as string;
-          group.imageUrl = script.metadata?.imageUrl as string;
+          group.imageUrl = (script.metadata?.imageUrl as string) || 
+                          (Array.isArray(script.metadata?.allImageUrls) && script.metadata.allImageUrls.length > 0 
+                           ? script.metadata.allImageUrls[0] as string 
+                           : undefined);
           group.campaignTheme = script.metadata?.campaign?.theme as string;
           // UGC-specific fields
           group.videoUrl = script.metadata?.videoUrl as string;
@@ -513,7 +519,7 @@ const Dashboard: React.FC = () => {
                     key={group.key}
                     className="bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow duration-200"
                   >
-                    {group.adType === 'image' ? (
+                    {group.adType === 'image' || group.adType === 'image_campaign_15' ? (
                       // Image Ad Layout - Click to view image ad details
                       <div 
                         className="block p-4 cursor-pointer"
@@ -525,11 +531,13 @@ const Dashboard: React.FC = () => {
                           </h3>
                           <div className="flex items-center gap-2">
                             <div className="bg-green-100 text-green-800 text-xs font-medium px-2 py-0.5 rounded-full">
-                              🎨 Image Ad
+                              {group.adType === 'image_campaign_15' ? '🎯 Complete Campaign' : '🎨 Image Ad'}
                             </div>
                             <div className="bg-purple-100 text-purple-800 text-xs font-medium px-2 py-0.5 rounded-full">
-                              {group.scriptCount}{" "}
-                              {group.scriptCount === 1 ? "Ad" : "Ads"}
+                              {group.adType === 'image_campaign_15' 
+                                ? '15 Images' 
+                                : `${group.scriptCount} ${group.scriptCount === 1 ? "Ad" : "Ads"}`
+                              }
                             </div>
                           </div>
                         </div>
@@ -556,7 +564,9 @@ const Dashboard: React.FC = () => {
                             />
                           ) : (
                             <div className="w-32 h-24 bg-gradient-to-br from-purple-100 to-pink-100 rounded-md flex items-center justify-center">
-                              <span className="text-xs text-gray-500">Image Ad</span>
+                              <span className="text-xs text-gray-500">
+                                {group.adType === 'image_campaign_15' ? 'Campaign' : 'Image Ad'}
+                              </span>
                             </div>
                           )}
                         </div>
