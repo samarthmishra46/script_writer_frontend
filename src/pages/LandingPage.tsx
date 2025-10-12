@@ -44,12 +44,12 @@ const LandingPage: React.FC = () => {
       if (userString && token) {
         const parsedUser: Partial<UserData> = JSON.parse(userString);
         
-        // Check if we have valid user data (name and email)
-        if (parsedUser.name && parsedUser.email && parsedUser?.subscription) {
+        // Check if we have valid user data (name and email are required, subscription is optional)
+        if (parsedUser.name && parsedUser.email) {
           return {
             name: parsedUser.name,
             email: parsedUser.email,
-            subscription:parsedUser?.subscription,
+            subscription: parsedUser?.subscription || { plan: 'free', status: 'active' },
             ...parsedUser,
           };
         }
@@ -70,6 +70,7 @@ const LandingPage: React.FC = () => {
     const loadData = async () => {
       // Get user data from localStorage
       const userData = getUserFromLocalStorage();
+      console.log('Loading user data:', userData); // Debug log
       setUser(userData);
       setIsLoading(false);
     };
@@ -79,6 +80,7 @@ const LandingPage: React.FC = () => {
     // Add storage event listener to handle changes from other tabs
     const handleStorageChange = (e: StorageEvent) => {
       if (e.key === 'token' || e.key === 'user') {
+        console.log('Storage changed, reloading user data'); // Debug log
         loadData();
       }
     };

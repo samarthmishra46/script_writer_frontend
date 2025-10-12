@@ -163,11 +163,11 @@ const ViewImageAd: React.FC = () => {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <button
-            onClick={() => navigate('/')}
+            onClick={() => navigate('/dashboard')}
             className="flex items-center text-gray-600 hover:text-gray-900 transition-colors"
           >
             <ArrowLeft className="h-5 w-5 mr-2" />
-            Back to Home
+            Back to Dashboard
           </button>
           <h1 className="text-3xl font-bold text-gray-900">Image Ad Viewer</h1>
           <div className="w-24" /> {/* Spacer for alignment */}

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, Image, Video, UserCircle, Sparkles, Clock, TrendingUp } from 'lucide-react';
+import { ArrowRight, Image,FileText, Video, UserCircle, Sparkles, Clock, TrendingUp } from 'lucide-react';
 
 interface AdType {
   id: string;
@@ -18,7 +18,26 @@ const AdTypeSelector: React.FC = () => {
   const navigate = useNavigate();
   const [selectedType, setSelectedType] = useState<string>('');
 
+
   const adTypes: AdType[] = [
+    {
+  id: 'script',
+  title: 'Script Generation',
+  description: 'AI-powered scriptwriting: scene-by-scene scripts, crisp dialogue, and ready-to-shoot directions for ads, shorts, and promos',
+  icon: FileText,
+  features: [
+    'Scene-by-scene breakdown',
+    'Natural, character-driven dialogue',
+    'Tone & pacing control',
+    'Voiceover & narration scripts',
+    'Language variants',
+    'Shot directions & camera notes',
+    
+  ],
+  isAvailable: true,
+  bgGradient: 'from-green-500 to-teal-600',
+  iconColor: 'text-green-600'
+},
     {
       id: 'video',
       title: 'Video Ads',
@@ -94,6 +113,9 @@ const AdTypeSelector: React.FC = () => {
 
     // Navigate to appropriate page based on selection
     switch (selectedType) {
+      case 'script':
+        navigate('/create-script-wizard');
+        break;
       case 'video':
         navigate('/create-script-wizard');
         break;
@@ -110,9 +132,9 @@ const AdTypeSelector: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50">
-      <div className="container mx-auto px-4 py-12">
+      <div className="container mx-auto px-3 py-10">
         {/* Header */}
-        <div className="text-center mb-12">
+        <div className="text-center mb-10">
           <div className="flex items-center justify-center mb-6">
             <div className="p-3 bg-purple-100 rounded-full">
               <Sparkles className="h-8 w-8 text-purple-600" />
@@ -127,7 +149,7 @@ const AdTypeSelector: React.FC = () => {
         </div>
 
         {/* Ad Type Cards */}
-        <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto mb-12">
+        <div className="grid md:grid-cols-4 gap-8 max-w-6xl mx-auto mb-12">
           {adTypes.map((adType) => (
             <div
               key={adType.id}
@@ -223,7 +245,7 @@ const AdTypeSelector: React.FC = () => {
         )}
 
         {/* Stats Section */}
-        <div className="mt-16 grid md:grid-cols-3 gap-8 max-w-4xl mx-auto text-center">
+        <div className="mt-1 grid md:grid-cols-3 gap-8 max-w-4xl mx-auto text-center">
           <div className="p-6">
             <div className="flex items-center justify-center mb-4">
               <TrendingUp className="h-8 w-8 text-purple-600" />
