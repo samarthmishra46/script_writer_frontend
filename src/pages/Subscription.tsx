@@ -66,10 +66,49 @@ interface UserData {
 interface ScriptResponse {
   isActive?: boolean;
   plan: string;
-  activatedDate: Date;
-  nextBillingDate: Date;
+  activatedDate: string | null;
+  nextBillingDate: string | null;
   status?: string;
   message?: string;
+  postTrialBillingDate?: string | null;
+  trial?: {
+    isActive?: boolean;
+    endDate?: string;
+  };
+  paidTrial?: PaidTrialStatus | null;
+  credits?: CreditSummary | null;
+  creditConfig?: CreditConfig;
+}
+
+interface CreditSummary {
+  balance: number;
+  lifetimeGranted: number;
+  lifetimeSpent: number;
+  lastUpdated?: string;
+  mostRecentEvent?: {
+    event: string;
+    amount: number;
+    description?: string;
+    reference?: string;
+    createdAt?: string;
+    metadata?: Record<string, unknown>;
+  } | null;
+}
+
+interface PaidTrialStatus {
+  isActive: boolean;
+  hasExpired: boolean;
+  daysRemaining: number;
+  endDate?: string;
+  usage?: {
+    scripts?: number;
+    images?: number;
+  };
+}
+
+interface CreditConfig {
+  trial?: number;
+  monthly?: number;
 }
 
 interface GuestSubscriptionData {
@@ -116,15 +155,91 @@ const Subscription: React.FC = () => {
   const [subscriptionData, setSubscriptionData] = useState<{
     isActive: boolean;
     plan: string;
-    activatedDate: Date;
-    nextBillingDate: Date;
+    activatedDate: Date | null;
+    nextBillingDate: Date | null;
+    postTrialBillingDate?: Date | null;
     remainingDays?: number;
+    trialEndDate?: Date | null;
+    trialDaysRemaining?: number | null;
   }>({
     isActive: false,
     plan: "free",
-    activatedDate: new Date(),
-    nextBillingDate: new Date(),
+    activatedDate: null,
+    nextBillingDate: null,
+    postTrialBillingDate: null,
+    trialEndDate: null,
+    trialDaysRemaining: null,
   });
+  const [paidTrialStatus, setPaidTrialStatus] = useState<PaidTrialStatus | null>(null);
+  const [creditSummary, setCreditSummary] = useState<CreditSummary | null>(null);
+  const [creditConfig, setCreditConfig] = useState<CreditConfig>({});
+  const trialCreditAmount = creditConfig.trial ?? 50;
+  const monthlyCreditAmount = creditConfig.monthly ?? 300;
+
+  const formatDate = (date: Date | null | undefined) =>
+    date
+      ? date.toLocaleDateString(undefined, {
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+        })
+      : "—";
+
+  const renderCreditsSummary = () => {
+    if (!creditSummary) {
+      return null;
+    }
+
+    return (
+      <div className="mt-6">
+        <div className="bg-white border border-purple-200 rounded-2xl p-5 text-left shadow-sm">
+          <h4 className="text-lg font-semibold text-purple-700 mb-3">
+            Credit Wallet
+          </h4>
+          <div className="flex items-center justify-between mb-3">
+            <div>
+              <p className="text-sm text-gray-500">Available balance</p>
+              <p className="text-3xl font-bold text-purple-700">
+                {creditSummary.balance ?? 0}
+              </p>
+            </div>
+            <div className="text-xs text-gray-500 text-right">
+              <p>Granted in total: {creditSummary.lifetimeGranted ?? 0}</p>
+              <p>Spent so far: {creditSummary.lifetimeSpent ?? 0}</p>
+            </div>
+          </div>
+
+          {paidTrialStatus?.isActive ? (
+            <p className="text-xs text-gray-600 bg-purple-50 border border-purple-100 rounded-lg px-3 py-2">
+              Trial includes {trialCreditAmount} credits. Use them before your trial ends on {formatDate(subscriptionData.trialEndDate)}.
+            </p>
+          ) : (
+            <p className="text-xs text-gray-600 bg-blue-50 border border-blue-100 rounded-lg px-3 py-2">
+              Each monthly renewal adds {monthlyCreditAmount} credits to your balance automatically.
+            </p>
+          )}
+
+          {creditSummary.mostRecentEvent && (
+            <div className="mt-4 text-xs text-gray-500">
+              <p className="font-medium text-gray-600 mb-1">Last credit event</p>
+              <p>
+                {creditSummary.mostRecentEvent.amount > 0 ? "+" : ""}
+                {creditSummary.mostRecentEvent.amount} ({creditSummary.mostRecentEvent.event})
+              </p>
+              {creditSummary.mostRecentEvent.description && (
+                <p>{creditSummary.mostRecentEvent.description}</p>
+              )}
+              {creditSummary.mostRecentEvent.createdAt && (
+                <p>{
+                  new Date(creditSummary.mostRecentEvent.createdAt).toLocaleString()
+                }</p>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
 
   // User contact data state (for both guest and logged-in users)
   const [showGuestForm, setShowGuestForm] = useState(false);
@@ -194,21 +309,44 @@ const Subscription: React.FC = () => {
           throw new Error(data.message || "Failed to fetch subscription data");
         }
 
-        // Calculate remaining days properly
-        let remainingDays = 0;
-        if (data.nextBillingDate && data.activatedDate) {
-          const currentDate = new Date();
-          const nextDate = new Date(data.nextBillingDate);
-          const diffMs = nextDate.getTime() - currentDate.getTime();
-          remainingDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+        const now = new Date();
+        const activatedDate = data.activatedDate ? new Date(data.activatedDate) : null;
+        const nextBillingDate = data.nextBillingDate ? new Date(data.nextBillingDate) : null;
+        const postTrialBillingDate = data.postTrialBillingDate ? new Date(data.postTrialBillingDate) : null;
+        const paidTrial = data.paidTrial ?? null;
+        const trialEndDate = paidTrial?.endDate ? new Date(paidTrial.endDate) : null;
+
+        setPaidTrialStatus(paidTrial);
+        setCreditSummary(
+          data.credits ?? {
+            balance: 0,
+            lifetimeGranted: 0,
+            lifetimeSpent: 0,
+          }
+        );
+        setCreditConfig(data.creditConfig ?? {});
+
+        let remainingDays: number | undefined;
+        let trialDaysRemaining: number | null = null;
+
+        if (paidTrial?.isActive && trialEndDate) {
+          const diffMs = trialEndDate.getTime() - now.getTime();
+          trialDaysRemaining = Math.max(0, Math.ceil(diffMs / (1000 * 60 * 60 * 24)));
+          remainingDays = trialDaysRemaining;
+        } else if (nextBillingDate) {
+          const diffMs = nextBillingDate.getTime() - now.getTime();
+          remainingDays = Math.max(0, Math.ceil(diffMs / (1000 * 60 * 60 * 24)));
         }
 
         setSubscriptionData({
           isActive: data.plan === "individual" || data.plan === "organization",
           plan: data.plan || "free",
-          remainingDays: remainingDays,
-          activatedDate: data.activatedDate,
-          nextBillingDate: data.nextBillingDate,
+          remainingDays,
+          activatedDate,
+          nextBillingDate,
+          postTrialBillingDate,
+          trialEndDate,
+          trialDaysRemaining,
         });
       } catch (error) {
         console.error("Error checking subscription:", error);
@@ -597,6 +735,75 @@ const Subscription: React.FC = () => {
     );
   }
 
+  // If user is in the paid trial window
+  if (paidTrialStatus?.isActive) {
+    const trialDaysLeft =
+      subscriptionData.trialDaysRemaining ?? paidTrialStatus.daysRemaining ?? 0;
+    const nextChargeDate =
+      subscriptionData.postTrialBillingDate || subscriptionData.nextBillingDate;
+
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-gray-50 to-gray-200 px-4">
+        <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full p-8 text-center">
+          <div className="flex justify-center mb-6">
+            <div className="relative inline-block">
+              <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold bg-gradient-to-r from-[#CB6CE6] to-[#2D65F5] bg-clip-text text-transparent mb-2 transition-all duration-300 hover:scale-105">
+                Leepi AI
+              </h1>
+            </div>
+          </div>
+
+          <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-5 mb-6 relative overflow-hidden">
+            <div className="absolute top-0 right-0 bg-yellow-500 text-white px-4 py-1 rounded-bl-lg font-medium uppercase text-xs tracking-wide">
+              Trial Active
+            </div>
+            <h2 className="text-2xl font-bold text-yellow-900 mt-4">
+              Enjoy your 3-day premium trial
+            </h2>
+            <p className="text-yellow-700 mt-1 text-sm">
+              Explore all features before billing begins.
+            </p>
+
+            <div className="mt-6 mb-3">
+              <div className="text-5xl font-bold text-yellow-900">
+                {trialDaysLeft}
+                <span className="text-xl font-normal text-yellow-700 ml-2">
+                  day{trialDaysLeft === 1 ? "" : "s"} left
+                </span>
+              </div>
+              <p className="text-sm text-yellow-700 mt-2">
+                Trial ends on {formatDate(subscriptionData.trialEndDate)}
+              </p>
+              <p className="text-xs text-yellow-600 mt-1">
+                Monthly plan (₹1,999) will start afterwards and renew every 30 days.
+              </p>
+            </div>
+
+            <div className="bg-white rounded-lg p-4 border border-yellow-100 text-left text-sm text-yellow-700">
+              <p className="font-semibold">Upcoming charge</p>
+              <p className="mt-1">
+                Scheduled for {formatDate(nextChargeDate)} · Includes {monthlyCreditAmount} monthly credits.
+              </p>
+            </div>
+          </div>
+
+          {renderCreditsSummary()}
+
+          <button
+            onClick={() => navigate("/dashboard")}
+            className="mt-6 bg-gradient-to-r from-[#CB6CE6] to-[#2D65F5] text-white rounded-full px-6 py-3 font-medium transition duration-200 w-full hover:opacity-90"
+          >
+            Start creating in the dashboard
+          </button>
+
+          <p className="text-xs text-gray-500 mt-4">
+            You can cancel anytime before your trial ends. After the trial, billing switches to a 30-day cycle with automatic credit renewals.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   // If user has an active subscription
   if (subscriptionData.isActive) {
     return (
@@ -632,10 +839,12 @@ const Subscription: React.FC = () => {
               </div>
               {subscriptionData.nextBillingDate && (
                 <p className="text-sm text-green-600 mt-1">
-                  Next billing:{" "}
-                  {new Date(
-                    subscriptionData.nextBillingDate
-                  ).toLocaleDateString()}
+                  Next billing: {formatDate(subscriptionData.nextBillingDate)}
+                </p>
+              )}
+              {!subscriptionData.nextBillingDate && subscriptionData.postTrialBillingDate && (
+                <p className="text-sm text-green-600 mt-1">
+                  Next billing: {formatDate(subscriptionData.postTrialBillingDate)}
                 </p>
               )}
             </div>
@@ -664,12 +873,18 @@ const Subscription: React.FC = () => {
             </li>
           </ul>
 
+          {renderCreditsSummary()}
+
           <button
             onClick={() => navigate("/dashboard")}
             className="bg-gradient-to-r from-[#CB6CE6] to-[#2D65F5] text-white rounded-full px-6 py-3 font-medium transition duration-200 w-full hover:opacity-90"
           >
             Return to Dashboard
           </button>
+
+          <p className="text-xs text-gray-500 mt-4">
+            Each renewal keeps your access active for 30 days and refreshes {monthlyCreditAmount} credits automatically.
+          </p>
         </div>
       </div>
     );

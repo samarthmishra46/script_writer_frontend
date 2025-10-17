@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Download, Image, CheckCircle, Copy, Loader2, Edit3, Send, X } from 'lucide-react';
+import { ArrowLeft, Download, Image, CheckCircle, Copy, Loader2, Send, Sparkles, X } from 'lucide-react';
 import { buildApiUrl } from '../config/api';
 
 interface ImageVariation {
@@ -8,7 +8,10 @@ interface ImageVariation {
   styleName: string;
   imageUrl: string;
   originalUrl: string;
-  prompt: string;
+  prompt?: string;
+  marketingAngle?: string;
+  creativeApproach?: string;
+  enhancedPrompt?: string;
 }
 
 interface ViewImageAdData {
@@ -21,9 +24,12 @@ interface ViewImageAdData {
     brand_name: string;
     product: string;
     adType: string;
+    whyItWorksSummary?: string;
+    [key: string]: unknown;
   };
   brand_name: string;
   product: string;
+  whyItWorksSummary?: string;
   campaign?: {
     theme: string;
     headline: string;
@@ -71,6 +77,66 @@ const ImageAdViewer: React.FC<ImageAdViewerProps> = ({
   const [currentRegeneratingImage, setCurrentRegeneratingImage] = useState<ImageVariation | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [localImageAd, setLocalImageAd] = useState<ViewImageAdData>(imageAd);
+  const [showBrief, setShowBrief] = useState(false);
+
+  const metadataSummary = localImageAd.metadata?.campaignSummary as Record<string, unknown> | undefined;
+  const metadataWhyItWorks =
+    typeof metadataSummary?.['why_it_works'] === 'string'
+      ? (metadataSummary['why_it_works'] as string)
+      : typeof metadataSummary?.['whyItWorks'] === 'string'
+      ? (metadataSummary['whyItWorks'] as string)
+      : '';
+  const metadataSuccessRate =
+    typeof metadataSummary?.['success_rate'] === 'string'
+      ? (metadataSummary['success_rate'] as string)
+      : typeof metadataSummary?.['successRate'] === 'string'
+      ? (metadataSummary['successRate'] as string)
+      : undefined;
+
+  const whyItWorksText =
+    localImageAd?.whyItWorksSummary ||
+    (localImageAd?.metadata?.whyItWorksSummary as string | undefined) ||
+    metadataWhyItWorks;
+
+  const totalVariations = localImageAd.imageVariations?.length || 0;
+  const successRate =
+    (localImageAd as { successRate?: string }).successRate ||
+    (localImageAd.metadata?.successRate as string | undefined) ||
+    metadataSuccessRate ||
+    (totalVariations > 0 || localImageAd.imageUrl ? '100%' : '0%');
+  const createdAtDisplay = new Date(localImageAd.createdAt).toLocaleString();
+  const platformDisplay =
+    localImageAd.platform || (localImageAd.metadata?.platform as string | undefined) || 'instagram';
+  const visualStyle =
+    localImageAd.visual_style || (localImageAd.metadata?.visual_style as string | undefined) || 'modern';
+  const colorScheme =
+    localImageAd.color_scheme || (localImageAd.metadata?.color_scheme as string | undefined) || 'brand-colors';
+  const hasProductReference =
+    (localImageAd as { hasProductReference?: boolean }).hasProductReference ??
+    Boolean(localImageAd.metadata?.hasProductReference);
+  const galleryItems: ImageVariation[] = localImageAd.imageVariations?.length
+    ? localImageAd.imageVariations
+    : localImageAd.imageUrl
+    ? [
+        {
+          styleKey: 'legacy',
+          styleName: 'Primary Image',
+          imageUrl: localImageAd.imageUrl,
+          originalUrl: localImageAd.imageUrl,
+          prompt: 'Legacy generated image',
+        },
+      ]
+    : [];
+  const totalImages = galleryItems.length;
+  const whyItWorksCopy =
+    whyItWorksText ||
+    'This campaign blends conversion-focused visuals, social proof, and narrative angles to meet the audience across awareness, consideration, and purchase touchpoints.';
+  const isAiSummary = Boolean(whyItWorksText);
+  const imagesLabel = totalImages === 1 ? 'creative' : 'creatives';
+
+  const platformLabel = `${platformDisplay.toUpperCase()} • ${visualStyle}`;
+  const paletteLabel = `Palette: ${colorScheme}`;
+  const referenceLabel = hasProductReference ? 'Product imagery applied' : 'Conceptual generation';
 
   const handleCopyContent = async () => {
     if (!localImageAd) return;
@@ -204,9 +270,8 @@ const ImageAdViewer: React.FC<ImageAdViewerProps> = ({
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50">
-      <div className="container mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+      <div className="max-w-7xl mx-auto px-4 py-10">
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <button
             onClick={() => navigate(backButtonPath)}
             className="flex items-center text-gray-600 hover:text-gray-900 transition-colors"
@@ -214,8 +279,12 @@ const ImageAdViewer: React.FC<ImageAdViewerProps> = ({
             <ArrowLeft className="h-5 w-5 mr-2" />
             {backButtonText}
           </button>
-          <h1 className="text-3xl font-bold text-gray-900">{headerTitle}</h1>
-          <div className="flex items-center space-x-4">
+          <div className="flex flex-col items-start md:items-end gap-1">
+            <span className="text-xs font-semibold uppercase tracking-wider text-purple-600">{headerTitle}</span>
+            <h1 className="text-3xl font-bold text-gray-900 text-left md:text-right">{localImageAd.title}</h1>
+            <p className="text-sm text-gray-500">Generated {createdAtDisplay}</p>
+          </div>
+          <div className="flex items-center gap-3">
             {onNewAd && (
               <button
                 onClick={onNewAd}
@@ -224,23 +293,7 @@ const ImageAdViewer: React.FC<ImageAdViewerProps> = ({
                 Create New Campaign
               </button>
             )}
-            <div className="w-24" /> {/* Spacer for alignment when no new ad button */}
-          </div>
-        </div>
-
-        {/* Error Display */}
-        {error && (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-            <p className="text-red-700">{error}</p>
-          </div>
-        )}
-
-        {/* Ad Content Grid */}
-        <div className="grid lg:grid-cols-2 gap-8">
-          {/* Ad Information */}
-          <div className="bg-white rounded-xl shadow-lg p-8">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-gray-900">Ad Details</h2>
+            {localImageAd.content && (
               <button
                 onClick={handleCopyContent}
                 className="flex items-center px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
@@ -253,208 +306,159 @@ const ImageAdViewer: React.FC<ImageAdViewerProps> = ({
                 ) : (
                   <>
                     <Copy className="h-4 w-4 mr-2" />
-                    Copy
+                    Copy brief
                   </>
                 )}
               </button>
-            </div>
-            
-            <div className="space-y-6">
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">{localImageAd.title}</h3>
-                <div className="prose prose-sm max-w-none">
-                  <div className="bg-gray-50 rounded-lg p-4 whitespace-pre-wrap font-mono text-sm">
-                    {localImageAd.content}
-                  </div>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4 text-sm text-gray-600">
-                <div>
-                  <span className="font-medium">Brand:</span> {localImageAd.brand_name}
-                </div>
-                <div>
-                  <span className="font-medium">Product:</span> {localImageAd.product}
-                </div>
-                <div>
-                  <span className="font-medium">Created:</span> {new Date(localImageAd.createdAt).toLocaleDateString()}
-                </div>
-                <div>
-                  <span className="font-medium">Platform:</span> {localImageAd.platform || 'instagram'}
-                </div>
-              </div>
-
-              {localImageAd.campaign && (
-                <div className="mt-6 p-4 bg-purple-50 rounded-lg">
-                  <h4 className="font-semibold text-purple-900 mb-2">Campaign Theme: {localImageAd.campaign.theme}</h4>
-                  <p className="text-purple-700 text-sm">{localImageAd.campaign.headline}</p>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Image Display */}
-          <div className="bg-white rounded-xl shadow-lg p-8">
-            <div className="flex items-center justify-between mb-6">
-              <div>
-                <h2 className="text-2xl font-bold text-gray-900">Generated Images</h2>
-                <p className="text-gray-600 mt-1">
-                  {localImageAd.imageVariations && localImageAd.imageVariations.length > 0 ? 
-                    `${localImageAd.imageVariations.length} creative variations` :
-                    localImageAd.imageUrl ? '1 generated image' : 'No images available'
-                  }
-                </p>
-              </div>
-            </div>
-
-            <div className="space-y-6">
-              {localImageAd.imageVariations && localImageAd.imageVariations.length > 0 ? (
-                // Multiple image variations
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {localImageAd.imageVariations.map((variation) => (
-                    <div 
-                      key={variation.styleKey}
-                      className="bg-white rounded-lg shadow-md overflow-hidden border-2 border-transparent hover:border-purple-500 transition-all relative"
-                    >
-                      {/* Image Container */}
-                      <div className="relative group">
-                        <div 
-                          className="aspect-square bg-gray-100 overflow-hidden relative cursor-pointer"
-                          onClick={() => handleOpenImageModal(variation)}
-                        >
-                          <img 
-                            src={variation.imageUrl} 
-                            alt={`${localImageAd.brand_name} ${localImageAd.product} - ${variation.styleName}`}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                          />
-                          
-                          {/* Hover overlay for full-size view */}
-                          <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-300 flex items-center justify-center">
-                            <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-center text-white">
-                              <Image className="h-6 w-6 mx-auto mb-1" />
-                              <p className="text-xs font-medium">View Full Size</p>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Action Icons at bottom of image */}
-                        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-3">
-                          <div className="flex justify-between items-center">
-                            <button
-                              onClick={() => handleDownloadImage(variation)}
-                              className="bg-white/90 backdrop-blur-sm text-gray-700 p-2 rounded-full hover:bg-white transition-all shadow-lg"
-                              title="Download Image"
-                            >
-                              <Download className="h-4 w-4" />
-                            </button>
-                            
-                            <button
-                              onClick={() => {
-                                console.log('🖱️ Regenerate button clicked for:', variation.styleName);
-                                handleShowRegenerationForm(variation);
-                              }}
-                              className="bg-white/90 backdrop-blur-sm text-gray-700 p-2 rounded-full hover:bg-white transition-all shadow-lg"
-                              title="Regenerate with Custom Prompt"
-                            >
-                              <Edit3 className="h-4 w-4" />
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Image Info */}
-                      <div className="p-4">
-                        <h3 className="font-medium text-gray-900 text-base mb-1">{variation.styleName}</h3>
-                        <p className="text-sm text-gray-600 line-clamp-2">
-                          {variation.prompt || 'Original generated image'}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : localImageAd.imageUrl ? (
-                // Single legacy image
-                <div className="max-w-md mx-auto">
-                  <div className="bg-white rounded-lg shadow-md overflow-hidden border-2 border-transparent hover:border-purple-500 transition-all relative">
-                    <div className="relative group">
-                      <div 
-                        className="aspect-square bg-gray-100 overflow-hidden relative cursor-pointer"
-                        onClick={() => handleOpenImageModal({
-                          styleKey: 'legacy',
-                          styleName: 'Generated Image',
-                          imageUrl: localImageAd.imageUrl!,
-                          originalUrl: localImageAd.imageUrl!,
-                          prompt: 'Legacy generated image'
-                        })}
-                      >
-                        <img 
-                          src={localImageAd.imageUrl} 
-                          alt={`${localImageAd.brand_name} ${localImageAd.product} - Generated Image`}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                        />
-                        
-                        {/* Hover overlay for full-size view */}
-                        <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-300 flex items-center justify-center">
-                          <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-center text-white">
-                            <Image className="h-8 w-8 mx-auto mb-2" />
-                            <p className="text-sm font-medium">View Full Size</p>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Action Icons at bottom of image */}
-                      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-3">
-                        <div className="flex justify-between items-center">
-                          <button
-                            onClick={() => handleDownloadImage({
-                              styleKey: 'legacy',
-                              styleName: 'Generated Image',
-                              imageUrl: localImageAd.imageUrl!,
-                              originalUrl: localImageAd.imageUrl!,
-                              prompt: 'Legacy generated image'
-                            })}
-                            className="bg-white/90 backdrop-blur-sm text-gray-700 p-2 rounded-full hover:bg-white transition-all shadow-lg"
-                            title="Download Image"
-                          >
-                            <Download className="h-4 w-4" />
-                          </button>
-                          
-                          <button
-                            onClick={() => handleShowRegenerationForm({
-                              styleKey: 'legacy',
-                              styleName: 'Generated Image',
-                              imageUrl: localImageAd.imageUrl!,
-                              originalUrl: localImageAd.imageUrl!,
-                              prompt: 'Legacy generated image'
-                            })}
-                            className="bg-white/90 backdrop-blur-sm text-gray-700 p-2 rounded-full hover:bg-white transition-all shadow-lg"
-                            title="Regenerate with Custom Prompt"
-                          >
-                            <Edit3 className="h-4 w-4" />
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Image Info */}
-                    <div className="p-4">
-                      <h3 className="font-medium text-gray-900">Generated Image</h3>
-                      <p className="text-sm text-gray-600">Click to view full size</p>
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                // No images
-                <div className="text-center py-12">
-                  <div className="text-gray-400 mb-4">
-                    <Image className="h-16 w-16 mx-auto" />
-                  </div>
-                  <p className="text-gray-600">No images available for this ad</p>
-                </div>
-              )}
-            </div>
+            )}
           </div>
         </div>
+
+        {error && (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mt-6">
+            <p className="text-red-700">{error}</p>
+          </div>
+        )}
+
+        <section className="mt-8 bg-white border border-slate-100 rounded-2xl shadow-lg p-8">
+          <div className="flex flex-col gap-6 xl:flex-row xl:items-start xl:justify-between">
+            <div className="flex items-start gap-4 max-w-3xl">
+              <div className="h-12 w-12 rounded-full bg-purple-100 flex items-center justify-center text-purple-600">
+                <Sparkles className="h-6 w-6" />
+              </div>
+              <div>
+                <div className="flex items-center gap-3">
+                  <p className="text-sm font-semibold uppercase tracking-wider text-purple-600">Why it works</p>
+                  {isAiSummary && (
+                    <span className="text-xs font-medium text-purple-500 bg-purple-50 border border-purple-200 px-2.5 py-1 rounded-full">
+                      AI generated insight
+                    </span>
+                  )}
+                </div>
+                <p className="mt-3 text-lg leading-relaxed text-gray-900">{whyItWorksCopy}</p>
+              </div>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="rounded-xl bg-slate-50 px-4 py-3 border border-slate-100">
+                <p className="text-xs uppercase tracking-wider text-slate-500">Creatives generated</p>
+                <p className="mt-2 text-2xl font-semibold text-slate-900">{totalImages}</p>
+                <p className="text-xs text-slate-500">{imagesLabel}</p>
+              </div>
+              <div className="rounded-xl bg-slate-50 px-4 py-3 border border-slate-100">
+                <p className="text-xs uppercase tracking-wider text-slate-500">Success rate</p>
+                <p className="mt-2 text-2xl font-semibold text-slate-900">{successRate || '—'}</p>
+                <p className="text-xs text-slate-500">AI delivery</p>
+              </div>
+              <div className="rounded-xl bg-slate-50 px-4 py-3 border border-slate-100">
+                <p className="text-xs uppercase tracking-wider text-slate-500">Channel & style</p>
+                <p className="mt-2 text-base font-medium text-slate-900">{platformLabel}</p>
+                <p className="text-xs text-slate-500">{paletteLabel}</p>
+              </div>
+              <div className="rounded-xl bg-slate-50 px-4 py-3 border border-slate-100">
+                <p className="text-xs uppercase tracking-wider text-slate-500">Asset inputs</p>
+                <p className="mt-2 text-base font-medium text-slate-900">{referenceLabel}</p>
+                <p className="text-xs text-slate-500">{localImageAd.brand_name}</p>
+              </div>
+            </div>
+          </div>
+
+          {localImageAd.content && (
+            <div className="mt-6">
+              <button
+                onClick={() => setShowBrief((prev) => !prev)}
+                className="inline-flex items-center gap-2 text-sm font-semibold text-purple-600 hover:text-purple-800 transition-colors"
+              >
+                {showBrief ? 'Hide campaign brief' : 'View campaign brief'}
+              </button>
+              {showBrief && (
+                <div className="mt-4 bg-slate-50 border border-slate-200 rounded-xl p-4 whitespace-pre-wrap text-sm leading-relaxed text-slate-700">
+                  {localImageAd.content}
+                </div>
+              )}
+            </div>
+          )}
+        </section>
+
+        <section className="mt-10">
+          <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between mb-6">
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900">Creative gallery</h2>
+              <p className="text-sm text-gray-600">
+                {totalImages > 0
+                  ? `Explore ${totalImages} ${imagesLabel} crafted for ${localImageAd.brand_name}.`
+                  : 'No creatives generated yet.'}
+              </p>
+            </div>
+          </div>
+
+          {totalImages > 0 ? (
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {galleryItems.map((variation) => (
+                <div
+                  key={variation.styleKey}
+                  className="group bg-white rounded-2xl shadow-lg border border-slate-100 hover:border-purple-300 transition-all overflow-hidden"
+                >
+                  <div
+                    className="relative aspect-square bg-gray-100 overflow-hidden cursor-pointer"
+                    onClick={() => handleOpenImageModal(variation)}
+                  >
+                    <img
+                      src={variation.imageUrl}
+                      alt={`${localImageAd.brand_name} ${localImageAd.product} - ${variation.styleName}`}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors duration-300" />
+                    <div className="absolute bottom-4 left-4 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      <p className="text-sm font-semibold">View full size</p>
+                      <p className="text-xs text-white/80">Click to open</p>
+                    </div>
+                  </div>
+                  <div className="p-5 space-y-2">
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <h3 className="text-base font-semibold text-gray-900">{variation.styleName}</h3>
+                        {(variation.creativeApproach || variation.marketingAngle) && (
+                          <p className="text-xs font-semibold uppercase tracking-wide text-purple-600">
+                            {variation.creativeApproach || variation.marketingAngle}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                    <p className="text-sm text-gray-600 line-clamp-3">
+                      {variation.marketingAngle || variation.prompt || 'AI generated visual concept.'}
+                    </p>
+                    <div className="flex items-center gap-2 pt-2">
+                      <button
+                        onClick={() => handleOpenImageModal(variation)}
+                        className="flex-1 rounded-lg border border-purple-200 text-purple-600 text-sm font-medium py-2 hover:bg-purple-50 transition-colors"
+                      >
+                        View
+                      </button>
+                      <button
+                        onClick={() => handleShowRegenerationForm(variation)}
+                        className="flex-1 rounded-lg bg-purple-600 text-white text-sm font-medium py-2 hover:bg-purple-700 transition-colors"
+                      >
+                        Regenerate
+                      </button>
+                      <button
+                        onClick={() => handleDownloadImage(variation)}
+                        className="h-10 w-10 flex items-center justify-center rounded-lg border border-slate-200 text-slate-600 hover:border-purple-300 hover:text-purple-600 transition-colors"
+                        title="Download image"
+                      >
+                        <Download className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-16 bg-white rounded-2xl border border-dashed border-slate-200">
+              <Image className="h-16 w-16 mx-auto text-slate-300 mb-4" />
+              <p className="text-gray-600">No images available for this campaign yet.</p>
+            </div>
+          )}
+        </section>
       </div>
 
       {/* Regeneration Modal - Full Screen */}

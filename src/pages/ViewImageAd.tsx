@@ -9,7 +9,9 @@ interface ImageVariation {
   styleName: string;
   imageUrl: string;
   originalUrl: string;
-  prompt: string;
+  prompt?: string;
+  marketingAngle?: string;
+  creativeApproach?: string;
 }
 
 interface ViewImageAdData {
@@ -22,9 +24,12 @@ interface ViewImageAdData {
     brand_name: string;
     product: string;
     adType: string;
+    whyItWorksSummary?: string;
+    [key: string]: unknown;
   };
   brand_name: string;
   product: string;
+  whyItWorksSummary?: string;
   campaign?: {
     theme: string;
     headline: string;

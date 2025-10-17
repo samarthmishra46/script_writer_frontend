@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Eye, EyeOff, Mail, Lock } from 'lucide-react';
+import { Eye, EyeOff, Mail } from 'lucide-react';
 import { buildApiUrl } from '../config/api';
 import EnhancedGoogleLogin from '../components/EnhancedGoogleLogin';
 import { User, shouldRedirectToSubscription } from '../utils/userTypes';
@@ -47,24 +47,17 @@ const Login: React.FC = () => {
       localStorage.setItem('token', data.token);
       localStorage.setItem('user', JSON.stringify(data.user));
       
-      // Use our helper function to determine where to redirect the user
       const user = data.user as User;
       console.log('User login successful:', user);
-      
-      // Enhanced logic for trial users
-      if (shouldRedirectToSubscription(user)) {
-        console.log('User needs subscription or trial has expired. Redirecting to subscription page');
-        navigate('/subscription');
-      } else if (user.trialStatus?.isActive) {
-        console.log('User has active trial. Redirecting to dashboard with trial status');
-        navigate('/dashboard');
-      } else if (user.subscription?.status === 'active' && user.subscription?.plan !== 'free') {
-        console.log('User has active subscription. Redirecting to dashboard');
-        navigate('/dashboard');
-      } else {
-        console.log('Redirecting to dashboard');
-        navigate('/dashboard');
-      }
+
+      const redirectPath = data.redirectTo && typeof data.redirectTo === 'string'
+        ? data.redirectTo
+        : shouldRedirectToSubscription(user)
+          ? '/subscription'
+          : '/dashboard';
+
+      console.log(`Routing user to ${redirectPath}`);
+      navigate(redirectPath);
     } catch (error) {
       console.error('Login error:', error);
       

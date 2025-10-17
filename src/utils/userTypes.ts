@@ -1,5 +1,24 @@
 import React from 'react';
 
+export interface CreditHistoryEntry {
+  event?: string;
+  amount?: number;
+  balanceAfter?: number;
+  reference?: string;
+  feature?: string;
+  description?: string;
+  metadata?: Record<string, unknown>;
+  createdAt?: string;
+}
+
+export interface UserCreditsSummary {
+  balance: number;
+  lifetimeGranted: number;
+  lifetimeSpent: number;
+  lastUpdated?: string;
+  mostRecentEvent?: CreditHistoryEntry | null;
+}
+
 /**
  * User interface representing the structure of user data
  * This is used throughout the application for consistent typing
@@ -15,12 +34,12 @@ export interface User {
   
   // Subscription related properties
   hasActiveSubscription?: boolean;
-  subscriptionStatus?: 'active' | 'inactive' | 'expired' | 'cancelled' | 'trial';
+  subscriptionStatus?: 'active' | 'inactive' | 'expired' | 'cancelled' | 'trial' | 'created' | 'payment_pending' | 'payment_failed' | 'halted' | 'failed';
   subscriptionExpiry?: string;
   subscriptionTier?: 'free' | 'individual' | 'organization';
   subscription?: {
-    plan?: 'free' | 'individual' | 'organization';
-    status?: 'active' | 'inactive' | 'expired' | 'cancelled';
+    plan?: 'unsubscribed' | 'free' | 'individual' | 'organization';
+  status?: 'active' | 'inactive' | 'expired' | 'cancelled' | 'created' | 'payment_pending' | 'payment_failed' | 'halted' | 'failed';
     startDate?: string;
     endDate?: string;
     isValid?: boolean;
@@ -39,6 +58,27 @@ export interface User {
     };
     [key: string]: unknown;
   };
+  paidTrial?: {
+    isActive?: boolean;
+    hasExpired?: boolean;
+    startDate?: string;
+    endDate?: string;
+    durationDays?: number;
+    scriptsRemaining?: number;
+    imagesRemaining?: number;
+    firstPaymentId?: string;
+  };
+  paidTrialStatus?: {
+    isActive: boolean;
+    hasExpired: boolean;
+    daysRemaining: number;
+    endDate?: string;
+    usage?: {
+      scripts?: number;
+      images?: number;
+    };
+  };
+  redirectTo?: string;
   
   // Usage metrics
   usage?: {
@@ -91,6 +131,8 @@ export interface User {
   };
   
   shouldShowUpgradePrompt?: boolean;
+
+  credits?: UserCreditsSummary;
   
   // Authentication info
   authProvider?: 'email' | 'google' | 'github';
@@ -116,58 +158,59 @@ export interface UserContextType {
  * Helper function to determine if user should be redirected to subscription page
  */
 export const shouldRedirectToSubscription = (user: User): boolean => {
-  // If user has active paid subscription, don't redirect
-  const hasActiveSubscription = user.subscription?.status === 'active' && 
-                                 user.subscription?.plan !== 'free';
-  
-  if (hasActiveSubscription) {
-    return false;
-  }
-  
-  // Check trial status
-  const trialStatus = user.trialStatus;
-  if (trialStatus) {
-    // If trial is active, don't redirect to subscription page yet
-    if (trialStatus.isActive) {
-      return false;
-    }
-    
-    // If trial has expired, redirect to subscription
-    if (trialStatus.hasExpired) {
-      return true;
-    }
-  }
-  
-  // Check legacy flags
-  if (user.hasActiveSubscription === false || user.shouldShowUpgradePrompt === true) {
+  if (!user) {
     return true;
   }
-  
-  // Check if subscription status is expired or inactive
+
+  if (typeof user.redirectTo === 'string') {
+    return user.redirectTo !== '/dashboard';
+  }
+
+  const subscriptionPlan = user.subscription?.plan;
+  const subscriptionStatus = user.subscription?.status;
+
+  const hasActivePaidSubscription = subscriptionStatus === 'active' &&
+    (subscriptionPlan === 'individual' || subscriptionPlan === 'organization');
+
+  if (hasActivePaidSubscription) {
+    return false;
+  }
+
+  const paidTrialStatus = user.paidTrialStatus ?? (user.paidTrial ? {
+    isActive: !!user.paidTrial.isActive && !user.paidTrial.hasExpired,
+    hasExpired: !!user.paidTrial.hasExpired
+  } : undefined);
+
+  if (paidTrialStatus?.isActive) {
+    return false;
+  }
+
+  const freeTrialStatus = user.trialStatus;
+  if (freeTrialStatus?.isActive) {
+    return true;
+  }
+
+  if (subscriptionPlan === 'unsubscribed') {
+    return true;
+  }
+
+  if (subscriptionStatus === 'active' && subscriptionPlan === 'free') {
+    return true;
+  }
+
   if (
-    user.subscriptionStatus === 'expired' || 
+    subscriptionStatus === 'inactive' ||
+    subscriptionStatus === 'cancelled' ||
+    subscriptionStatus === 'expired' ||
     user.subscriptionStatus === 'inactive' ||
-    user.subscription?.status === 'expired' ||
-    user.subscription?.status === 'inactive'
+    user.subscriptionStatus === 'expired'
   ) {
     return true;
   }
-  
-  // Check if subscription has expired based on date
-  const expiryDateStr = user.subscriptionExpiry || user.subscription?.endDate;
-  if (typeof expiryDateStr === 'string') {
-    const expiryDate = new Date(expiryDateStr);
-    const currentDate = new Date();
-    if (expiryDate < currentDate) {
-      return true;
-    }
-  }
-  
-  // If user is on free plan and has no trial info, consider redirecting
-  if (user.subscription?.plan === 'free' && !trialStatus) {
+
+  if (user.hasActiveSubscription === false || user.shouldShowUpgradePrompt === true) {
     return true;
   }
-  
-  // Default to not redirecting if we can't determine status
+
   return false;
 };

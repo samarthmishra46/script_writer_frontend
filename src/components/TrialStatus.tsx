@@ -13,21 +13,97 @@ const TrialStatus: React.FC<TrialStatusProps> = ({
   onUpgrade, 
   showDetailed = false 
 }) => {
-  const trialStatus = user.trialStatus;
-  const hasActiveSubscription = user.subscription?.status === 'active' && 
-                                 user.subscription?.plan !== 'free';
+  const subscription = user.subscription || {};
+  const derivePaidTrialStatus = () => {
+    if (user.paidTrialStatus) {
+      return user.paidTrialStatus;
+    }
 
-  // Don't show anything if user has active subscription
-  if (hasActiveSubscription) {
+    const paidTrial = user.paidTrial;
+    if (!paidTrial) {
+      return undefined;
+    }
+
+    const endDateString = paidTrial.endDate;
+    const endDate = endDateString ? new Date(endDateString) : undefined;
+    const now = new Date();
+    const daysRemaining = endDate
+      ? Math.max(0, Math.ceil((endDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)))
+      : 0;
+
+    return {
+      isActive: !!paidTrial.isActive && !paidTrial.hasExpired,
+      hasExpired: !!paidTrial.hasExpired,
+      daysRemaining,
+      endDate: endDateString,
+      usage: {
+        scripts: paidTrial.scriptsRemaining ?? 0,
+        images: paidTrial.imagesRemaining ?? 0
+      }
+    };
+  };
+
+  const paidTrialStatus = derivePaidTrialStatus();
+  const freeTrialStatus = user.trialStatus;
+
+  const hasActivePaidPlan = subscription.status === 'active' &&
+    (subscription.plan === 'individual' || subscription.plan === 'organization');
+
+  const isPaidTrialActive = Boolean(paidTrialStatus?.isActive);
+
+  // If user has an active paid subscription and is not in a paid trial window, hide the banner
+  if (hasActivePaidPlan && !isPaidTrialActive) {
     return null;
   }
 
-  // Don't show if no trial status available
-  if (!trialStatus) {
+  if (isPaidTrialActive) {
+    const daysRemaining = paidTrialStatus?.daysRemaining ?? 0;
+    const usage = paidTrialStatus?.usage ?? {};
+    const scriptsRemaining = usage.scripts ?? user.paidTrial?.scriptsRemaining ?? 0;
+    const imagesRemaining = usage.images ?? user.paidTrial?.imagesRemaining ?? 0;
+
+    return (
+      <div className="bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200 rounded-lg p-4 mb-4">
+        <div className="flex items-start space-x-3">
+          <Star className="h-5 w-5 text-purple-500 mt-0.5" />
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center justify-between flex-wrap gap-2">
+              <h3 className="text-sm font-semibold text-purple-800">
+                3-Day Paid Trial Active
+              </h3>
+              <span className="text-xs px-2 py-1 rounded-full bg-white text-purple-700 font-medium border border-purple-100">
+                {daysRemaining} day{daysRemaining !== 1 ? 's' : ''} left
+              </span>
+            </div>
+            <p className="text-xs text-purple-700 mt-2">
+              Enjoy premium access while we complete your first billing cycle. Full credits unlock automatically after this trial.
+            </p>
+            <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="bg-white/60 rounded-lg p-3 border border-purple-100">
+                <p className="text-xs text-purple-600 uppercase tracking-wide">Scripts</p>
+                <p className="text-lg font-semibold text-purple-900">{scriptsRemaining}</p>
+                <p className="text-xs text-purple-500">trial credits remaining</p>
+              </div>
+              <div className="bg-white/60 rounded-lg p-3 border border-purple-100">
+                <p className="text-xs text-purple-600 uppercase tracking-wide">Images</p>
+                <p className="text-lg font-semibold text-purple-900">{imagesRemaining}</p>
+                <p className="text-xs text-purple-500">trial credits remaining</p>
+              </div>
+            </div>
+            <div className="mt-3 text-xs text-purple-600">
+              We’ll transition you to full plan credits automatically after the trial window completes.
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!freeTrialStatus) {
     return null;
   }
 
-  const { isActive, hasExpired, daysRemaining, usage } = trialStatus;
+  const { isActive, hasExpired, daysRemaining, usage } = freeTrialStatus;
 
   if (hasExpired) {
     return (

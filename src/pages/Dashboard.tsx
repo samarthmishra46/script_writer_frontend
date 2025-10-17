@@ -1,12 +1,13 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   Search,
   FolderPlus,
   Loader2,
- 
   Menu,
   Plus,
+  Coins,
+  RefreshCw,
 } from "lucide-react";
 import { buildApiUrl } from "../config/api";
 import Sidebar from "../components/Sidebar";
@@ -14,6 +15,7 @@ import Header from "../components/Header";
 import SubscriptionBanner from "../components/SubscriptionBanner";
 //import StoryboardGenerator from "../components/StoryboardGenerator";
 import { useBrands } from "../context/useBrands";
+import type { User } from "../utils/userTypes";
 
 interface Script {
   _id: string;
@@ -75,10 +77,128 @@ const Dashboard: React.FC = () => {
   const [brandsError, setBrandsError] = useState<string | null>(null);
   const [sidebarRefreshTrigger, setSidebarRefreshTrigger] = useState(0);
   const [showMobileSidebar, setShowMobileSidebar] = useState(false);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [isRefreshingCredits, setIsRefreshingCredits] = useState(false);
  // const [sortOption, setSortOption] = useState("newest");
   const location = useLocation();
   const navigate = useNavigate();
   const brandsContext = useBrands();
+
+  const numberFormatter = useMemo(
+    () => new Intl.NumberFormat(undefined, { maximumFractionDigits: 0 }),
+    []
+  );
+
+  const fetchUserProfile = useCallback(async () => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    const authToken = localStorage.getItem("token");
+    if (!authToken) {
+      setCurrentUser(null);
+      return;
+    }
+
+    try {
+      const response = await fetch(buildApiUrl("api/auth/me"), {
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch user profile");
+      }
+
+      const data: User = await response.json();
+      localStorage.setItem("user", JSON.stringify(data));
+      setCurrentUser(data);
+    } catch (profileError) {
+      console.error("Failed to refresh user profile:", profileError);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      try {
+        const parsed = JSON.parse(storedUser) as User;
+        setCurrentUser(parsed);
+      } catch {
+        localStorage.removeItem("user");
+      }
+    }
+
+    fetchUserProfile();
+  }, [fetchUserProfile]);
+
+  useEffect(() => {
+    const handleWindowFocus = () => {
+      fetchUserProfile();
+    };
+
+    window.addEventListener("focus", handleWindowFocus);
+    return () => window.removeEventListener("focus", handleWindowFocus);
+  }, [fetchUserProfile]);
+
+  const handleRefreshCredits = useCallback(async () => {
+    setIsRefreshingCredits(true);
+    try {
+      await fetchUserProfile();
+    } finally {
+      setIsRefreshingCredits(false);
+    }
+  }, [fetchUserProfile]);
+
+  const creditsSummary = currentUser?.credits;
+  const creditBalance = creditsSummary?.balance ?? 0;
+  const lifetimeGranted = creditsSummary?.lifetimeGranted ?? 0;
+  const lifetimeSpent = creditsSummary?.lifetimeSpent ?? 0;
+  const formattedBalance = numberFormatter.format(Math.max(0, Math.round(creditBalance)));
+  const formattedLifetimeGranted = numberFormatter.format(
+    Math.max(0, Math.round(lifetimeGranted))
+  );
+  const formattedLifetimeSpent = numberFormatter.format(
+    Math.max(0, Math.round(lifetimeSpent))
+  );
+  const lastUpdatedDisplay = creditsSummary?.lastUpdated
+    ? new Date(creditsSummary.lastUpdated).toLocaleString(undefined, {
+        dateStyle: "medium",
+        timeStyle: "short",
+      })
+    : "Awaiting first grant";
+  const recentEvent = creditsSummary?.mostRecentEvent || null;
+  const recentEventTimestamp = recentEvent?.createdAt
+    ? new Date(recentEvent.createdAt).toLocaleString(undefined, {
+        dateStyle: "medium",
+        timeStyle: "short",
+      })
+    : null;
+
+  const formatEventAmount = (amount?: number) => {
+    if (typeof amount !== "number" || Number.isNaN(amount)) {
+      return "0";
+    }
+    const sign = amount > 0 ? "+" : "";
+    return `${sign}${numberFormatter.format(Math.round(amount))}`;
+  };
+
+  const formatEventLabel = (event?: string) => {
+    if (!event) {
+      return "Latest activity";
+    }
+
+    return event
+      .split("_")
+      .filter(Boolean)
+      .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+      .join(" ");
+  };
 
   // Helper function to extract brand and product information from scripts
   const extractBrandsFromScripts = useCallback(
@@ -159,8 +279,8 @@ const Dashboard: React.FC = () => {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      const result = await response.json();
-      const allData = result.success ? result.data : result;
+  const result = await response.json();
+  const allData = (result.success ? result.data : result) as Script[];
 
       console.log('📊 Unified data fetched from scripts endpoint:', allData.length, 'items');
 
@@ -171,8 +291,8 @@ const Dashboard: React.FC = () => {
       );
 
       // Debug UGC videos
-      const ugcScripts = sortedScripts.filter(script => script.metadata?.adType === 'ugc');
-      console.log('🎬 UGC Videos in dashboard data:', ugcScripts.map(script => ({
+      const ugcScripts = sortedScripts.filter((script: Script) => script.metadata?.adType === 'ugc');
+      console.log('🎬 UGC Videos in dashboard data:', ugcScripts.map((script: Script) => ({
         id: script._id,
         product: script.metadata?.product,
         hasVideoUrl: !!script.metadata?.videoUrl,
@@ -431,6 +551,115 @@ const Dashboard: React.FC = () => {
         <main className="flex-1 overflow-x-hidden overflow-y-auto bg-white p-3 md:p-6">
           {/* Subscription Banner */}
           <SubscriptionBanner />
+
+          {currentUser && (
+            <section className="mt-4 mb-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="md:col-span-2 rounded-2xl border border-purple-100 bg-gradient-to-r from-purple-600 via-purple-500 to-blue-500 text-white p-6 shadow-md relative overflow-hidden">
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <p className="text-xs uppercase tracking-[0.3em] text-white/70">
+                        Available Credits
+                      </p>
+                      <p className="mt-2 text-4xl font-bold">{formattedBalance}</p>
+                      <p className="mt-3 text-xs text-white/80">
+                        Last updated: {lastUpdatedDisplay}
+                      </p>
+                    </div>
+                    <div className="hidden md:flex h-16 w-16 items-center justify-center rounded-full bg-white/20">
+                      <Coins className="h-9 w-9 text-white" />
+                    </div>
+                  </div>
+
+                  <div className="mt-6 grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <p className="text-white/70">Lifetime granted</p>
+                      <p className="mt-1 text-lg font-semibold text-white">
+                        {formattedLifetimeGranted}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-white/70">Lifetime spent</p>
+                      <p className="mt-1 text-lg font-semibold text-white">
+                        {formattedLifetimeSpent}
+                      </p>
+                    </div>
+                  </div>
+
+                  <p className="mt-6 text-xs text-white/75">
+                    Need more credits? Your subscription automatically adds fresh credits every billing cycle. Top up anytime from the subscription page.
+                  </p>
+                </div>
+
+                <div className="flex flex-col justify-between rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+                  <div>
+                    <p className="text-sm font-semibold text-gray-700 mb-3">Recent activity</p>
+                    {recentEvent ? (
+                      <div>
+                        <p
+                          className={`text-2xl font-bold ${
+                            (recentEvent.amount ?? 0) < 0
+                              ? "text-rose-600"
+                              : "text-emerald-600"
+                          }`}
+                        >
+                          {formatEventAmount(recentEvent.amount)}
+                        </p>
+                        <p className="text-xs uppercase tracking-wide text-gray-400 mt-1">
+                          {formatEventLabel(recentEvent.event)}
+                        </p>
+                        {recentEvent.description && (
+                          <p className="mt-2 text-sm text-gray-600">
+                            {recentEvent.description}
+                          </p>
+                        )}
+                        {recentEvent.feature && (
+                          <p className="mt-1 text-xs text-gray-500">
+                            Feature: {recentEvent.feature}
+                          </p>
+                        )}
+                        {recentEventTimestamp && (
+                          <p className="mt-2 text-xs text-gray-400">
+                            {recentEventTimestamp}
+                          </p>
+                        )}
+                      </div>
+                    ) : (
+                      <p className="text-sm text-gray-500">
+                        You haven’t used any credits yet. Generate a script, storyboard, or ad asset to log your first activity.
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="mt-4 space-y-2">
+                    <button
+                      onClick={() => navigate("/subscription")}
+                      className="w-full inline-flex items-center justify-center rounded-lg bg-purple-600 py-2 text-sm font-semibold text-white transition-colors hover:bg-purple-700"
+                    >
+                      Manage credits
+                    </button>
+                    <button
+                      onClick={handleRefreshCredits}
+                      disabled={isRefreshingCredits}
+                      className="w-full inline-flex items-center justify-center rounded-lg border border-gray-200 py-2 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      {isRefreshingCredits ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Updating…
+                        </>
+                      ) : (
+                        <>
+                          <RefreshCw className="mr-2 h-4 w-4" />
+                          Refresh balance
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </section>
+          )}
 
           {filteredGroups.length !== 0 && (
             <>

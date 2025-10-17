@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Crown, Lock, AlertCircle } from 'lucide-react';
 import { buildApiUrl } from '../config/api';
+import type { User } from '../utils/userTypes';
 
 interface MembershipCheckProps {
   children: React.ReactNode;
@@ -13,7 +14,7 @@ const MembershipCheck: React.FC<MembershipCheckProps> = ({
   requiredPlan = 'individual',
   fallback 
 }) => {
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -42,7 +43,8 @@ const MembershipCheck: React.FC<MembershipCheckProps> = ({
         const userData = await response.json();
         setUser(userData);
         setLoading(false);
-      } catch (err) {
+      } catch (error) {
+        console.error('Membership verification error:', error);
         setError('Failed to verify membership');
         setLoading(false);
       }
@@ -91,10 +93,39 @@ const MembershipCheck: React.FC<MembershipCheckProps> = ({
     );
   }
 
-  const planHierarchy = { free: 0, individual: 1, organization: 2 };
-  const userPlan = user.subscription?.plan || 'free';
-  const userPlanLevel = planHierarchy[userPlan] || 0;
+  const derivePaidTrialStatus = () => {
+    if (user.paidTrialStatus) {
+      return user.paidTrialStatus;
+    }
+    if (user.paidTrial) {
+      const { endDate, scriptsRemaining, imagesRemaining, isActive, hasExpired } = user.paidTrial;
+      const end = endDate ? new Date(endDate) : undefined;
+      const now = new Date();
+      const daysRemaining = end ? Math.max(0, Math.ceil((end.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))) : 0;
+      return {
+        isActive: !!isActive && !hasExpired,
+        hasExpired: !!hasExpired,
+        daysRemaining,
+        usage: {
+          scripts: scriptsRemaining ?? 0,
+          images: imagesRemaining ?? 0
+        }
+      };
+    }
+    return undefined;
+  };
+
+  const paidTrialStatus = derivePaidTrialStatus();
+  const hasActivePaidTrial = Boolean(paidTrialStatus?.isActive);
+
+  const planHierarchy: Record<string, number> = { unsubscribed: 0, free: 0, individual: 1, organization: 2 };
+  const userPlan = user.subscription?.plan || 'unsubscribed';
+  let userPlanLevel = planHierarchy[userPlan] ?? 0;
   const requiredPlanLevel = planHierarchy[requiredPlan] || 1;
+
+  if (hasActivePaidTrial) {
+    userPlanLevel = Math.max(userPlanLevel, planHierarchy.individual);
+  }
 
   if (userPlanLevel < requiredPlanLevel) {
     return fallback || (
@@ -125,7 +156,29 @@ const MembershipCheck: React.FC<MembershipCheckProps> = ({
   }
 
   if (user.subscription?.status !== 'active') {
-    // For non-active subscriptions, redirect to payment page
+    if (hasActivePaidTrial) {
+      return (
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 text-center">
+          <Crown className="w-12 h-12 text-blue-500 mx-auto mb-4" />
+          <h3 className="text-lg font-semibold text-blue-800 mb-2">Paid Trial Active</h3>
+          <p className="text-blue-600 mb-4">
+            You have temporary premium access while we finish activating your subscription. Remaining trial credits will appear below.
+          </p>
+          <div className="flex justify-center gap-4 text-sm">
+            <div className="bg-white rounded-lg px-4 py-3 border border-blue-200">
+              <p className="font-semibold text-blue-700">Scripts</p>
+              <p className="text-blue-600">{paidTrialStatus?.usage?.scripts ?? user.paidTrial?.scriptsRemaining ?? 0} left</p>
+            </div>
+            <div className="bg-white rounded-lg px-4 py-3 border border-blue-200">
+              <p className="font-semibold text-blue-700">Images</p>
+              <p className="text-blue-600">{paidTrialStatus?.usage?.images ?? user.paidTrial?.imagesRemaining ?? 0} left</p>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // For non-active subscriptions without paid trial, redirect to payment page
     return (
       <div className="bg-orange-50 border border-orange-200 rounded-lg p-6 text-center">
         <AlertCircle className="w-12 h-12 text-orange-500 mx-auto mb-4" />

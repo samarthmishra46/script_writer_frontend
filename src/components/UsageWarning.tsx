@@ -13,21 +13,59 @@ const UsageWarning: React.FC<UsageWarningProps> = ({
   featureType, 
   onUpgrade 
 }) => {
-  const trialStatus = user.trialStatus;
-  const hasActiveSubscription = user.subscription?.status === 'active' && 
-                                 user.subscription?.plan !== 'free';
+  const subscription = user.subscription || {};
+  const derivePaidTrialStatus = () => {
+    if (user.paidTrialStatus) {
+      return user.paidTrialStatus;
+    }
 
-  // Don't show warning if user has active subscription
-  if (hasActiveSubscription) {
+    if (!user.paidTrial) {
+      return undefined;
+    }
+
+    const { endDate, scriptsRemaining, imagesRemaining, isActive, hasExpired } = user.paidTrial;
+    const end = endDate ? new Date(endDate) : undefined;
+    const now = new Date();
+    const daysRemaining = end ? Math.max(0, Math.ceil((end.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))) : 0;
+
+    return {
+      isActive: !!isActive && !hasExpired,
+      hasExpired: !!hasExpired,
+      daysRemaining,
+      endDate,
+      usage: {
+        scripts: scriptsRemaining ?? 0,
+        images: imagesRemaining ?? 0
+      }
+    };
+  };
+
+  const paidTrialStatus = derivePaidTrialStatus();
+  const freeTrialStatus = user.trialStatus;
+
+  const hasActivePaidSubscription = subscription.status === 'active' && (subscription.plan === 'individual' || subscription.plan === 'organization');
+  const isPaidTrialActive = Boolean(paidTrialStatus?.isActive);
+
+  if (hasActivePaidSubscription && !isPaidTrialActive) {
     return null;
   }
 
-  // Don't show if no trial status available
-  if (!trialStatus || trialStatus.hasExpired) {
+  const activeTrial = isPaidTrialActive ? paidTrialStatus : freeTrialStatus;
+
+  if (!activeTrial || activeTrial.hasExpired) {
     return null;
   }
 
-  const remaining = trialStatus.usage[featureType];
+  const usage = (activeTrial.usage || {}) as Record<string, number | undefined>;
+  const remainingValue = usage[featureType];
+
+  if (typeof remainingValue !== 'number') {
+    return null;
+  }
+
+  const remaining = remainingValue;
+  const daysRemaining = activeTrial.daysRemaining ?? 0;
+  const trialLabel = isPaidTrialActive ? 'paid trial' : 'trial';
   const featureDisplayName = featureType.charAt(0).toUpperCase() + featureType.slice(1);
 
   // Show warning if user has low credits
@@ -45,8 +83,8 @@ const UsageWarning: React.FC<UsageWarningProps> = ({
             </h3>
             <p className="text-sm text-yellow-700 mt-1">
               {remaining === 0 
-                ? `You've used all your free ${featureType} credits. Upgrade to continue creating.`
-                : `You have ${remaining} ${featureType} credit left in your trial. Upgrade for unlimited access.`
+                ? `You've used all your ${trialLabel} ${featureType} credits. Upgrade to continue creating.`
+                : `You have ${remaining} ${featureType} credit left in your ${trialLabel}. Upgrade for unlimited access.`
               }
             </p>
             {onUpgrade && (
@@ -70,7 +108,7 @@ const UsageWarning: React.FC<UsageWarningProps> = ({
   }
 
   // Show info banner if user has some credits but trial is ending soon
-  if (trialStatus.daysRemaining <= 2 && remaining > 0) {
+  if (daysRemaining <= 2 && remaining > 0) {
     return (
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
         <div className="flex items-center space-x-2">
@@ -78,7 +116,7 @@ const UsageWarning: React.FC<UsageWarningProps> = ({
           <div className="flex-1">
             <p className="text-sm text-blue-800">
               <span className="font-medium">{remaining} {featureType}</span> credits left • 
-              <span className="font-medium"> {trialStatus.daysRemaining} days</span> of trial remaining
+              <span className="font-medium"> {daysRemaining} days</span> of {trialLabel} remaining
             </p>
           </div>
           {onUpgrade && (

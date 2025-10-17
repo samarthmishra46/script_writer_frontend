@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Eye, EyeOff, Mail, Lock, User, Check } from 'lucide-react';
+import { Eye, EyeOff, Mail, User } from 'lucide-react';
 import { buildApiUrl } from '../config/api';
 import EnhancedGoogleLogin from '../components/EnhancedGoogleLogin';
+import { User as AppUser, shouldRedirectToSubscription } from '../utils/userTypes';
 
 const Signup: React.FC = () => {
   const navigate = useNavigate();
@@ -63,7 +64,15 @@ const Signup: React.FC = () => {
       // Auto-login after successful signup
       localStorage.setItem('token', data.token);
       localStorage.setItem('user', JSON.stringify(data.user));
-      navigate('/dashboard');
+
+      const user = data.user as AppUser;
+      const redirectPath = typeof data.redirectTo === 'string'
+        ? data.redirectTo
+        : shouldRedirectToSubscription(user)
+          ? '/subscription'
+          : '/dashboard';
+
+      navigate(redirectPath);
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Signup failed');
     } finally {

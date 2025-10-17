@@ -67,14 +67,14 @@ const EnhancedGoogleLogin: React.FC<EnhancedGoogleLoginProps> = ({
         
         // Check subscription status and redirect accordingly
         const user = data.user as User;
-        
-        if (shouldRedirectToSubscription(user)) {
-          console.log('User needs subscription. Redirecting to subscription page');
-          navigate('/subscription');
-        } else {
-          console.log('User has active subscription. Redirecting to dashboard');
-          navigate('/dashboard');
-        }
+        const redirectPath = data.redirectTo && typeof data.redirectTo === 'string'
+          ? data.redirectTo
+          : shouldRedirectToSubscription(user)
+            ? '/subscription'
+            : '/dashboard';
+
+        console.log(`Google login successful. Redirecting to ${redirectPath}`);
+        navigate(redirectPath);
       } catch (err) {
         console.error('Google login error:', err);
         
