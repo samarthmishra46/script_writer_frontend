@@ -423,6 +423,19 @@ const Dashboard: React.FC = () => {
 
       if (!groups.has(key)) {
         // Create new group
+        const adType = script.metadata?.adType as string;
+        const imageUrl = (script.metadata?.imageUrl as string) || 
+                   (Array.isArray(script.metadata?.allImageUrls) && script.metadata.allImageUrls.length > 0 
+                    ? script.metadata.allImageUrls[0] as string 
+                    : undefined);
+        
+        console.log(`📊 Creating group for ${brand_name} - ${product}:`, {
+          scriptId: script._id,
+          adType,
+          hasImageUrl: !!imageUrl,
+          allImageUrls: script.metadata?.allImageUrls
+        });
+        
         groups.set(key, {
           key,
           brand_name,
@@ -432,11 +445,8 @@ const Dashboard: React.FC = () => {
           preview: "/api/placeholder/150/100",
           firstScriptId: script._id,
           latestScriptId: script._id,
-          adType: script.metadata?.adType as string,
-          imageUrl: (script.metadata?.imageUrl as string) || 
-                   (Array.isArray(script.metadata?.allImageUrls) && script.metadata.allImageUrls.length > 0 
-                    ? script.metadata.allImageUrls[0] as string 
-                    : undefined),
+          adType,
+          imageUrl,
           campaignTheme: script.metadata?.campaign?.theme as string,
           // UGC-specific fields
           videoUrl: script.metadata?.videoUrl as string,
@@ -748,7 +758,7 @@ const Dashboard: React.FC = () => {
                     key={group.key}
                     className="bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow duration-200"
                   >
-                    {group.adType === 'image' || group.adType === 'image_campaign_15' ? (
+                    {group.adType === 'image' || group.adType === 'image_ad' || group.adType === 'image_campaign_15' ? (
                       // Image Ad Layout - Click to view image ad details
                       <div 
                         className="block p-4 cursor-pointer"

@@ -22,6 +22,30 @@ interface ImageAdFormData {
   product_image_urls?: string[]; // New: Support multiple image URLs
 }
 
+interface AutofillResponseData {
+  brand_name?: string;
+  product?: string;
+  selling_what?: string;
+  target_audience?: string;
+  call_to_action?: string;
+  visual_style?: string;
+  color_scheme?: string;
+  text_emphasis?: string;
+  platform?: string;
+  image_format?: string;
+  special_offers?: string;
+  insights?: string[];
+  product_image_urls?: string[];
+}
+
+interface AutofillMeta {
+  title?: string | null;
+  description?: string | null;
+  image?: string | null;
+  url?: string;
+  charactersAnalyzed?: number;
+}
+
 interface ImageVariation {
   styleKey: string;
   styleName: string;
@@ -64,7 +88,17 @@ const CreateImageAds: React.FC = () => {
   const [generatedAd, setGeneratedAd] = useState<GeneratedImageAd | null>(null);
   const [currentView, setCurrentView] = useState<'form' | 'result'>('form');
   const [isRedirecting, setIsRedirecting] = useState(false);
+  const [productUrl, setProductUrl] = useState('');
+  const [isAutofilling, setIsAutofilling] = useState(false);
+  const [autofillNotice, setAutofillNotice] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+  const [autofillMeta, setAutofillMeta] = useState<AutofillMeta | null>(null);
+  const [autofillInsights, setAutofillInsights] = useState<string[]>([]);
   const topRef = useRef<HTMLDivElement>(null);
+  
+  // Progressive loading state
+  const [loadingStep, setLoadingStep] = useState<'scripts' | 'images'>('scripts');
+  const [imagesCompleted, setImagesCompleted] = useState(0);
+  const [totalImages, setTotalImages] = useState(15);
 
   const [formData, setFormData] = useState<ImageAdFormData>({
     product: '',
@@ -194,6 +228,104 @@ const CreateImageAds: React.FC = () => {
     });
   };
 
+  const mergeAutofillIntoForm = (autofill: AutofillResponseData) => {
+    setFormData(prev => {
+      const next = { ...prev };
+      const assignIfPresent = (key: keyof ImageAdFormData, value?: string) => {
+        if (typeof value === 'string' && value.trim().length > 0) {
+          (next as any)[key] = value;
+        }
+      };
+
+      assignIfPresent('brand_name', autofill.brand_name);
+      assignIfPresent('product', autofill.product);
+      assignIfPresent('selling_what', autofill.selling_what);
+      assignIfPresent('target_audience', autofill.target_audience);
+      assignIfPresent('call_to_action', autofill.call_to_action);
+      assignIfPresent('visual_style', autofill.visual_style);
+      assignIfPresent('color_scheme', autofill.color_scheme);
+      assignIfPresent('text_emphasis', autofill.text_emphasis);
+      assignIfPresent('platform', autofill.platform);
+      assignIfPresent('image_format', autofill.image_format);
+      assignIfPresent('special_offers', autofill.special_offers);
+
+      if (Array.isArray(autofill.product_image_urls) && autofill.product_image_urls.length > 0) {
+        next.product_image_urls = autofill.product_image_urls;
+        next.product_image_url = autofill.product_image_urls[0];
+        next.product_images = [];
+      }
+
+      return next;
+    });
+  };
+
+  const handleAutofillFromUrl = async () => {
+    if (!productUrl.trim()) {
+      setAutofillNotice({ type: 'error', message: 'Please enter a valid product URL to autofill.' });
+      return;
+    }
+
+    try {
+      new URL(productUrl.trim());
+    } catch {
+      setAutofillNotice({ type: 'error', message: 'Enter a valid URL including https://.' });
+      return;
+    }
+
+    try {
+      setIsAutofilling(true);
+      setAutofillNotice(null);
+      setAutofillMeta(null);
+      setAutofillInsights([]);
+
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setAutofillNotice({ type: 'error', message: 'Please login to autofill product details.' });
+        return;
+      }
+
+      const response = await fetch(buildApiUrl('api/image-ads/autofill-from-url'), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ productUrl: productUrl.trim() })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        throw new Error(data.message || 'Unable to fetch product details.');
+      }
+
+      const autofillData: AutofillResponseData = data.autofill || {};
+      mergeAutofillIntoForm(autofillData);
+
+      if (Array.isArray(autofillData.insights)) {
+        setAutofillInsights(autofillData.insights.filter(Boolean));
+      }
+
+      const meta: AutofillMeta | undefined = data.meta;
+      if (meta) {
+        setAutofillMeta(meta);
+      }
+
+      setAutofillNotice({
+        type: 'success',
+        message: 'Product page details imported. Review and fine-tune before generating your campaign.'
+      });
+    } catch (autofillError) {
+      console.error('Autofill error:', autofillError);
+      setAutofillNotice({
+        type: 'error',
+        message: autofillError instanceof Error ? autofillError.message : 'Failed to fetch details from that URL.'
+      });
+    } finally {
+      setIsAutofilling(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -235,15 +367,25 @@ const CreateImageAds: React.FC = () => {
 
         if (uploadData.success && uploadData.imageUrls) {
           productImageUrls = uploadData.imageUrls;
-          console.log('✅ Product images uploaded:', productImageUrls.length, 'images');
+          console.log('✅ Product images uploaded:', productImageUrls.length, 'images', uploadData.imageUrls);
           
-          // Update form data with the Google Cloud Storage URLs
+          // Update form data with the Google Cloud Storage URLs for future reference
+          // Note: Don't rely on this state update for the current submission since it's async
           setFormData(prev => ({
             ...prev,
             product_image_urls: productImageUrls
           }));
         }
       }
+
+      // Use productImageUrls from upload, or fall back to existing URLs in state
+      if (productImageUrls.length === 0 && formData.product_image_urls && formData.product_image_urls.length > 0) {
+        productImageUrls = [...formData.product_image_urls];
+        console.log('ℹ️ Using existing product_image_urls from form data:', productImageUrls);
+      }
+      
+      // Final validation before sending to backend
+      console.log('🔍 Final product_image_urls to send:', productImageUrls);
 
       // Prepare complete campaign generation data
       const campaignData = {
@@ -261,42 +403,133 @@ const CreateImageAds: React.FC = () => {
         product_image_urls: productImageUrls // Pass the uploaded URLs array
       };
 
-      // Generate complete 15-image campaign directly
-      const response = await fetch(buildApiUrl('api/image-ads/generate-complete-campaign'), {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(campaignData)
+      console.log('🎯 Complete campaignData object:', campaignData);
+      console.log('🎯 campaignData.product_image_urls specifically:', campaignData.product_image_urls);
+
+      // Reset progress state
+      setLoadingStep('scripts');
+      setImagesCompleted(0);
+      setTotalImages(12);
+
+      // Pre-check credits before starting EventSource
+      console.log('💰 Checking credits availability...');
+      try {
+        const creditCheckResponse = await fetch(buildApiUrl('api/image-ads/check-credits'), {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ estimateFor: 12 }) // 12 images
+        });
+
+        if (!creditCheckResponse.ok) {
+          const creditError = await creditCheckResponse.json();
+          if (creditCheckResponse.status === 402) {
+            // Insufficient credits
+            setError(creditError.message || 'You don\'t have enough credits. Please top up your balance.');
+            setIsLoading(false);
+            return;
+          }
+        }
+      } catch (creditCheckError) {
+        console.error('Credit check failed:', creditCheckError);
+        // Continue anyway - the streaming endpoint will also check
+      }
+
+      // Use EventSource for streaming updates
+      console.log('📡 Opening EventSource connection for streaming updates');
+      const params = new URLSearchParams();
+      params.append('data', JSON.stringify(campaignData));
+      params.append('token', token);
+      
+      const eventSource = new EventSource(
+        buildApiUrl(`api/image-ads/generate-complete-campaign-stream?${params.toString()}`)
+      );
+
+      eventSource.addEventListener('start', (e) => {
+        const data = JSON.parse(e.data);
+        console.log('🎬 Stream started:', data);
       });
 
-      const data = await response.json();
+      eventSource.addEventListener('scripts_start', (e) => {
+        const data = JSON.parse(e.data);
+        console.log('📝 Scripts generation started:', data);
+        setLoadingStep('scripts');
+      });
 
-      if (!response.ok) {
-        // Handle upgrade required case
-        if (data.upgrade && data.freeTrial) {
-          throw new Error(`${data.message} You have ${data.remaining} credits remaining.`);
+      eventSource.addEventListener('scripts_complete', (e) => {
+        const data = JSON.parse(e.data);
+        console.log('✅ Scripts complete:', data);
+        setLoadingStep('images');
+        setTotalImages(data.totalScripts || 15);
+      });
+
+      eventSource.addEventListener('images_start', (e) => {
+        const data = JSON.parse(e.data);
+        console.log('🎨 Image generation started:', data);
+        setLoadingStep('images');
+      });
+
+      eventSource.addEventListener('image_start', (e) => {
+        const data = JSON.parse(e.data);
+        console.log(`🖼️ Generating image ${data.scriptNumber}/${data.totalScripts}:`, data.scriptName);
+      });
+
+      eventSource.addEventListener('image_complete', (e) => {
+        const data = JSON.parse(e.data);
+        console.log(`✅ Image ${data.scriptNumber} complete:`, data.scriptName);
+        setImagesCompleted(data.progress.completed);
+      });
+
+      eventSource.addEventListener('campaign_complete', (e) => {
+        const data = JSON.parse(e.data);
+        console.log('🎉 Campaign complete!', data);
+        setLoadingStep('images');
+      });
+
+      eventSource.addEventListener('complete', (e) => {
+        const data = JSON.parse(e.data);
+        console.log('🏁 Stream complete:', data);
+        
+        // Set the generated ad and switch to result view
+        if (data.imageAd) {
+          setGeneratedAd(data.imageAd);
+          setCurrentView('result');
         }
-        throw new Error(data.message || 'Failed to generate complete campaign');
-      }
+        
+        eventSource.close();
+        setIsLoading(false);
+      });
 
-      if (!data.success || !data.imageAd) {
-        throw new Error('Invalid response from server');
-      }
+      eventSource.addEventListener('error', (e: Event) => {
+        console.error('❌ EventSource error:', e);
+        const messageEvent = e as MessageEvent;
+        if (messageEvent.data) {
+          try {
+            const errorData = JSON.parse(messageEvent.data);
+            // Check if it's a credit error
+            if (errorData.needsTopUp || errorData.requiredCredits) {
+              setError('You don\'t have enough credits. Please top up your balance to continue.');
+            } else {
+              setError(errorData.message || 'Stream error occurred');
+            }
+          } catch {
+            setError('Connection error occurred. Please try again.');
+          }
+        } else {
+          setError('Connection to server lost. Please check your internet connection and try again.');
+        }
+        eventSource.close();
+        setIsLoading(false);
+      });
 
-      console.log('✅ Complete 15-image campaign generated successfully:', data.imageAd);
-      
-      // Set the generated ad and switch to result view
-      setGeneratedAd(data.imageAd);
-      setCurrentView('result');
-      
+      // Don't set isLoading to false here - EventSource handlers will manage it
+
     } catch (error) {
-      console.error('Complete campaign generation error:', error);
-      setError(error instanceof Error ? error.message : 'Failed to generate complete campaign');
-    } finally {
+      console.error('Campaign setup error:', error);
+      setError(error instanceof Error ? error.message : 'Failed to start campaign generation');
       setIsLoading(false);
-      setIsRedirecting(false);
     }
   };
 
@@ -321,6 +554,10 @@ const CreateImageAds: React.FC = () => {
       product_image_urls: []
     });
     setError(null);
+    setProductUrl('');
+    setAutofillNotice(null);
+    setAutofillMeta(null);
+    setAutofillInsights([]);
   };
 
   const handleAutoFill = () => {
@@ -337,9 +574,20 @@ const CreateImageAds: React.FC = () => {
       image_format: 'square',
       special_offers: '30% off launch price + 2-year warranty included',
       product_image: null,
-      product_image_url: ''
+      product_image_url: '',
+      product_images: [],
+      product_image_urls: []
     });
+    setProductUrl('');
+    setAutofillNotice(null);
+    setAutofillMeta(null);
+    setAutofillInsights([]);
   };
+
+  const uploadedImageCount = formData.product_images?.length ?? 0;
+  const urlImageCount = formData.product_image_urls?.length ?? 0;
+  const totalImageCount = Math.max(uploadedImageCount, urlImageCount);
+  const hasAnyImages = totalImageCount > 0;
 
   // Use ImageAdViewer for result view
   if (currentView === 'result' && generatedAd) {
@@ -381,9 +629,31 @@ const CreateImageAds: React.FC = () => {
               </>
             ) : (
               <>
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">Creating Your Complete Campaign</h3>
-                <p className="text-gray-600">AI is generating 15 diverse images and comprehensive ad copy...</p>
-                <p className="text-sm text-gray-500 mt-2">This may take 2-3 minutes</p>
+                {loadingStep === 'scripts' ? (
+                  <>
+                    <h3 className="text-xl font-semibold text-gray-900 mb-2">📝 Generating Ad Scripts</h3>
+                    <p className="text-gray-600">AI is creating 15 diverse ad copy variations...</p>
+                    <p className="text-sm text-gray-500 mt-2">This will take a moment</p>
+                  </>
+                ) : (
+                  <>
+                    <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                      🎨 Generating Images {imagesCompleted}/{totalImages}
+                    </h3>
+                    <p className="text-gray-600">Creating high-quality ad images with AI...</p>
+                    <div className="mt-4">
+                      <div className="w-full bg-gray-200 rounded-full h-2.5">
+                        <div 
+                          className="bg-purple-600 h-2.5 rounded-full transition-all duration-500"
+                          style={{ width: `${(imagesCompleted / totalImages) * 100}%` }}
+                        ></div>
+                      </div>
+                      <p className="text-sm text-gray-500 mt-2">
+                        {Math.round((imagesCompleted / totalImages) * 100)}% complete
+                      </p>
+                    </div>
+                  </>
+                )}
               </>
             )}
           </div>
@@ -427,6 +697,81 @@ const CreateImageAds: React.FC = () => {
                 <h2 className="text-2xl font-bold text-gray-900 mb-6">Basic Information</h2>
               </div>
 
+              <div className="md:col-span-2">
+                <label htmlFor="product_url" className="block text-sm font-medium text-gray-700 mb-2">
+                  Product URL
+                </label>
+                <div className="flex flex-col md:flex-row gap-3">
+                  <input
+                    type="url"
+                    id="product_url"
+                    name="product_url"
+                    value={productUrl}
+                    onChange={(event) => setProductUrl(event.target.value)}
+                    className="flex-1 rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 p-3"
+                    placeholder="https://yourproduct.com/page"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleAutofillFromUrl}
+                    disabled={isAutofilling}
+                    className="inline-flex items-center justify-center px-4 py-3 rounded-md border border-green-600 text-green-600 hover:bg-green-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  >
+                    {isAutofilling ? (
+                      <>
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        Fetching...
+                      </>
+                    ) : (
+                      <>
+                        🔎 Autofill from URL
+                      </>
+                    )}
+                  </button>
+                </div>
+                <p className="text-xs text-gray-500 mt-2">
+                  We’ll scrape the page, extract product details with AI, and pre-fill the fields. Everything stays editable.
+                </p>
+
+                {autofillNotice && (
+                  <div
+                    className={`mt-3 rounded-lg border p-3 text-sm ${
+                      autofillNotice.type === 'success'
+                        ? 'border-green-200 bg-green-50 text-green-700'
+                        : 'border-red-200 bg-red-50 text-red-700'
+                    }`}
+                  >
+                    {autofillNotice.message}
+                  </div>
+                )}
+
+                {(autofillInsights.length > 0 || (autofillMeta?.title || autofillMeta?.description)) && (
+                  <div className="mt-3 rounded-lg border border-gray-200 bg-gray-50 p-4">
+                    {autofillMeta?.title && (
+                      <p className="text-sm font-semibold text-gray-800">{autofillMeta.title}</p>
+                    )}
+                    {autofillMeta?.description && (
+                      <p className="text-xs text-gray-600 mt-1">{autofillMeta.description}</p>
+                    )}
+                    {autofillInsights.length > 0 && (
+                      <div className="mt-3">
+                        <p className="text-xs font-semibold text-gray-700 uppercase tracking-wide">AI Highlights</p>
+                        <ul className="mt-1 space-y-1 text-xs text-gray-600 list-disc list-inside">
+                          {autofillInsights.map((insight, index) => (
+                            <li key={index}>{insight}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                    {autofillMeta?.url && (
+                      <p className="mt-3 text-xs text-gray-500">
+                        Source: <span className="break-all">{autofillMeta.url}</span>
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>
+
               <div>
                 <label htmlFor="brand_name" className="block text-sm font-medium text-gray-700 mb-2">
                   Brand Name *
@@ -465,7 +810,7 @@ const CreateImageAds: React.FC = () => {
                 </label>
                 <div className="mt-2">
                   {/* Show selected images */}
-                  {formData.product_images && formData.product_images.length > 0 && (
+                  {hasAnyImages && (
                     <div className="mb-4">
                       <div className="flex flex-wrap gap-3">
                         {formData.product_image_urls?.map((url, index) => (
@@ -486,7 +831,9 @@ const CreateImageAds: React.FC = () => {
                         ))}
                       </div>
                       <p className="text-xs text-gray-600 mt-2">
-                        {formData.product_images.length}/5 images selected
+                        {uploadedImageCount > 0
+                          ? `${uploadedImageCount}/5 images selected`
+                          : `${totalImageCount} image${totalImageCount === 1 ? '' : 's'} available`}
                       </p>
                     </div>
                   )}
