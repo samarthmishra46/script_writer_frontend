@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "../components/HeaderLanding";
 import { Brandcompo } from "../components/BrandWorked";
+import {BrandFourCompo} from "../components/BrandImageWorked";
 import { NoCommit } from "../components/Nocommit";
 import { TryButton } from "../components/TryButton";
 import CompanyGrid from "../components/CompneyGrid";
@@ -190,13 +191,30 @@ const LandingPage: React.FC = () => {
             </div>
           </div>
 
-          <div className="px-1">
-            <img
-              src="https://res.cloudinary.com/dvxqb1wge/image/upload/v1762454677/Group_6357563_vdqyf3.png"
-              alt="Leepi AI showcase"
-              className="w-full h-auto object-cover"
-            />
-          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 px-1">
+  {[
+    "IMAGE_URL_1",
+    "IMAGE_URL_2",
+    "IMAGE_URL_3",
+    "IMAGE_URL_4",
+    "IMAGE_URL_5",
+    "IMAGE_URL_6",
+  ].map((src, idx) => (
+    <div
+      key={idx}
+      className="relative w-full pb-[100%] bg-gray-200 rounded-md overflow-hidden border border-gray-300"
+    >
+      <img
+        src={src}
+        className="absolute top-0 left-0 w-full h-full object-cover"
+        onError={(e) => {
+          (e.currentTarget as HTMLImageElement).style.display = "none";
+        }}
+      />
+    </div>
+  ))}
+</div>
+
           <br />
           <TryButton user={user} />
         </div>
@@ -257,6 +275,14 @@ const LandingPage: React.FC = () => {
             </h1>
             <span className="bg-yellow text-2xl md:text-4xl">👇🤯💸</span>
           </div>
+          <BrandFourCompo
+  brandname="Aayush Wellness"
+  img1="/images/one.jpg"
+  img2="/images/two.jpg"
+  img3="/images/three.jpg"
+  img4="/images/four.jpg"
+  resultadd="https://res.cloudinary.com/dvxqb1wge/image/upload/v1756391770/3_cbgixk.png"
+/>
 
           <Brandcompo
             brandname="Photojewels"
