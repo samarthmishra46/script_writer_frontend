@@ -7,7 +7,7 @@ import { TryButton } from "../components/TryButton";
 import CompanyGrid from "../components/CompneyGrid";
 import StickyFooter from "../components/StickeyFooter";
 import { VideoRunning } from "../components/RunningVideoLtoR";
-import VideoLanding from '../components/AdVideo'
+import VideoLanding from "../components/AdVideo";
 
 interface UserData {
   name: string;
@@ -16,7 +16,6 @@ interface UserData {
     plan: string;
     status: string;
   };
-  
 }
 
 interface ScriptResponse {
@@ -28,28 +27,29 @@ interface ScriptResponse {
   message?: string;
 }
 
-
 const LandingPage: React.FC = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState<UserData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  
 
   // Function to get user from localStorage
   const getUserFromLocalStorage = (): UserData | null => {
     try {
       const userString = localStorage.getItem("user");
       const token = localStorage.getItem("token");
-      
+
       if (userString && token) {
         const parsedUser: Partial<UserData> = JSON.parse(userString);
-        
+
         // Check if we have valid user data (name and email are required, subscription is optional)
         if (parsedUser.name && parsedUser.email) {
           return {
             name: parsedUser.name,
             email: parsedUser.email,
-            subscription: parsedUser?.subscription || { plan: 'free', status: 'active' },
+            subscription: parsedUser?.subscription || {
+              plan: "free",
+              status: "active",
+            },
             ...parsedUser,
           };
         }
@@ -60,7 +60,7 @@ const LandingPage: React.FC = () => {
       localStorage.removeItem("user");
       localStorage.removeItem("token");
     }
-    
+
     // Return null if no valid user data found
     return null;
   };
@@ -70,7 +70,7 @@ const LandingPage: React.FC = () => {
     const loadData = async () => {
       // Get user data from localStorage
       const userData = getUserFromLocalStorage();
-      console.log('Loading user data:', userData); // Debug log
+      console.log("Loading user data:", userData); // Debug log
       setUser(userData);
       setIsLoading(false);
     };
@@ -79,16 +79,16 @@ const LandingPage: React.FC = () => {
 
     // Add storage event listener to handle changes from other tabs
     const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === 'token' || e.key === 'user') {
-        console.log('Storage changed, reloading user data'); // Debug log
+      if (e.key === "token" || e.key === "user") {
+        console.log("Storage changed, reloading user data"); // Debug log
         loadData();
       }
     };
 
-    window.addEventListener('storage', handleStorageChange);
+    window.addEventListener("storage", handleStorageChange);
 
     return () => {
-      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener("storage", handleStorageChange);
     };
   }, [navigate]);
 
@@ -146,117 +146,70 @@ const LandingPage: React.FC = () => {
 
           <div className="block max-[599px]:block min-[600px]:hidden mb-6 mt-9 mx-auto w-full max-w-[clamp(270px,90vw,600px)] px-2">
             <h1 className="text-[clamp(1.25rem,5vw,2.5rem)] leading-[clamp(1.5rem,5.5vw,3rem)] font-bold text-gray-900 text-center">
-              <span className="whitespace-nowrap inline-block mx-auto">Just One Winning Ad</span>{" "}
-              <span className="whitespace-nowrap inline-block mx-auto">On Meta</span>
-              <span className="whitespace-nowrap inline-block mx-auto">Can 3x Your Sales & ROAS!</span>
               <span className="whitespace-nowrap inline-block mx-auto">
-                <span className="bg-gradient-to-r from-[#CB6CE6] to-[#2D65F5] bg-clip-text text-transparent">Leepi AI</span>{" "}
-                Will Write Unlimited Such
+                Just Drop Your Website
+              </span>{" "}
+              <span className="whitespace-nowrap inline-block mx-auto">
+                URL & Product Images
               </span>
-              <span className="whitespace-nowrap inline-block mx-auto">Ads To 3X Your ROAS (Guaranteed)</span>
+              <span className="whitespace-nowrap inline-block mx-auto">
+                <span className="bg-gradient-to-r from-[#CB6CE6] to-[#2D65F5] bg-clip-text text-transparent">
+                  Get Realistic Million Dollar
+                </span>{" "}
+              </span>
+              <span className="whitespace-nowrap inline-block mx-auto bg-gradient-to-r from-[#CB6CE6] to-[#2D65F5] bg-clip-text text-transparent">
+                Image Ad Creatives In Minutes
+              </span>
             </h1>
           </div>
-
+          {/*  large screen  */}
           <div className="hidden min-[600px]:block mb-6 mt-9 mx-auto w-full px-2">
             <h1 className="text-[clamp(1.1rem,5vw,2.5rem)] leading-[clamp(1.4rem,5.5vw,3rem)] font-bold text-gray-900 text-center">
-              <span className="whitespace-nowrap block">Just One Winning Ad On Meta</span>
-              <span className="whitespace-nowrap block mb-2">Can 3x Your Sales & ROAS!</span>
-              <span className="whitespace-nowrap block">
-                <span className="bg-gradient-to-r from-[#CB6CE6] to-[#2D65F5] bg-clip-text text-transparent">Leepi AI</span>{" "}
-                Will Write Unlimited Such
+              <span className="whi {/*   */}tespace-nowrap block">
+                Just Drop Your Website
               </span>
-              <span className="whitespace-nowrap block">Ads To 3X Your ROAS (Guaranteed)</span>
+              <span className="whitespace-nowrap block mb-2">
+                URL & Product Images
+              </span>
+              <span className="whitespace-nowrap block">
+                <span className="bg-gradient-to-r from-[#CB6CE6] to-[#2D65F5] bg-clip-text text-transparent">
+                  Get Realistic Million Dollar{" "}
+                </span>
+              </span>
+              <span className="whitespace-nowrap block">
+                <span className="bg-gradient-to-r from-[#CB6CE6] to-[#2D65F5] bg-clip-text text-transparent">
+                  Image Ad Creatives In Minutes
+                </span>
+              </span>
             </h1>
           </div>
 
           <div className="relative flex flex-col items-center text-center group mb-6 sm:mb-8 px-3 sm:px-4">
             <div className="inline-flex items-center min-w-[320px] justify-center  bg-black text-white font-semibold rounded-xl text-sm sm:text-base md:text-lg shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105">
-              100% Refund Guarantee
+              Nobody Can Tell It's AI 😉 🤫
             </div>
           </div>
 
-
-        
- <VideoLanding/>
-<br />
-
-          <TryButton
-          user={user} />
+          <div className="px-1">
+            <img
+              src="https://res.cloudinary.com/dvxqb1wge/image/upload/v1762454677/Group_6357563_vdqyf3.png"
+              alt="Leepi AI showcase"
+              className="w-full h-auto object-cover"
+            />
+          </div>
+          <br />
+          <TryButton user={user} />
         </div>
       </section>
       <NoCommit />
 
       <section className="relative z-10 py-1 px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto text-center">
-          <div className="text-center mb-4">
-            <div className="relative inline-block">
-              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-[#CB6CE6] to-[#2D65F5] bg-clip-text text-transparent transition-all duration-300 hover:scale-105">
-                Leepi AI
-              </h1>
-              <div className="absolute -inset-2 bg-gradient-to-r from-purple-600/20 to-pink-600/20 blur-xl opacity-0 hover:opacity-100 transition-opacity duration-500 rounded-lg"></div>
-            </div>
+          <br />
+          <VideoLanding />
+          <br />
 
-            <div className="mb-2 mt-2 mx-auto w-full max-w-[clamp(270px,80vw,500px)] px-2">
-              <h1 className="text-[clamp(1.25rem,5vw,2.5rem)] leading-[clamp(1.5rem,5.5vw,3rem)] font-bold text-gray-900 text-center">
-                <div className="block">Is Not Just A ChatGPT</div>
-                <div className="block">Wrapper, Its Trained On</div>
-                <div className="block">Rs.50Cr Of Meta Ad Spend</div>
-              </h1>
-            </div>
-
-            <p className="text-center text-[12px] sm:text-base md:text-xl font-medium text-gray-800">
-              It Understands
-            </p>
-          </div>
-
-          <div className="space-y-2 ">
-            <div className="flex flex-wrap gap-2 justify-center">
-              {["Copywriting", "Consumer psychology"].map((tag, index) => (
-                <div
-                  key={index}
-                  className="p-[1px] rounded-full bg-gradient-to-br from-[#1653F5] via-[#3CA8E3] via-[#BA63D3] via-[#FAAEA5] to-[#1449F9]"
-                >
-                  <div className="rounded-full px-2 py-2 bg-white text-center text-[10px] sm:text-base md:text-lg lg:text-xl text-[#4B4B4B] font-medium">
-                    {tag}
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <div className="flex flex-wrap gap-2 justify-center">
-              {["Creative Strategy", "Performance Marketing"].map(
-                (tag, index) => (
-                  <div
-                    key={index}
-                    className="p-[1px] rounded-full bg-gradient-to-br from-[#1653F5] via-[#3CA8E3] via-[#BA63D3] via-[#FAAEA5] to-[#1449F9]"
-                  >
-                    <div className="rounded-full px-2 py-2 bg-white text-center text-[10px] sm:text-base md:text-lg lg:text-xl text-[#4B4B4B] font-medium">
-                      {tag}
-                    </div>
-                  </div>
-                )
-              )}
-            </div>
-
-            <div className="flex flex-wrap gap-2 justify-center">
-              {["Meta Ads", "Storytelling"].map((tag, index) => (
-                <div
-                  key={index}
-                  className="p-[1px] rounded-full bg-gradient-to-br from-[#1653F5] via-[#3CA8E3] via-[#BA63D3] via-[#FAAEA5] to-[#1449F9]"
-                >
-                  <div className="rounded-full px-2 py-2 bg-white text-center text-[10px] sm:text-base md:text-lg lg:text-xl text-[#4B4B4B] font-medium">
-                    {tag}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-          <p className="text-center text-[12px] sm:text-base md:text-xl font-medium text-gray-800 mt-4 mb-9">
-            So That You Don't Have To!
-          </p>
-
-          <TryButton
-          user={user} />
+          <TryButton user={user} />
         </div>
       </section>
       <NoCommit />
@@ -282,15 +235,13 @@ const LandingPage: React.FC = () => {
 
           <CompanyGrid />
 
-          <VideoRunning/>
+          <VideoRunning />
           <br />
-          <TryButton
-          user={user} />
-          
+          <TryButton user={user} />
         </div>
       </section>
       <NoCommit />
-              <div className="mb-10"></div>
+      <div className="mb-10"></div>
 
       <section className="relative z-10  px-1 sm:px-4 md:px-8 lg:px-9">
         <div className="max-w-6xl mx-auto">
@@ -301,22 +252,23 @@ const LandingPage: React.FC = () => {
               </span>
               <br />
               <span className="bg-gradient-to-r from-[#CB6CE6] to-[#2D65F5] bg-clip-text text-transparent">
-                That Broke Meta Ads 
+                That Broke Meta Ads
               </span>
             </h1>
             <span className="bg-yellow text-2xl md:text-4xl">👇🤯💸</span>
           </div>
-          
+
           <Brandcompo
             brandname="Photojewels"
             videadd="https://res.cloudinary.com/dvxqb1wge/image/upload/v1755442431/photojewels_aojp4i.gif"
             scriptadd="https://res.cloudinary.com/dvxqb1wge/image/upload/v1756378790/Screenshot_from_2025-08-28_16-29-32_revt6x.png"
-            resultadd="https://res.cloudinary.com/dvxqb1wge/image/upload/v1756391770/3_cbgixk.png"/>
-          
+            resultadd="https://res.cloudinary.com/dvxqb1wge/image/upload/v1756391770/3_cbgixk.png"
+          />
+
           <p className="mt-8 text-[15px] sm:text-base md:text-lg font-bold text-center italic text-gray-700 max-w-xl mx-auto">
-            "It knows exactly which hooks work in which 
-            <br />industries, what angles
-            to use, what formats convert"
+            "It knows exactly which hooks work in which
+            <br />
+            industries, what angles to use, what formats convert"
           </p>
           <br />
           <Brandcompo
@@ -326,7 +278,8 @@ const LandingPage: React.FC = () => {
             resultadd="https://res.cloudinary.com/dvxqb1wge/image/upload/v1756391556/2_avrqaw.png"
           />
           <p className="mt-8 text-[15px] sm:text-base md:text-lg font-bold text-center italic text-gray-700 max-w-xl mx-auto">
-            "This tool doesn't just write ad scripts. It reverse-engineers what makes ads perform"
+            "This tool doesn't just write ad scripts. It reverse-engineers what
+            makes ads perform"
           </p>
           <br />
           <Brandcompo
@@ -336,12 +289,12 @@ const LandingPage: React.FC = () => {
             resultadd="https://res.cloudinary.com/dvxqb1wge/image/upload/v1756391474/1_a5kr0j.png"
           />
           <p className="mt-8 text-[15px] sm:text-base md:text-lg font-bold text-center italic text-gray-700 max-w-xl mx-auto">
-            "Every script felt engineered to sell. My ROAS shot through the roof"
+            "Every script felt engineered to sell. My ROAS shot through the
+            roof"
           </p>
           <br />
         </div>
-        <TryButton 
-        user={user}/>
+        <TryButton user={user} />
       </section>
 
       <NoCommit />
@@ -354,61 +307,60 @@ const LandingPage: React.FC = () => {
           </div>
 
           <div className="space-y-12">
-  
-  {/* Step 1 */}
-  <div className="flex flex-col items-center text-center bg-white rounded-xl shadow-lg px-1 md:px-6 py-6 border border-purple-100">
-  <h4 className="text-xl font-semibold mb-2">
-Step 1: Tell us about your product or offer  </h4>
-  <p className="text-gray-600 mb-4">
-    Provide details about your product, service, or offer. The more details you provide, the better the results.
-  </p>
-  <img
-    src="https://res.cloudinary.com/dvxqb1wge/image/upload/v1756553139/ezgif.com-video-to-gif-converter_3_mpop2k.gif"
-    alt="generate"
-    className="w-full max-w-5xl h-auto rounded-lg shadow mx-auto"
-  />
-</div>
+            {/* Step 1 */}
+            <div className="flex flex-col items-center text-center bg-white rounded-xl shadow-lg px-1 md:px-6 py-6 border border-purple-100">
+              <h4 className="text-xl font-semibold mb-2">
+                Step 1: Tell us about your product or offer{" "}
+              </h4>
+              <p className="text-gray-600 mb-4">
+                Provide details about your product, service, or offer. The more
+                details you provide, the better the results.
+              </p>
+              <img
+                src="https://res.cloudinary.com/dvxqb1wge/image/upload/v1756553139/ezgif.com-video-to-gif-converter_3_mpop2k.gif"
+                alt="generate"
+                className="w-full max-w-5xl h-auto rounded-lg shadow mx-auto"
+              />
+            </div>
 
-  {/* Step 2 */}
-  <div className="flex flex-col items-center text-center bg-white rounded-xl shadow-lg px-1 md:px-6 py-6 border border-purple-100">
-  <h4 className="text-xl font-semibold mb-2">
-    Step 2: That's it, simply wait for your ad scripts
-  </h4>
-  <p className="text-gray-600 mb-4">
-    Our AI generates high-converting ad scripts based on your input and our database of successful ads.
-  </p>
-  <img
-    src="https://res.cloudinary.com/dvxqb1wge/image/upload/v1756547047/ezgif.com-video-to-gif-converter_2_yejjuc.gif"
-    alt="generate"
-    className="w-full max-w-5xl h-auto rounded-lg shadow mx-auto"
-  />
-</div>
+            {/* Step 2 */}
+            <div className="flex flex-col items-center text-center bg-white rounded-xl shadow-lg px-1 md:px-6 py-6 border border-purple-100">
+              <h4 className="text-xl font-semibold mb-2">
+                Step 2: That's it, simply wait for your ad scripts
+              </h4>
+              <p className="text-gray-600 mb-4">
+                Our AI generates high-converting ad scripts based on your input
+                and our database of successful ads.
+              </p>
+              <img
+                src="https://res.cloudinary.com/dvxqb1wge/image/upload/v1756547047/ezgif.com-video-to-gif-converter_2_yejjuc.gif"
+                alt="generate"
+                className="w-full max-w-5xl h-auto rounded-lg shadow mx-auto"
+              />
+            </div>
 
-  {/* Step 3 */}
-  <div className="flex flex-col items-center text-center bg-white rounded-xl shadow-lg px-1 md:px-6 py-6 border border-purple-100">
-  <h4 className="text-xl font-semibold mb-2">
-    Step 3: Regenerate scripts based on your needs
-  </h4>
-  <p className="text-gray-600 mb-4">
-   Regenerate the script with prompt, you can make any kind of changes
-  </p>
-  <img
-    src="https://res.cloudinary.com/dvxqb1wge/image/upload/v1756558051/ezgif.com-video-to-gif-converter_4_nsd0uc.gif"
-    alt="generate"
-    className="w-full max-w-5xl h-auto rounded-lg shadow mx-auto"
-  />
-</div>
-
-
-  
-</div>
-              <br />
-          <TryButton 
-          user={user}/>
+            {/* Step 3 */}
+            <div className="flex flex-col items-center text-center bg-white rounded-xl shadow-lg px-1 md:px-6 py-6 border border-purple-100">
+              <h4 className="text-xl font-semibold mb-2">
+                Step 3: Regenerate scripts based on your needs
+              </h4>
+              <p className="text-gray-600 mb-4">
+                Regenerate the script with prompt, you can make any kind of
+                changes
+              </p>
+              <img
+                src="https://res.cloudinary.com/dvxqb1wge/image/upload/v1756558051/ezgif.com-video-to-gif-converter_4_nsd0uc.gif"
+                alt="generate"
+                className="w-full max-w-5xl h-auto rounded-lg shadow mx-auto"
+              />
+            </div>
+          </div>
+          <br />
+          <TryButton user={user} />
         </div>
       </section>
       <NoCommit />
-      
+
       <section className="relative z-10 py-6 px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-2">
@@ -443,14 +395,13 @@ Step 1: Tell us about your product or offer  </h4>
             </p>
           </div>
 
-          <TryButton 
-          user={user}/>
+          <TryButton user={user} />
         </div>
       </section>
-      
-      <NoCommit/>
+
+      <NoCommit />
       <br />
-      
+
       <section className="relative z-10 py-2 mb-20 px-1 lg:px-8">
         <div className="max-w-4xl mx-auto text-center mb-16">
           <div className="relative inline-block">
@@ -467,17 +418,15 @@ Step 1: Tell us about your product or offer  </h4>
             </h1>
           </div>
         </div>
-        <TryButton 
-        user={user}/>
-         <p className="mt-4  text-[12px] sm:text-base md:text-lg font-bold text-center  text-gray-500 px-8 max-w-2xl mx-auto">
-            Generate Unlimited Winning Ad Scripts. If at least 3 ad scripts
-            don't work, 100% money back.
-          </p>
+        <TryButton user={user} />
+        <p className="mt-4  text-[12px] sm:text-base md:text-lg font-bold text-center  text-gray-500 px-8 max-w-2xl mx-auto">
+          Generate Unlimited Winning Ad Scripts. If at least 3 ad scripts don't
+          work, 100% money back.
+        </p>
       </section>
 
       <NoCommit />
-      <StickyFooter 
-      user={user}/>
+      <StickyFooter user={user} />
     </div>
   );
 };
