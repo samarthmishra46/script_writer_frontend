@@ -61,11 +61,11 @@ const StickyFooter: React.FC<StickyFooterProps> = ({ user }) => {
             <span className="flex items-center ml-3 px-2 py-1 rounded-lg bg-black/20">
               <span className="text-gray-300 line-through font-normal 
                                text-[0.7rem] sm:text-sm md:text-base mr-2">
-                ₹999
+                ₹5999
               </span>
               <span className="font-extrabold text-yellow-300 
                                text-[0.95rem] sm:text-lg md:text-xl">
-                ₹399 / Week
+                ₹2499 / Week
               </span>
               <ChevronRight className="ml-2 w-4 h-4 transition-transform group-hover:translate-x-1" />
             </span>
@@ -82,7 +82,7 @@ const StickyFooter: React.FC<StickyFooterProps> = ({ user }) => {
 
         {/* Guarantee Text */}
         <div className="mt-3 text-gray-300 text-sm sm:text-lg md:text-xl lg:text-2xl font-semibold">
-          (7 Days Access) · <span className="text-green-400">100% Refund Guarantee!</span>
+          (30 Days Access) · <span className="text-green-400">100% Refund Guarantee!</span>
         </div>
       </div>
     </div>

@@ -49,9 +49,9 @@ const Pricing: React.FC = () => {
   const plans = [
     {
       name: "Individual",
-      price: "₹399",
-      originalPrice: "₹999",
-      period: "/week",
+      price: "₹2499",
+      originalPrice: "₹5999",
+      period: "/month",
       description: "For serious marketers and entrepreneurs",
       features: [
         "Unlimited AI-generated scripts",
