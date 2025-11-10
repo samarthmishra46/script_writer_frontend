@@ -193,12 +193,12 @@ const LandingPage: React.FC = () => {
 
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 px-1">
   {[
-    "IMAGE_URL_1",
-    "IMAGE_URL_2",
-    "IMAGE_URL_3",
-    "IMAGE_URL_4",
-    "IMAGE_URL_5",
-    "IMAGE_URL_6",
+    "https://v3b.fal.media/files/b/kangaroo/Rqj-9WiS5Ee7cBDCvD5Rw.jpg",
+    "https://v3b.fal.media/files/b/panda/PTRYKHfgKwR6VlKXbBaKe.jpg",
+    "https://v3b.fal.media/files/b/penguin/C0z_AEDEZ3nlaxqdCdlyV.jpg",
+    "https://v3b.fal.media/files/b/kangaroo/5P8yhIbybN2J89heKDREV.jpg",
+    "https://v3b.fal.media/files/b/tiger/pHmyk_BqVBY0pioQpW1JS.jpg",
+    "https://v3b.fal.media/files/b/panda/xSg8_cYKiyH8uPpJmEWnF.jpg",
   ].map((src, idx) => (
     <div
       key={idx}
