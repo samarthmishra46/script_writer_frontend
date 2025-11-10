@@ -276,11 +276,11 @@ const LandingPage: React.FC = () => {
             <span className="bg-yellow text-2xl md:text-4xl">👇🤯💸</span>
           </div>
           <BrandFourCompo
-  brandname="Aayush Wellness"
-  img1="/images/one.jpg"
-  img2="/images/two.jpg"
-  img3="/images/three.jpg"
-  img4="/images/four.jpg"
+  brandname="Karmic Beauty"
+  img1="https://v3b.fal.media/files/b/panda/sas5pjsMREvat_EJHSFq7.png"
+  img2="https://v3b.fal.media/files/b/monkey/Blpn6N1YqNJjCf-nI-_gv.png"
+  img3="https://v3b.fal.media/files/b/koala/tGstqLOkiADq-G0E5SHRD.png"
+  img4="https://v3b.fal.media/files/b/zebra/uGsHzhF-yHZoMlohNM-zd.png"
   resultadd="https://res.cloudinary.com/dvxqb1wge/image/upload/v1756391770/3_cbgixk.png"
 />
 
