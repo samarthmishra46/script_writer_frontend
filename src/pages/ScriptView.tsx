@@ -297,7 +297,7 @@ const ScriptView: React.FC = () => {
       <div className="flex flex-col md:flex-row h-screen bg-gray-100">
         {/* Mobile Header */}
         <div className="md:hidden bg-gray-800 text-white p-4 flex items-center justify-between">
-          <h1 className="text-xl font-bold text-purple-500">Leepi AI</h1>
+          <h1 className="text-xl font-bold text-purple-500">Lipi AI</h1>
           <button className="text-white focus:outline-none">
             <Loader2 className="w-6 h-6 animate-spin" />
           </button>
@@ -352,7 +352,7 @@ const ScriptView: React.FC = () => {
     <div className="flex flex-col md:flex-row h-screen bg-gray-100">
       {/* Mobile Header */}
       <div className="md:hidden bg-gray-800 text-white p-4 flex items-center justify-between">
-        <h1 className="text-xl font-bold text-purple-500">Leepi AI</h1>
+        <h1 className="text-xl font-bold text-purple-500">Lipi AI</h1>
         <button 
           onClick={() => setShowMobileSidebar(prev => !prev)} 
           className="text-white focus:outline-none"

@@ -8,6 +8,11 @@ import {
   Plus,
   Coins,
   RefreshCw,
+  Building2,
+  Package,
+  Image as ImageIcon,
+  ChevronRight,
+  Trash2,
 } from "lucide-react";
 import { buildApiUrl } from "../config/api";
 import Sidebar from "../components/Sidebar";
@@ -54,10 +59,34 @@ interface ScriptGroup {
   selectedCharacter?: string;
 }
 
-interface Brand {
+interface SidebarBrand {
   name: string;
   products: string[];
   id: string;
+}
+
+// Brand from API
+interface ApiBrand {
+  _id: string;
+  name: string;
+  logo: string | null;
+  initials: string;
+  productCount: number;
+  adCount: number;
+  products: ApiProduct[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface ApiProduct {
+  _id: string;
+  name: string;
+  description: string;
+  images: string[];
+  primaryImage: string | null;
+  category: string;
+  targetAudience: string;
+  usp: string;
 }
 
 const Dashboard: React.FC = () => {
@@ -72,13 +101,15 @@ const Dashboard: React.FC = () => {
   //   boolean | null
   // >(null);
   //const [checkingAccess, setCheckingAccess] = useState(false);
-  const [brands, setBrands] = useState<Brand[]>([]);
+  const [sidebarBrands, setSidebarBrands] = useState<SidebarBrand[]>([]);
+  const [apiBrands, setApiBrands] = useState<ApiBrand[]>([]);
   const [brandsLoading, setBrandsLoading] = useState(false);
   const [brandsError, setBrandsError] = useState<string | null>(null);
   const [sidebarRefreshTrigger, setSidebarRefreshTrigger] = useState(0);
   const [showMobileSidebar, setShowMobileSidebar] = useState(false);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [isRefreshingCredits, setIsRefreshingCredits] = useState(false);
+  const [deletingBrandId, setDeletingBrandId] = useState<string | null>(null);
  // const [sortOption, setSortOption] = useState("newest");
   const location = useLocation();
   const navigate = useNavigate();
@@ -200,12 +231,105 @@ const Dashboard: React.FC = () => {
       .join(" ");
   };
 
+  // Fetch brands from /api/brands
+  const fetchBrands = useCallback(async () => {
+    setBrandsLoading(true);
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        return;
+      }
+
+      const response = await fetch(buildApiUrl("api/brands"), {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch brands");
+      }
+
+      const result = await response.json();
+      const brandsData = result.data || [];
+      setApiBrands(brandsData);
+
+      // Also update sidebar brands format
+      const sidebarData = brandsData.map((b: ApiBrand) => ({
+        name: b.name,
+        products: b.products?.map((p: ApiProduct) => p.name) || [],
+        id: b._id,
+      }));
+      setSidebarBrands(sidebarData);
+
+      // Update context
+      if (JSON.stringify(sidebarData) !== JSON.stringify(brandsContext.brands)) {
+        brandsContext.updateBrands(sidebarData);
+      }
+
+      setBrandsError(null);
+    } catch (error) {
+      console.error("Error fetching brands:", error);
+      setBrandsError("Failed to load brands");
+    } finally {
+      setBrandsLoading(false);
+    }
+  }, [brandsContext]);
+
+  // Delete brand handler
+  const handleDeleteBrand = useCallback(async (brandId: string, brandName: string, e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent navigation to brand page
+    
+    const confirmDelete = window.confirm(
+      `Are you sure you want to delete "${brandName}"? This will also delete all associated products and ads. This action cannot be undone.`
+    );
+    
+    if (!confirmDelete) return;
+    
+    setDeletingBrandId(brandId);
+    
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        setError("Authentication required");
+        return;
+      }
+      
+      const response = await fetch(buildApiUrl(`api/brands/${brandId}`), {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      
+      if (!response.ok) {
+        const result = await response.json();
+        throw new Error(result.message || "Failed to delete brand");
+      }
+      
+      // Remove from local state
+      setApiBrands(prev => prev.filter(b => b._id !== brandId));
+      setSidebarBrands(prev => prev.filter(b => b.id !== brandId));
+      
+      // Update context
+      brandsContext.updateBrands(sidebarBrands.filter(b => b.id !== brandId));
+      
+      // Trigger sidebar refresh
+      setSidebarRefreshTrigger(prev => prev + 1);
+      
+    } catch (error) {
+      console.error("Error deleting brand:", error);
+      setError(error instanceof Error ? error.message : "Failed to delete brand");
+    } finally {
+      setDeletingBrandId(null);
+    }
+  }, [brandsContext, sidebarBrands]);
+
   // Helper function to extract brand and product information from scripts
   const extractBrandsFromScripts = useCallback(
     (scripts: Script[]) => {
-      setBrandsLoading(true);
       try {
-        const brandsMap = new Map<string, Brand>();
+        const brandsMap = new Map<string, SidebarBrand>();
 
         scripts.forEach((script) => {
           const brandName =
@@ -233,26 +357,21 @@ const Dashboard: React.FC = () => {
           }
         });
 
-        // Convert map to array
+        // Convert map to array - only used if API brands are empty
         const brandsArray = Array.from(brandsMap.values());
-        setBrands(brandsArray);
-
-        // Update the global context if the data has changed
-        if (
-          JSON.stringify(brandsArray) !== JSON.stringify(brandsContext.brands)
-        ) {
-          brandsContext.updateBrands(brandsArray);
+        
+        // Only update if we don't have API brands
+        if (apiBrands.length === 0) {
+          setSidebarBrands(brandsArray);
+          if (JSON.stringify(brandsArray) !== JSON.stringify(brandsContext.brands)) {
+            brandsContext.updateBrands(brandsArray);
+          }
         }
-
-        setBrandsError(null);
       } catch (error) {
         console.error("Error extracting brands from scripts:", error);
-        setBrandsError("Failed to process brand information");
-      } finally {
-        setBrandsLoading(false);
       }
     },
-    [brandsContext]
+    [brandsContext, apiBrands.length]
   );
 
   // Fetch scripts function defined with useCallback for memoization
@@ -389,18 +508,18 @@ const Dashboard: React.FC = () => {
     }
   }, [location]);
 
-  // Fetch scripts on component mount
+  // Fetch scripts and brands on component mount
   useEffect(() => {
     fetchScripts();
-   
-  }, [fetchScripts]);
+    fetchBrands();
+  }, [fetchScripts, fetchBrands]);
 
-  // Extract brands from scripts when scripts change
+  // Extract brands from scripts when scripts change (fallback if API brands empty)
   useEffect(() => {
-    if (scripts.length > 0 && !brandsLoading) {
+    if (scripts.length > 0 && apiBrands.length === 0) {
       extractBrandsFromScripts(scripts);
     }
-  }, [scripts, brandsLoading, extractBrandsFromScripts]);
+  }, [scripts, apiBrands.length, extractBrandsFromScripts]);
 
   // Group scripts by brand_name + product
   useEffect(() => {
@@ -511,7 +630,12 @@ const Dashboard: React.FC = () => {
       group.product.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // No need for a separate fetchBrands function anymore
+  // Filter brands based on search term
+  const filteredBrands = apiBrands.filter(
+    (brand) =>
+      brand.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      brand.products?.some((p) => p.name.toLowerCase().includes(searchTerm.toLowerCase()))
+  );
 
   // Handle script deletion
 
@@ -542,7 +666,7 @@ const Dashboard: React.FC = () => {
         )}
         <div className="relative h-full rounded-2xl border border-gray-300 overflow-hidden z-10 mt-2 mb-2 ml-2">
           <Sidebar
-            brandsData={brands}
+            brandsData={sidebarBrands}
             brandsLoading={brandsLoading}
             brandsError={brandsError}
             refreshTrigger={sidebarRefreshTrigger}
@@ -671,61 +795,68 @@ const Dashboard: React.FC = () => {
             </section>
           )}
 
-          {filteredGroups.length !== 0 && (
-            <>
-              {/* Search bar - Make responsive */}
-              <div className="mb-6">
-                <div className="flex flex-col md:flex-row md:items-center space-y-3 md:space-y-0 md:space-x-4">
-                  <div className="relative flex-grow">
-                    <input
-                      id="search-input"
-                      type="text"
-                      placeholder="Search scripts..."
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      className="w-full px-4 py-2 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent"
-                    />
-                    <Search
-                      className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-                      size={18}
-                    />
-                  </div>
-
-                  <div className="flex space-x-2">
-                    <button
-                      onClick={() => navigate("/ad-type-selector")}
-                      className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 flex items-center transition-colors"
-                    >
-                      <Plus className="w-4 h-4 mr-1" />
-                      <span className="hidden md:inline">Create Ad</span>
-                      <span className="md:hidden">Create Ad</span>
-                    </button>
-                  </div>
-                </div>
+          {/* Search bar - Make responsive */}
+          <div className="mb-6">
+            <div className="flex flex-col md:flex-row md:items-center space-y-3 md:space-y-0 md:space-x-4">
+              <div className="relative flex-grow">
+                <input
+                  id="search-input"
+                  type="text"
+                  placeholder="Search brands..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full px-4 py-2 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent"
+                />
+                <Search
+                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                  size={18}
+                />
               </div>
 
-              {/* Error Message */}
-              {error && (
-                <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-                  <p className="text-red-600">{error}</p>
-                </div>
-              )}
-            </>
-          )}
+              <div className="flex space-x-2">
+                <button
+                  onClick={() => navigate("/create-campaign")}
+                  className="px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 flex items-center transition-all duration-300"
+                >
+                  <Plus className="w-4 h-4 mr-1" />
+                  <span className="hidden md:inline">Create Campaign</span>
+                  <span className="md:hidden">New</span>
+                </button>
+                <button
+                  onClick={() => navigate("/brands")}
+                  className="px-4 py-2 border border-purple-600 text-purple-600 rounded-lg hover:bg-purple-50 flex items-center transition-colors"
+                >
+                  <FolderPlus className="w-4 h-4 mr-1" />
+                  <span className="hidden md:inline">My Brands</span>
+                  <span className="md:hidden">Brands</span>
+                </button>
+              </div>
+            </div>
+          </div>
 
-          {/* Loading State */}
-          {isLoading && (
-            <div className="flex items-center justify-center py-12">
-              <Loader2 className="w-8 h-8 animate-spin text-purple-600" />
-              <span className="ml-2 text-gray-600">Loading campaigns...</span>
+          {/* Error Message */}
+          {error && (
+            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+              <p className="text-red-600">{error}</p>
             </div>
           )}
 
-          {/* Script Groups Grid */}
-          {!isLoading && (
+          {/* Loading State */}
+          {(isLoading || brandsLoading) && (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="w-8 h-8 animate-spin text-purple-600" />
+              <span className="ml-2 text-gray-600">Loading brands...</span>
+            </div>
+          )}
+
+          {/* Brands Grid */}
+          {!isLoading && !brandsLoading && (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-              {filteredGroups.length === 0 ? (
+              {filteredBrands.length === 0 ? (
                 <div className="col-span-full text-center py-12">
+                  <div className="w-20 h-20 mx-auto mb-6 bg-purple-100 rounded-full flex items-center justify-center">
+                    <Building2 className="w-10 h-10 text-purple-600" />
+                  </div>
                   <div className="w-45 items-center justify-center mx-auto mb-4">
                     <h1 className="text-3xl font-bold text-[#474747] ">
                       Start With Giving Us <br />
@@ -736,240 +867,107 @@ const Dashboard: React.FC = () => {
                   <div></div>
                   {!searchTerm && (
                     <Link
-                      to="/ad-type-selector"
-                      className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purplr-700 hover:to-pink-700 transition-all duration-300"
+                      to="/create-campaign"
+                      className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all duration-300"
                     >
                       <FolderPlus className="w-4 h-4 mr-2" />
-                      Create New Ad
+                      Create New Campaign
                     </Link>
                   )}
 
                   <div className="w-45 h-40 flex flex-col items-center justify-center mx-auto">
                     <h1 className="text-lg font-medium text-[#474747] text-center">
-                      One Time Effort,Just Answer A Few Questions
+                      One Time Effort, Just Answer A Few Questions
                       <br />
                       About Your Product. Takes Only 15 Minutes
                     </h1>
                   </div>
                 </div>
               ) : (
-                filteredGroups.map((group) => (
+                filteredBrands.map((brand) => (
                   <div
-                    key={group.key}
-                    className="bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow duration-200"
+                    key={brand._id}
+                    className="bg-white rounded-2xl p-6 border border-gray-200 hover:border-purple-300 hover:shadow-lg transition-all cursor-pointer group relative"
+                    onClick={() => navigate(`/brands/${brand._id}`)}
                   >
-                    {group.adType === 'image' || group.adType === 'image_ad' || group.adType === 'image_campaign_15' ? (
-                      // Image Ad Layout - Click to view image ad details
-                      <div 
-                        className="block p-4 cursor-pointer"
-                        onClick={() => navigate(`/image-ads/view/${group.latestScriptId}`)}
-                      >
-                        <div className="flex items-center justify-between mb-3">
-                          <h3 className="font-semibold text-gray-900 truncate">
-                            {group.brand_name}
-                          </h3>
-                          <div className="flex items-center gap-2">
-                            <div className="bg-green-100 text-green-800 text-xs font-medium px-2 py-0.5 rounded-full">
-                              {group.adType === 'image_campaign_15' ? '🎯 Complete Campaign' : '🎨 Image Ad'}
-                            </div>
-                            <div className="bg-purple-100 text-purple-800 text-xs font-medium px-2 py-0.5 rounded-full">
-                              {group.adType === 'image_campaign_15' 
-                                ? '15 Images' 
-                                : `${group.scriptCount} ${group.scriptCount === 1 ? "Ad" : "Ads"}`
-                              }
-                            </div>
-                          </div>
-                        </div>
+                    {/* Delete Button - Shows on hover */}
+                    <button
+                      onClick={(e) => handleDeleteBrand(brand._id, brand.name, e)}
+                      disabled={deletingBrandId === brand._id}
+                      className="absolute top-3 right-3 p-2 bg-red-50 text-red-500 rounded-lg opacity-0 group-hover:opacity-100 hover:bg-red-100 hover:text-red-600 transition-all duration-200 z-10 disabled:opacity-50 disabled:cursor-not-allowed"
+                      title="Delete brand"
+                    >
+                      {deletingBrandId === brand._id ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <Trash2 className="w-4 h-4" />
+                      )}
+                    </button>
 
-                        {/* Product Info */}
-                        <div className="mb-3">
-                          <p className="text-sm text-blue-600 font-medium">
-                            📦 {group.product}
-                          </p>
-                          {group.campaignTheme && (
-                            <p className="text-xs text-gray-500 italic">
-                              Theme: {group.campaignTheme}
-                            </p>
-                          )}
+                    {/* Brand Header */}
+                    <div className="flex items-center gap-4 mb-4">
+                      {brand.logo ? (
+                        <img
+                          src={brand.logo}
+                          alt={brand.name}
+                          className="w-14 h-14 rounded-xl object-cover border border-gray-200"
+                        />
+                      ) : (
+                        <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center">
+                          <span className="text-white text-lg font-bold">{brand.initials}</span>
                         </div>
-
-                        {/* Generated Image Display */}
-                        <div className="justify-center text-center flex items-center bg-gray-50 rounded-lg p-3 mb-3">
-                          {group.imageUrl ? (
-                            <img
-                              src={group.imageUrl}
-                              alt="Generated Ad"
-                              className="w-32 h-24 object-cover rounded-md shadow-sm"
-                            />
-                          ) : (
-                            <div className="w-32 h-24 bg-gradient-to-br from-purple-100 to-pink-100 rounded-md flex items-center justify-center">
-                              <span className="text-xs text-gray-500">
-                                {group.adType === 'image_campaign_15' ? 'Campaign' : 'Image Ad'}
-                              </span>
-                            </div>
-                          )}
-                        </div>
-
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-lg font-semibold text-gray-900 truncate">{brand.name}</h3>
                         <p className="text-sm text-gray-500">
-                          Updated{" "}
-                          {new Date(group.latestDate).toLocaleDateString()}
+                          {new Date(brand.createdAt).toLocaleDateString()}
                         </p>
                       </div>
-                    ) : group.adType === 'ugc' ? (
-                      // UGC Ad Layout - Click to view UGC ad details
-                      <div 
-                        className="block p-4 cursor-pointer"
-                        onClick={() => {
-                          console.log('🎬 UGC card clicked:', {
-                            key: group.key,
-                            product: group.product,
-                            hasVideoUrl: !!group.videoUrl,
-                            videoUrl: group.videoUrl,
-                            hasImageUrl: !!group.imageUrl,
-                            imageUrl: group.imageUrl
-                          });
-                          navigate(`/ugc-ads/${group.latestScriptId}/video-generation`);
-                        }}
-                      >
-                        <div className="flex items-center justify-between mb-3">
-                          <h3 className="font-semibold text-gray-900 truncate">
-                            {group.brand_name}
-                          </h3>
-                          <div className="flex items-center gap-2">
-                            <div className="bg-orange-100 text-orange-800 text-xs font-medium px-2 py-0.5 rounded-full">
-                              🎬 UGC Video
-                            </div>
-                            <div className="bg-purple-100 text-purple-800 text-xs font-medium px-2 py-0.5 rounded-full">
-                              {group.scriptCount}{" "}
-                              {group.scriptCount === 1 ? "Video" : "Videos"}
-                            </div>
-                          </div>
-                        </div>
+                      <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-purple-500 transition-colors" />
+                    </div>
 
-                        {/* Product Info */}
-                        <div className="mb-3">
-                          <p className="text-sm text-blue-600 font-medium">
-                            📦 {group.product}
-                          </p>
-                          {group.selectedCharacter && (
-                            <p className="text-xs text-gray-500 italic">
-                              Character: {group.selectedCharacter}
-                            </p>
-                          )}
-                        </div>
-
-                        {/* Generated Video/Image Display */}
-                        <div className="justify-center text-center flex items-center bg-gray-50 rounded-lg p-3 mb-3">
-                          {group.videoUrl ? (
-                            <video
-                              src={group.videoUrl.startsWith('http') ? group.videoUrl : buildApiUrl(group.videoUrl)}
-                              className="w-32 h-24 object-cover rounded-md shadow-sm"
-                              controls={false}
-                              muted
-                              poster={group.thumbnailUrl ? (group.thumbnailUrl.startsWith('http') ? group.thumbnailUrl : buildApiUrl(group.thumbnailUrl)) : undefined}
-                            />
-                          ) : group.imageUrl ? (
-                            <img
-                              src={group.imageUrl.startsWith('http') ? group.imageUrl : buildApiUrl(group.imageUrl)}
-                              alt="Generated UGC"
-                              className="w-32 h-24 object-cover rounded-md shadow-sm"
-                            />
-                          ) : (
-                            <div className="w-32 h-24 bg-gradient-to-br from-orange-100 to-red-100 rounded-md flex items-center justify-center">
-                              <span className="text-xs text-gray-500">UGC Video</span>
-                            </div>
-                          )}
-                        </div>
-
-                        <p className="text-sm text-gray-500">
-                          Updated{" "}
-                          {new Date(group.latestDate).toLocaleDateString()}
-                        </p>
+                    {/* Stats */}
+                    <div className="flex items-center gap-4 mb-4">
+                      <div className="flex items-center gap-2 px-3 py-1.5 bg-purple-50 rounded-lg">
+                        <Package className="w-4 h-4 text-purple-500" />
+                        <span className="text-sm font-medium text-purple-700">
+                          {brand.productCount} {brand.productCount === 1 ? 'Product' : 'Products'}
+                        </span>
                       </div>
-                    ) : (
-                      // Regular Video Script Layout - Navigate to ScriptGroup
-                      <Link
-                        to={`/script-group/${encodeURIComponent(
-                          group.brand_name
-                        )}/${encodeURIComponent(group.product)}/${
-                          group.latestScriptId
-                        }`}
-                        className="block p-4"
-                      >
-                        <div className="flex items-center justify-between mb-3">
-                          <h3 className="font-semibold text-gray-900 truncate">
-                            {group.brand_name}
-                          </h3>
-                          <div className="flex items-center gap-2">
-                            <div className="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded-full">
-                              🎬 Video Script
-                            </div>
-                            <div className="bg-purple-100 text-purple-800 text-xs font-medium px-2 py-0.5 rounded-full">
-                              {group.scriptCount}{" "}
-                              {group.scriptCount === 1 ? "Script" : "Scripts"}
-                            </div>
-                          </div>
-                        </div>
+                      <div className="flex items-center gap-2 px-3 py-1.5 bg-blue-50 rounded-lg">
+                        <ImageIcon className="w-4 h-4 text-blue-500" />
+                        <span className="text-sm font-medium text-blue-700">
+                          {brand.adCount} {brand.adCount === 1 ? 'Ad' : 'Ads'}
+                        </span>
+                      </div>
+                    </div>
 
-                        {/* Product Info */}
-                        <div className="mb-3">
-                          <p className="text-sm text-blue-600 font-medium">
-                            📦 {group.product}
-                          </p>
+                    {/* Products Preview */}
+                    {brand.products && brand.products.length > 0 && (
+                      <div className="border-t border-gray-100 pt-3">
+                        <p className="text-xs text-gray-500 mb-2">Products:</p>
+                        <div className="flex flex-wrap gap-1">
+                          {brand.products.slice(0, 3).map((product) => (
+                            <span 
+                              key={product._id} 
+                              className="text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded-full"
+                            >
+                              {product.name}
+                            </span>
+                          ))}
+                          {brand.products.length > 3 && (
+                            <span className="text-xs px-2 py-1 bg-gray-100 text-gray-500 rounded-full">
+                              +{brand.products.length - 3} more
+                            </span>
+                          )}
                         </div>
-
-                        <div className="justify-center text-center flex items-center bg-white rounded-lg p-3 mb-3">
-                          <img
-                            src="https://png.pngtree.com/png-vector/20230412/ourmid/pngtree-script-writing-line-icon-vector-png-image_6703231.png"
-                            alt="Script Icon"
-                            className="w-32 items-center"
-                          />
-                        </div>
-
-                        <p className="text-sm text-gray-500">
-                          Updated{" "}
-                          {new Date(group.latestDate).toLocaleDateString()}
-                        </p>
-                      </Link>
+                      </div>
                     )}
-
-                    {/* Action buttons */}
-                    {/* <div className="px-4 py-3 border-t border-white flex justify-end space-x-2">
-                      <button
-                        onClick={() => handleStoryboardGeneration(group.latestScriptId)}
-                        className="flex items-center px-3 py-1 text-xs bg-green-100 text-green-700 hover:bg-green-200 rounded-full transition-colors"
-                        title="Generate storyboard"
-                      >
-                        <Video className="w-3 h-3 mr-1" />
-                        Storyboard
-                      </button>
-                      
-                    </div> */}
                   </div>
                 ))
               )}
             </div>
           )}
-
-          {/* Storyboard Modal */}
-          {/* {showStoryboard && selectedScriptId && (
-            <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-              <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-                <div className="flex justify-between items-center border-b p-4">
-                  <h3 className="text-xl font-bold">Generate Storyboard</h3>
-                  <button
-                    onClick={() => setShowStoryboard(false)}
-                    className="p-1 hover:bg-white rounded-full"
-                  >
-                    <X className="w-6 h-6" />
-                  </button>
-                </div>
-                <div className="p-4">
-                  <StoryboardGenerator scriptId={selectedScriptId} />
-                </div>
-              </div>
-            </div>
-          )} */}
         </main>
       </div>
     </div>

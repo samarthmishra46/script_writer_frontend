@@ -1,7 +1,16 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Download, Image, CheckCircle, Copy, Loader2, Send, Sparkles, X } from 'lucide-react';
+import { ArrowLeft, Download, Image, CheckCircle, Copy, Loader2, Send, Sparkles, X, Target, Lightbulb } from 'lucide-react';
 import { buildApiUrl } from '../config/api';
+
+interface CompetitorInsights {
+  competitor_name?: string;
+  top_hooks?: string[];
+  top_ctas?: string[];
+  common_visuals?: string[];
+  tone_and_style?: string;
+  extra_thoughts?: string;
+}
 
 interface ImageVariation {
   styleKey: string;
@@ -25,11 +34,13 @@ interface ViewImageAdData {
     product: string;
     adType: string;
     whyItWorksSummary?: string;
+    competitorInsights?: CompetitorInsights;
     [key: string]: unknown;
   };
   brand_name: string;
   product: string;
   whyItWorksSummary?: string;
+  competitorInsights?: CompetitorInsights;
   campaign?: {
     theme: string;
     headline: string;
@@ -378,6 +389,101 @@ const ImageAdViewer: React.FC<ImageAdViewerProps> = ({
             </div>
           )}
         </section>
+
+        {/* Competitor Insights Section */}
+        {(localImageAd.competitorInsights || localImageAd.metadata?.competitorInsights) && (
+          <section className="mt-6 bg-gradient-to-br from-purple-50 to-indigo-50 border border-purple-200 rounded-2xl shadow-lg p-8">
+            <div className="flex items-start gap-4 mb-6">
+              <div className="h-12 w-12 rounded-full bg-purple-600 flex items-center justify-center text-white">
+                <Target className="h-6 w-6" />
+              </div>
+              <div>
+                <div className="flex items-center gap-3">
+                  <h3 className="text-xl font-bold text-purple-900">Competitor Intelligence</h3>
+                  <span className="text-xs font-medium text-purple-600 bg-purple-100 border border-purple-300 px-2.5 py-1 rounded-full">
+                    Meta Ads Analysis
+                  </span>
+                </div>
+                <p className="mt-1 text-sm text-purple-700">
+                  Insights gathered from analyzing competitor ads to help differentiate your campaign.
+                </p>
+              </div>
+            </div>
+
+            {(() => {
+              const insights = localImageAd.competitorInsights || localImageAd.metadata?.competitorInsights;
+              if (!insights) return null;
+              
+              return (
+                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                  {insights.competitor_name && (
+                    <div className="bg-white rounded-xl p-4 border border-purple-100 shadow-sm">
+                      <p className="text-xs uppercase tracking-wider text-purple-500 mb-2">Competitor Analyzed</p>
+                      <p className="text-lg font-semibold text-gray-900">{insights.competitor_name}</p>
+                    </div>
+                  )}
+                  
+                  {insights.top_hooks && insights.top_hooks.length > 0 && (
+                    <div className="bg-white rounded-xl p-4 border border-purple-100 shadow-sm">
+                      <p className="text-xs uppercase tracking-wider text-purple-500 mb-2 flex items-center gap-1">
+                        <Lightbulb className="h-3 w-3" /> Top Hooks Used
+                      </p>
+                      <ul className="space-y-1">
+                        {insights.top_hooks.slice(0, 4).map((hook, i) => (
+                          <li key={i} className="text-sm text-gray-700 flex items-start gap-2">
+                            <span className="text-purple-500 mt-0.5">•</span>
+                            <span>{hook}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  
+                  {insights.top_ctas && insights.top_ctas.length > 0 && (
+                    <div className="bg-white rounded-xl p-4 border border-purple-100 shadow-sm">
+                      <p className="text-xs uppercase tracking-wider text-purple-500 mb-2">Common CTAs</p>
+                      <div className="flex flex-wrap gap-2">
+                        {insights.top_ctas.slice(0, 5).map((cta, i) => (
+                          <span key={i} className="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded-full">
+                            {cta}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  
+                  {insights.common_visuals && insights.common_visuals.length > 0 && (
+                    <div className="bg-white rounded-xl p-4 border border-purple-100 shadow-sm">
+                      <p className="text-xs uppercase tracking-wider text-purple-500 mb-2">Visual Patterns</p>
+                      <ul className="space-y-1">
+                        {insights.common_visuals.slice(0, 4).map((visual, i) => (
+                          <li key={i} className="text-sm text-gray-700 flex items-start gap-2">
+                            <span className="text-purple-500 mt-0.5">•</span>
+                            <span>{visual}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  
+                  {insights.tone_and_style && (
+                    <div className="bg-white rounded-xl p-4 border border-purple-100 shadow-sm md:col-span-2">
+                      <p className="text-xs uppercase tracking-wider text-purple-500 mb-2">Tone & Style</p>
+                      <p className="text-sm text-gray-700">{insights.tone_and_style}</p>
+                    </div>
+                  )}
+                  
+                  {insights.extra_thoughts && (
+                    <div className="bg-white rounded-xl p-4 border border-purple-100 shadow-sm md:col-span-2 lg:col-span-3">
+                      <p className="text-xs uppercase tracking-wider text-purple-500 mb-2">Strategic Insights</p>
+                      <p className="text-sm text-gray-700 leading-relaxed">{insights.extra_thoughts}</p>
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
+          </section>
+        )}
 
         <section className="mt-10">
           <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between mb-6">

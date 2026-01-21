@@ -315,7 +315,7 @@ const Settings: React.FC = () => {
     return (
       <div className="flex flex-col md:flex-row h-screen bg-gray-100">
         <div className="md:hidden bg-gray-800 text-white p-4 flex items-center justify-between">
-          <h1 className="text-xl font-bold text-purple-500">Leepi AI</h1>
+          <h1 className="text-xl font-bold text-purple-500">Lipi AI</h1>
           <div className="w-6 h-6 border-2 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
         </div>
         
@@ -341,7 +341,7 @@ const Settings: React.FC = () => {
     <div className="flex flex-col md:flex-row h-screen bg-white">
       {/* Mobile Header */}
       <div className="md:hidden bg-white text-black p-4 flex items-center justify-between">
-        <h1 className="text-xl font-bold text-purple-500">Leepi AI</h1>
+        <h1 className="text-xl font-bold text-purple-500">Lipi AI</h1>
         <button 
           onClick={() => setShowMobileSidebar(prev => !prev)} 
           className="text-black focus:outline-none"

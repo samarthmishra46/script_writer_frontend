@@ -139,7 +139,7 @@ const LandingPage: React.FC = () => {
 
               <div className="relative inline-block">
                 <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-[#CB6CE6] to-[#2D65F5] bg-clip-text text-transparent transition-all duration-300 hover:scale-105">
-                  Leepi AI
+                  Lipi AI
                 </h1>
               </div>
             </div>
@@ -236,7 +236,7 @@ const LandingPage: React.FC = () => {
         <div className="max-w-4xl mx-auto text-center">
           <div className="relative inline-block">
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-[#CB6CE6] to-[#2D65F5] bg-clip-text text-transparent transition-all duration-300 hover:scale-105">
-              Leepi AI
+              Lipi AI
             </h1>
           </div>
 
@@ -266,7 +266,7 @@ const LandingPage: React.FC = () => {
           <div className="text-center mb-12">
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-[#CB6CE6] to-[#2D65F5] bg-clip-text text-transparent">
               <span className="bg-gradient-to-r from-[#CB6CE6] to-[#2D65F5] bg-clip-text text-transparent">
-                Ads Written by Leepi AI
+                Ads Written by Lipi AI
               </span>
               <br />
               <span className="bg-gradient-to-r from-[#CB6CE6] to-[#2D65F5] bg-clip-text text-transparent">
@@ -328,7 +328,7 @@ const LandingPage: React.FC = () => {
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-12">
             <h3 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-              How Leepi AI Works
+              How Lipi AI Works
             </h3>
           </div>
 
@@ -432,7 +432,7 @@ const LandingPage: React.FC = () => {
         <div className="max-w-4xl mx-auto text-center mb-16">
           <div className="relative inline-block">
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-[#CB6CE6] to-[#2D65F5] bg-clip-text text-transparent transition-all duration-300 hover:scale-105">
-              Leepi AI
+              Lipi AI
             </h1>
           </div>
 

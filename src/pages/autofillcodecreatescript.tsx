@@ -1771,7 +1771,7 @@ const CreateScriptWizard: React.FC = () => {
 
       {/* Mobile header */}
       <div className="md:hidden bg-white text-black p-4 flex items-center justify-between">
-        <h1 className="text-xl font-bold text-purple-500">Leepi AI</h1>
+        <h1 className="text-xl font-bold text-purple-500">Lipi AI</h1>
         <button 
           onClick={() => setShowMobileSidebar(prev => !prev)} 
           className="text-black focus:outline-none"

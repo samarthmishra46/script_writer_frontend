@@ -23,6 +23,8 @@ import Settings from './pages/Settings';
 import VideoGeneratorPage from './pages/VideoGeneratorPage';
 import AdTypeSelector from './pages/AdTypeSelector';
 import CreateImageAds from './pages/CreateImageAds';
+import CompetitorStrategy from './pages/CompetitorStrategy';
+import GeneratingCampaign from './pages/GeneratingCampaign';
 import ViewImageAd from './pages/ViewImageAd';
 import UGCDashboard from './pages/UGCDashboard';
 import CreateUGCAd from './pages/CreateUGCAd';
@@ -30,6 +32,15 @@ import CharacterSelection from './pages/CharacterSelection';
 import ScriptGeneration from './pages/ScriptGeneration';
 import VideoGeneration from './pages/VideoGeneration';
 import { BrandsProvider } from './context/BrandsContext';
+// New Ad Creation Flow Pages
+import CreateCampaign from './pages/CreateCampaign';
+import BrandsList from './pages/BrandsList';
+import ProductsList from './pages/ProductsList';
+import ProductAds from './pages/ProductAds';
+import SelectAdType from './pages/SelectAdType';
+import SelectAngles from './pages/SelectAngles';
+import GenerationProgress from './pages/GenerationProgress';
+import ImageSwiper from './pages/ImageSwiper';
 import { OrderTimerProvider } from "./context/OrderTimerContext"; // <-- 1. IMPORT
 
 
@@ -121,6 +132,16 @@ function App() {
                     <CreateImageAds />
                   </ProtectedRoute>
                 } />
+                <Route path="/create-image-ads/competitor-strategy" element={
+                  <ProtectedRoute>
+                    <CompetitorStrategy />
+                  </ProtectedRoute>
+                } />
+                <Route path="/create-image-ads/generating" element={
+                  <ProtectedRoute>
+                    <GeneratingCampaign />
+                  </ProtectedRoute>
+                } />
                 <Route path="/image-ads/view/:adId" element={
                   <ProtectedRoute>
                     <ViewImageAd />
@@ -151,6 +172,49 @@ function App() {
                     <VideoGeneration />
                   </ProtectedRoute>
                 } />
+                
+                {/* New Ad Creation Flow Routes */}
+                <Route path="/create-campaign" element={
+                  <ProtectedRoute>
+                    <CreateCampaign />
+                  </ProtectedRoute>
+                } />
+                <Route path="/brands" element={
+                  <ProtectedRoute>
+                    <BrandsList />
+                  </ProtectedRoute>
+                } />
+                <Route path="/brands/:brandId" element={
+                  <ProtectedRoute>
+                    <ProductsList />
+                  </ProtectedRoute>
+                } />
+                <Route path="/brands/:brandId/products/:productId" element={
+                  <ProtectedRoute>
+                    <ProductAds />
+                  </ProtectedRoute>
+                } />
+                <Route path="/brands/:brandId/products/:productId/select-ad-type" element={
+                  <ProtectedRoute>
+                    <SelectAdType />
+                  </ProtectedRoute>
+                } />
+                <Route path="/brands/:brandId/products/:productId/select-angles" element={
+                  <ProtectedRoute>
+                    <SelectAngles />
+                  </ProtectedRoute>
+                } />
+                <Route path="/generating/:adId" element={
+                  <ProtectedRoute>
+                    <GenerationProgress />
+                  </ProtectedRoute>
+                } />
+                <Route path="/swipe-images/:adId" element={
+                  <ProtectedRoute>
+                    <ImageSwiper />
+                  </ProtectedRoute>
+                } />
+
                 <Route path="/scripts" element={
                   <ProtectedRoute>
                     <GeneratedScripts />

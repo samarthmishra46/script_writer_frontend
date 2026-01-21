@@ -494,7 +494,7 @@ const Subscription: React.FC = () => {
         key: import.meta.env.VITE_RAZORPAY_KEY_ID,
         subscription_id: data.subscriptionId, // Use subscription_id instead of order_id
          // Include customer ID
-        name: "Leepi AI",
+        name: "Lipi AI",
         description: `₹399 every Week - ${plan} Plan`,
         prefill: {
           name: contactData.email.split('@')[0], // Use email prefix as name
@@ -619,7 +619,7 @@ const Subscription: React.FC = () => {
         key: import.meta.env.VITE_RAZORPAY_KEY_ID,
         subscription_id: subscriptionId,
          // Include customer ID
-        name: "Leepi AI",
+        name: "Lipi AI",
         description: "₹1999 every month",
         handler: async function (response: RazorpayResponse) {
           console.log("Razorpay Response:", response);
@@ -748,7 +748,7 @@ const Subscription: React.FC = () => {
           <div className="flex justify-center mb-6">
             <div className="relative inline-block">
               <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold bg-gradient-to-r from-[#CB6CE6] to-[#2D65F5] bg-clip-text text-transparent mb-2 transition-all duration-300 hover:scale-105">
-                Leepi AI
+                Lipi AI
               </h1>
             </div>
           </div>
@@ -812,7 +812,7 @@ const Subscription: React.FC = () => {
           <div className="flex justify-center mb-6">
             <div className="relative inline-block">
               <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold bg-gradient-to-r from-[#CB6CE6] to-[#2D65F5] bg-clip-text text-transparent mb-2 transition-all duration-300 hover:scale-105">
-                Leepi AI
+                Lipi AI
               </h1>
             </div>
           </div>
@@ -897,7 +897,7 @@ const Subscription: React.FC = () => {
         <div className="flex justify-center mb-6">
           <div className="relative inline-block">
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold bg-gradient-to-r from-[#CB6CE6] to-[#2D65F5] bg-clip-text text-transparent mb-2 transition-all duration-300 hover:scale-105">
-              Leepi AI
+              Lipi AI
             </h1>
           </div>
         </div>
@@ -907,7 +907,7 @@ const Subscription: React.FC = () => {
           <div className="relative bg-white rounded-2xl shadow-lg p-2 border border-gray-200 max-w-sm mx-auto">
   {/* Headline */}
   <h2 className="text-center text-lg font-semibold text-gray-800 mb-2">
-    Try <span className="text-purple-600 font-bold">Leepi AI</span> For 7 Days
+    Try <span className="text-purple-600 font-bold">Lipi AI</span> For 7 Days
   </h2>
   <p className="text-center text-sm text-gray-500 mb-3">
     Boost ROAS (Guaranteed) Or 100% Refund

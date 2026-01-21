@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, Image, Loader2, Upload } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Image, Loader2, Upload, Search, Target, ChevronDown, ChevronUp } from 'lucide-react';
 import { buildApiUrl } from '../config/api';
 import ImageAdViewer from '../components/ImageAdViewer';
 
@@ -20,6 +20,14 @@ interface ImageAdFormData {
   product_image_url?: string; // Keep for backward compatibility
   product_images?: File[]; // New: Support multiple images
   product_image_urls?: string[]; // New: Support multiple image URLs
+  competitor_search_query?: string; // Competitor search term
+  meta_access_token?: string; // Optional Meta access token
+  // Competitor analysis options
+  competitor_countries?: string; // 'ALL' or comma-separated ISO codes
+  competitor_ad_status?: 'ACTIVE' | 'INACTIVE' | 'ALL';
+  competitor_media_type?: 'ALL' | 'IMAGE' | 'VIDEO';
+  competitor_platforms?: string[]; // Publisher platforms
+  competitor_date_range?: '7d' | '30d' | '90d' | '180d' | 'all';
 }
 
 interface AutofillResponseData {
@@ -36,6 +44,7 @@ interface AutofillResponseData {
   special_offers?: string;
   insights?: string[];
   product_image_urls?: string[];
+  suggested_competitors?: string[];
 }
 
 interface AutofillMeta {
@@ -87,18 +96,13 @@ const CreateImageAds: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [generatedAd, setGeneratedAd] = useState<GeneratedImageAd | null>(null);
   const [currentView, setCurrentView] = useState<'form' | 'result'>('form');
-  const [isRedirecting, setIsRedirecting] = useState(false);
   const [productUrl, setProductUrl] = useState('');
   const [isAutofilling, setIsAutofilling] = useState(false);
   const [autofillNotice, setAutofillNotice] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
   const [autofillMeta, setAutofillMeta] = useState<AutofillMeta | null>(null);
   const [autofillInsights, setAutofillInsights] = useState<string[]>([]);
+  const [suggestedCompetitors, setSuggestedCompetitors] = useState<string[]>([]);
   const topRef = useRef<HTMLDivElement>(null);
-  
-  // Progressive loading state
-  const [loadingStep, setLoadingStep] = useState<'scripts' | 'images'>('scripts');
-  const [imagesCompleted, setImagesCompleted] = useState(0);
-  const [totalImages, setTotalImages] = useState(15);
 
   const [formData, setFormData] = useState<ImageAdFormData>({
     product: '',
@@ -115,8 +119,18 @@ const CreateImageAds: React.FC = () => {
     product_image: null,
     product_image_url: '',
     product_images: [], // New: Array of selected files
-    product_image_urls: [] // New: Array of uploaded URLs
+    product_image_urls: [], // New: Array of uploaded URLs
+    competitor_search_query: '', // Competitor search term
+    // Sensible defaults for competitor analysis
+    competitor_countries: 'ALL',
+    competitor_ad_status: 'ACTIVE',
+    competitor_media_type: 'ALL',
+    competitor_platforms: ['FACEBOOK', 'INSTAGRAM'],
+    competitor_date_range: '90d',
   });
+
+  // State to show/hide advanced competitor settings
+  const [showAdvancedCompetitor, setShowAdvancedCompetitor] = useState(false);
 
   // Handle prefilled brand name from previous pages
   useEffect(() => {
@@ -306,6 +320,19 @@ const CreateImageAds: React.FC = () => {
         setAutofillInsights(autofillData.insights.filter(Boolean));
       }
 
+      // Set suggested competitors and auto-fill first one into competitor search
+      if (Array.isArray(autofillData.suggested_competitors)) {
+        const competitors = autofillData.suggested_competitors.filter(Boolean);
+        setSuggestedCompetitors(competitors);
+        // Auto-fill first competitor into the search field
+        if (competitors.length > 0) {
+          setFormData(prev => ({
+            ...prev,
+            competitor_search_query: competitors[0]
+          }));
+        }
+      }
+
       const meta: AutofillMeta | undefined = data.meta;
       if (meta) {
         setAutofillMeta(meta);
@@ -336,10 +363,11 @@ const CreateImageAds: React.FC = () => {
       const token = localStorage.getItem('token');
       if (!token) {
         setError('Please login to continue');
+        setIsLoading(false);
         return;
       }
 
-      console.log('🚀 Starting complete 15-image campaign generation with data:', formData);
+      console.log('🚀 Starting campaign generation with data:', formData);
 
       // If product images are provided, upload them first
       let productImageUrls: string[] = [];
@@ -370,7 +398,6 @@ const CreateImageAds: React.FC = () => {
           console.log('✅ Product images uploaded:', productImageUrls.length, 'images', uploadData.imageUrls);
           
           // Update form data with the Google Cloud Storage URLs for future reference
-          // Note: Don't rely on this state update for the current submission since it's async
           setFormData(prev => ({
             ...prev,
             product_image_urls: productImageUrls
@@ -384,10 +411,22 @@ const CreateImageAds: React.FC = () => {
         console.log('ℹ️ Using existing product_image_urls from form data:', productImageUrls);
       }
       
-      // Final validation before sending to backend
-      console.log('🔍 Final product_image_urls to send:', productImageUrls);
+      // Calculate date range for competitor analysis
+      const getDateRange = () => {
+        if (!formData.competitor_date_range || formData.competitor_date_range === 'all') {
+          return {};
+        }
+        const days = parseInt(formData.competitor_date_range.replace('d', ''), 10);
+        const endDate = new Date();
+        const startDate = new Date();
+        startDate.setDate(startDate.getDate() - days);
+        return {
+          ad_delivery_date_min: startDate.toISOString().split('T')[0],
+          ad_delivery_date_max: endDate.toISOString().split('T')[0],
+        };
+      };
 
-      // Prepare complete campaign generation data
+      // Prepare campaign data
       const campaignData = {
         product: formData.product,
         brand_name: formData.brand_name,
@@ -400,131 +439,33 @@ const CreateImageAds: React.FC = () => {
         platform: formData.platform,
         image_format: formData.image_format,
         special_offers: formData.special_offers,
-        product_image_urls: productImageUrls // Pass the uploaded URLs array
+        product_image_urls: productImageUrls,
+        competitor_search_query: formData.competitor_search_query || '',
+        competitor_options: formData.competitor_search_query ? {
+          ad_reached_countries: formData.competitor_countries || 'ALL',
+          ad_active_status: formData.competitor_ad_status || 'ACTIVE',
+          media_type: formData.competitor_media_type || 'ALL',
+          publisher_platforms: formData.competitor_platforms?.length ? formData.competitor_platforms : ['FACEBOOK', 'INSTAGRAM'],
+          ...getDateRange(),
+        } : undefined,
       };
 
-      console.log('🎯 Complete campaignData object:', campaignData);
-      console.log('🎯 campaignData.product_image_urls specifically:', campaignData.product_image_urls);
-
-      // Reset progress state
-      setLoadingStep('scripts');
-      setImagesCompleted(0);
-      setTotalImages(12);
-
-      // Pre-check credits before starting EventSource
-      console.log('💰 Checking credits availability...');
-      try {
-        const creditCheckResponse = await fetch(buildApiUrl('api/image-ads/check-credits'), {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ estimateFor: 12 }) // 12 images
+      // If competitor search query is provided, go to strategy selection page
+      if (formData.competitor_search_query && formData.competitor_search_query.trim()) {
+        console.log('🎯 Competitor query provided, redirecting to strategy selection...');
+        setIsLoading(false);
+        navigate('/create-image-ads/competitor-strategy', {
+          state: { campaignData }
         });
-
-        if (!creditCheckResponse.ok) {
-          const creditError = await creditCheckResponse.json();
-          if (creditCheckResponse.status === 402) {
-            // Insufficient credits
-            setError(creditError.message || 'You don\'t have enough credits. Please top up your balance.');
-            setIsLoading(false);
-            return;
-          }
-        }
-      } catch (creditCheckError) {
-        console.error('Credit check failed:', creditCheckError);
-        // Continue anyway - the streaming endpoint will also check
+        return;
       }
 
-      // Use EventSource for streaming updates
-      console.log('📡 Opening EventSource connection for streaming updates');
-      const params = new URLSearchParams();
-      params.append('data', JSON.stringify(campaignData));
-      params.append('token', token);
-      
-      const eventSource = new EventSource(
-        buildApiUrl(`api/image-ads/generate-complete-campaign-stream?${params.toString()}`)
-      );
-
-      eventSource.addEventListener('start', (e) => {
-        const data = JSON.parse(e.data);
-        console.log('🎬 Stream started:', data);
+      // No competitor query - go directly to generating page
+      console.log('🚀 No competitor query, going directly to generation...');
+      setIsLoading(false);
+      navigate('/create-image-ads/generating', {
+        state: { campaignData }
       });
-
-      eventSource.addEventListener('scripts_start', (e) => {
-        const data = JSON.parse(e.data);
-        console.log('📝 Scripts generation started:', data);
-        setLoadingStep('scripts');
-      });
-
-      eventSource.addEventListener('scripts_complete', (e) => {
-        const data = JSON.parse(e.data);
-        console.log('✅ Scripts complete:', data);
-        setLoadingStep('images');
-        setTotalImages(data.totalScripts || 15);
-      });
-
-      eventSource.addEventListener('images_start', (e) => {
-        const data = JSON.parse(e.data);
-        console.log('🎨 Image generation started:', data);
-        setLoadingStep('images');
-      });
-
-      eventSource.addEventListener('image_start', (e) => {
-        const data = JSON.parse(e.data);
-        console.log(`🖼️ Generating image ${data.scriptNumber}/${data.totalScripts}:`, data.scriptName);
-      });
-
-      eventSource.addEventListener('image_complete', (e) => {
-        const data = JSON.parse(e.data);
-        console.log(`✅ Image ${data.scriptNumber} complete:`, data.scriptName);
-        setImagesCompleted(data.progress.completed);
-      });
-
-      eventSource.addEventListener('campaign_complete', (e) => {
-        const data = JSON.parse(e.data);
-        console.log('🎉 Campaign complete!', data);
-        setLoadingStep('images');
-      });
-
-      eventSource.addEventListener('complete', (e) => {
-        const data = JSON.parse(e.data);
-        console.log('🏁 Stream complete:', data);
-        
-        // Set the generated ad and switch to result view
-        if (data.imageAd) {
-          setGeneratedAd(data.imageAd);
-          setCurrentView('result');
-        }
-        
-        eventSource.close();
-        setIsLoading(false);
-      });
-
-      eventSource.addEventListener('error', (e: Event) => {
-        console.error('❌ EventSource error:', e);
-        const messageEvent = e as MessageEvent;
-        if (messageEvent.data) {
-          try {
-            const errorData = JSON.parse(messageEvent.data);
-            // Check if it's a credit error
-            if (errorData.needsTopUp || errorData.requiredCredits) {
-              setError('You don\'t have enough credits. Please top up your balance to continue.');
-            } else {
-              setError(errorData.message || 'Stream error occurred');
-            }
-          } catch {
-            setError('Connection error occurred. Please try again.');
-          }
-        } else {
-          setError('Connection to server lost. Please check your internet connection and try again.');
-        }
-        eventSource.close();
-        setIsLoading(false);
-      });
-
-      // Don't set isLoading to false here - EventSource handlers will manage it
 
     } catch (error) {
       console.error('Campaign setup error:', error);
@@ -558,6 +499,7 @@ const CreateImageAds: React.FC = () => {
     setAutofillNotice(null);
     setAutofillMeta(null);
     setAutofillInsights([]);
+    setSuggestedCompetitors([]);
   };
 
   const handleAutoFill = () => {
@@ -582,6 +524,7 @@ const CreateImageAds: React.FC = () => {
     setAutofillNotice(null);
     setAutofillMeta(null);
     setAutofillInsights([]);
+    setSuggestedCompetitors([]);
   };
 
   const uploadedImageCount = formData.product_images?.length ?? 0;
@@ -606,56 +549,15 @@ const CreateImageAds: React.FC = () => {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50">
       <div ref={topRef} />
       
-      {/* Loading Overlay */}
-      {(isLoading || isRedirecting) && (
+      {/* Loading Overlay - only for image upload and navigation */}
+      {isLoading && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-xl p-8 max-w-md mx-4 text-center">
             <div className="mb-4">
-              {isRedirecting ? (
-                <div className="h-12 w-12 bg-green-100 rounded-full flex items-center justify-center mx-auto">
-                  <svg className="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                </div>
-              ) : (
-                <Loader2 className="h-12 w-12 text-purple-600 animate-spin mx-auto" />
-              )}
+              <Loader2 className="h-12 w-12 text-purple-600 animate-spin mx-auto" />
             </div>
-            {isRedirecting ? (
-              <>
-                <h3 className="text-xl font-semibold text-green-700 mb-2">🎉 Campaign Generated Successfully!</h3>
-                <p className="text-gray-600">Loading your new image campaign...</p>
-                <p className="text-sm text-gray-500 mt-2">You'll see all {generatedAd?.totalImagesGenerated || 15} generated images</p>
-              </>
-            ) : (
-              <>
-                {loadingStep === 'scripts' ? (
-                  <>
-                    <h3 className="text-xl font-semibold text-gray-900 mb-2">📝 Generating Ad Scripts</h3>
-                    <p className="text-gray-600">AI is creating 15 diverse ad copy variations...</p>
-                    <p className="text-sm text-gray-500 mt-2">This will take a moment</p>
-                  </>
-                ) : (
-                  <>
-                    <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                      🎨 Generating Images {imagesCompleted}/{totalImages}
-                    </h3>
-                    <p className="text-gray-600">Creating high-quality ad images with AI...</p>
-                    <div className="mt-4">
-                      <div className="w-full bg-gray-200 rounded-full h-2.5">
-                        <div 
-                          className="bg-purple-600 h-2.5 rounded-full transition-all duration-500"
-                          style={{ width: `${(imagesCompleted / totalImages) * 100}%` }}
-                        ></div>
-                      </div>
-                      <p className="text-sm text-gray-500 mt-2">
-                        {Math.round((imagesCompleted / totalImages) * 100)}% complete
-                      </p>
-                    </div>
-                  </>
-                )}
-              </>
-            )}
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">Preparing Your Campaign</h3>
+            <p className="text-gray-600">Uploading images and preparing data...</p>
           </div>
         </div>
       )}
@@ -934,6 +836,209 @@ const CreateImageAds: React.FC = () => {
                   placeholder="Any discounts, bonuses, or limited-time offers?"
                 />
               </div>
+
+              {/* Competitor Analysis Section */}
+              <div className="md:col-span-2 mt-6">
+                <h2 className="text-2xl font-bold text-gray-900 mb-2 flex items-center gap-2">
+                  <Target className="h-6 w-6 text-purple-600" />
+                  Competitor Intelligence (Optional)
+                </h2>
+                <p className="text-sm text-gray-500 mb-4">
+                  Enter a competitor brand or product name to analyze their Meta ads and create differentiated creatives.
+                </p>
+              </div>
+
+              <div className="md:col-span-2">
+                <label htmlFor="competitor_search_query" className="block text-sm font-medium text-gray-700 mb-2">
+                  <Search className="inline h-4 w-4 mr-1" />
+                  Competitor Search Query
+                </label>
+                <input
+                  type="text"
+                  id="competitor_search_query"
+                  name="competitor_search_query"
+                  value={formData.competitor_search_query || ''}
+                  onChange={handleInputChange}
+                  className="block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 p-3"
+                  placeholder="e.g., 'Nike running shoes' or 'Glossier skincare'"
+                />
+                
+                {/* Suggested Competitors from Autofill */}
+                {suggestedCompetitors.length > 0 && (
+                  <div className="mt-3 p-3 bg-purple-50 border border-purple-200 rounded-lg">
+                    <p className="text-xs font-semibold text-purple-700 mb-2">
+                      🎯 Suggested Competitors (click to select):
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      {suggestedCompetitors.map((competitor, index) => (
+                        <button
+                          key={index}
+                          type="button"
+                          onClick={() => setFormData(prev => ({ ...prev, competitor_search_query: competitor }))}
+                          className={`px-3 py-1.5 text-sm rounded-full transition-colors ${
+                            formData.competitor_search_query === competitor
+                              ? 'bg-purple-600 text-white'
+                              : 'bg-white text-purple-700 border border-purple-300 hover:bg-purple-100'
+                          }`}
+                        >
+                          {competitor}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                
+                <p className="mt-1 text-xs text-gray-400">
+                  Leave empty to skip competitor analysis and use standard creative generation.
+                </p>
+              </div>
+
+              {/* Advanced Competitor Settings - Collapsible */}
+              {formData.competitor_search_query && (
+                <div className="md:col-span-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowAdvancedCompetitor(!showAdvancedCompetitor)}
+                    className="flex items-center text-sm text-purple-600 hover:text-purple-700 font-medium mb-3"
+                  >
+                    {showAdvancedCompetitor ? (
+                      <ChevronUp className="h-4 w-4 mr-1" />
+                    ) : (
+                      <ChevronDown className="h-4 w-4 mr-1" />
+                    )}
+                    {showAdvancedCompetitor ? 'Hide' : 'Show'} Advanced Filters
+                  </button>
+
+                  {showAdvancedCompetitor && (
+                    <div className="bg-purple-50 border border-purple-200 rounded-lg p-4 space-y-4">
+                      <p className="text-xs text-purple-600 mb-3">
+                        Fine-tune your competitor search. These defaults work well for most cases.
+                      </p>
+
+                      <div className="grid md:grid-cols-2 gap-4">
+                        {/* Countries */}
+                        <div>
+                          <label htmlFor="competitor_countries" className="block text-sm font-medium text-gray-700 mb-1">
+                            Target Countries
+                          </label>
+                          <select
+                            id="competitor_countries"
+                            name="competitor_countries"
+                            value={formData.competitor_countries || 'ALL'}
+                            onChange={handleInputChange}
+                            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 p-2 text-sm"
+                          >
+                            <option value="ALL">All Countries</option>
+                            <option value="US">United States</option>
+                            <option value="GB">United Kingdom</option>
+                            <option value="IN">India</option>
+                            <option value="CA">Canada</option>
+                            <option value="AU">Australia</option>
+                            <option value="DE">Germany</option>
+                            <option value="FR">France</option>
+                            <option value="BR">Brazil</option>
+                            <option value="US,GB,CA,AU">English-speaking (US, UK, CA, AU)</option>
+                            <option value="US,CA">North America</option>
+                            <option value="DE,FR,IT,ES">Western Europe</option>
+                          </select>
+                          <p className="text-xs text-gray-400 mt-1">Where ads were shown</p>
+                        </div>
+
+                        {/* Ad Status */}
+                        <div>
+                          <label htmlFor="competitor_ad_status" className="block text-sm font-medium text-gray-700 mb-1">
+                            Ad Status
+                          </label>
+                          <select
+                            id="competitor_ad_status"
+                            name="competitor_ad_status"
+                            value={formData.competitor_ad_status || 'ACTIVE'}
+                            onChange={handleInputChange}
+                            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 p-2 text-sm"
+                          >
+                            <option value="ACTIVE">Active Only (Recommended)</option>
+                            <option value="ALL">All Ads</option>
+                            <option value="INACTIVE">Inactive Only</option>
+                          </select>
+                          <p className="text-xs text-gray-400 mt-1">Active ads show current strategies</p>
+                        </div>
+
+                        {/* Media Type */}
+                        <div>
+                          <label htmlFor="competitor_media_type" className="block text-sm font-medium text-gray-700 mb-1">
+                            Media Type
+                          </label>
+                          <select
+                            id="competitor_media_type"
+                            name="competitor_media_type"
+                            value={formData.competitor_media_type || 'ALL'}
+                            onChange={handleInputChange}
+                            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 p-2 text-sm"
+                          >
+                            <option value="ALL">All Media Types</option>
+                            <option value="IMAGE">Images Only</option>
+                            <option value="VIDEO">Videos Only</option>
+                          </select>
+                          <p className="text-xs text-gray-400 mt-1">Filter by creative format</p>
+                        </div>
+
+                        {/* Date Range */}
+                        <div>
+                          <label htmlFor="competitor_date_range" className="block text-sm font-medium text-gray-700 mb-1">
+                            Date Range
+                          </label>
+                          <select
+                            id="competitor_date_range"
+                            name="competitor_date_range"
+                            value={formData.competitor_date_range || '90d'}
+                            onChange={handleInputChange}
+                            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 p-2 text-sm"
+                          >
+                            <option value="7d">Last 7 days</option>
+                            <option value="30d">Last 30 days</option>
+                            <option value="90d">Last 90 days (Recommended)</option>
+                            <option value="180d">Last 6 months</option>
+                            <option value="all">All time</option>
+                          </select>
+                          <p className="text-xs text-gray-400 mt-1">Recent ads = current trends</p>
+                        </div>
+                      </div>
+
+                      {/* Platform Checkboxes */}
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Platforms to Search
+                        </label>
+                        <div className="flex flex-wrap gap-3">
+                          {[
+                            { value: 'FACEBOOK', label: 'Facebook' },
+                            { value: 'INSTAGRAM', label: 'Instagram' },
+                            { value: 'MESSENGER', label: 'Messenger' },
+                            { value: 'AUDIENCE_NETWORK', label: 'Audience Network' },
+                          ].map((platform) => (
+                            <label key={platform.value} className="inline-flex items-center">
+                              <input
+                                type="checkbox"
+                                checked={formData.competitor_platforms?.includes(platform.value) || false}
+                                onChange={(e) => {
+                                  const current = formData.competitor_platforms || [];
+                                  const updated = e.target.checked
+                                    ? [...current, platform.value]
+                                    : current.filter((p) => p !== platform.value);
+                                  setFormData((prev) => ({ ...prev, competitor_platforms: updated }));
+                                }}
+                                className="rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+                              />
+                              <span className="ml-2 text-sm text-gray-700">{platform.label}</span>
+                            </label>
+                          ))}
+                        </div>
+                        <p className="text-xs text-gray-400 mt-1">Facebook & Instagram selected by default</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* Visual Style */}
               <div className="md:col-span-2 mt-6">

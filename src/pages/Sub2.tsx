@@ -274,7 +274,7 @@ const Sub2: React.FC = () => {
         key: import.meta.env.VITE_RAZORPAY_KEY_ID,
         subscription_id: data.subscriptionId,
         customer_id: data.customerId,
-        name: "Leepi AI",
+        name: "Lipi AI",
         description: "₹1999 every month - Individual Plan",
         // NO prefill - let Razorpay collect everything fresh
         handler: async (response: RazorpayResponse) => {
@@ -387,7 +387,7 @@ const Sub2: React.FC = () => {
         {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold bg-gradient-to-r from-[#CB6CE6] to-[#2D65F5] bg-clip-text text-transparent mb-2">
-            Leepi AI
+            Lipi AI
           </h1>
           <h2 className="text-xl font-semibold text-gray-800 mb-2">
             Complete Your Subscription

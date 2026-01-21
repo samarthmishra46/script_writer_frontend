@@ -112,7 +112,7 @@ const AboutUs: React.FC = () => {
             </h2>
             <div className="max-w-4xl mx-auto text-lg text-gray-700 leading-relaxed space-y-4">
               <p>
-                Leepi AI turns raw product truth into <span className="font-bold text-purple-600">20 Meta-native ad ideas, hooks, scripts, and frame-by-frame storyboards</span>—in minutes. No tone-pickers. No format guesswork. Just <span className="font-bold">scroll-stopping, money-moving creatives</span> designed to raise ROAS.
+                Lipi AI turns raw product truth into <span className="font-bold text-purple-600">20 Meta-native ad ideas, hooks, scripts, and frame-by-frame storyboards</span>—in minutes. No tone-pickers. No format guesswork. Just <span className="font-bold">scroll-stopping, money-moving creatives</span> designed to raise ROAS.
               </p>
               <div className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-8 py-4 rounded-full inline-block font-bold text-lg shadow-lg">
                 <span className="text-2xl">3 winners guaranteed or 100% refund.</span>
@@ -134,7 +134,7 @@ const AboutUs: React.FC = () => {
             </h2>
             <div className="prose prose-lg max-w-none text-gray-700 leading-relaxed space-y-6">
               <p>
-                We started as <span className="font-bold text-purple-600">Yuvichaar Funnels</span>, shipping founder-led, UGC-first ads that scaled brands. After managing <span className="font-bold text-green-600">₹50Cr+ in ad spend</span> and contributing to <span className="font-bold text-green-600">₹130Cr+ in tracked revenue</span>, we codified what worked into a product. Leepi AI is that playbook—<span className="font-bold">an engine that thinks like a strategist, writes like a top copywriter, and plans shots like a creative director</span>.
+                We started as <span className="font-bold text-purple-600">Yuvichaar Funnels</span>, shipping founder-led, UGC-first ads that scaled brands. After managing <span className="font-bold text-green-600">₹50Cr+ in ad spend</span> and contributing to <span className="font-bold text-green-600">₹130Cr+ in tracked revenue</span>, we codified what worked into a product. Lipi AI is that playbook—<span className="font-bold">an engine that thinks like a strategist, writes like a top copywriter, and plans shots like a creative director</span>.
               </p>
               <p>
                 Used to ideate and strategize <span className="font-bold text-purple-600">1,000+ ads</span> across <span className="font-bold">VC-backed & Shark Tank-funded D2C, ecommerce, B2B, edtech, and real estate</span> brands.
@@ -213,7 +213,7 @@ const AboutUs: React.FC = () => {
             <h2 className="relative text-4xl font-bold mb-8">Our Promise</h2>
             <div className="space-y-6 text-xl leading-relaxed">
               <p>You're probably <span className="font-bold text-yellow-300">one ad away</span> from your next revenue jump.</p>
-              <p>Leepi AI gives you <span className="font-bold text-yellow-300">twenty</span>.</p>
+              <p>Lipi AI gives you <span className="font-bold text-yellow-300">twenty</span>.</p>
               <div className="text-2xl font-bold space-y-2">
                 <p><span className="text-green-300">Try it.</span> <span className="text-blue-300">Shoot it.</span> <span className="text-pink-300">Publish it.</span></p>
                 <p>Then watch the dashboard turn <span className="text-green-300">green</span>.</p>
