@@ -32,7 +32,7 @@ const AD_TYPES = [
     title: 'Video Ads',
     description: 'Generate engaging video advertisements with motion graphics',
     icon: Video,
-    available: false,
+    available: true,
     color: 'blue',
     gradient: 'from-blue-500 to-blue-600',
     bgGradient: 'from-blue-50 to-blue-100',
@@ -70,12 +70,23 @@ const SelectAdType: React.FC = () => {
   const handleContinue = () => {
     if (!selectedType) return;
 
-    navigate(`/brands/${brandId}/products/${productId}/select-angles`, {
-      state: {
-        ...state,
-        adType: selectedType,
-      }
-    });
+    // Route to video parameters page for video ads
+    if (selectedType === 'video') {
+      navigate(`/brands/${brandId}/products/${productId}/video-parameters`, {
+        state: {
+          ...state,
+          adType: selectedType,
+        }
+      });
+    } else {
+      // Route to angles selection for other ad types
+      navigate(`/brands/${brandId}/products/${productId}/select-angles`, {
+        state: {
+          ...state,
+          adType: selectedType,
+        }
+      });
+    }
   };
 
   return (

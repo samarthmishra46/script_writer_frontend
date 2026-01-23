@@ -808,7 +808,7 @@ const CreateImageAds: React.FC = () => {
 
               <div>
                 <label htmlFor="call_to_action" className="block text-sm font-medium text-gray-700 mb-2">
-                  Call to Action *
+                  Call to Action * <span className="text-xs text-gray-500 font-normal">(Shown on ad image)</span>
                 </label>
                 <input
                   type="text"
@@ -820,6 +820,23 @@ const CreateImageAds: React.FC = () => {
                   placeholder="e.g., Shop Now, Learn More, Get Started"
                   required
                 />
+                <div className="mt-2 flex flex-wrap gap-2">
+                  <span className="text-xs text-gray-500">Quick select:</span>
+                  {['Shop Now', 'Learn More', 'Get Started', 'Subscribe Now', 'Buy Now', 'Try Free', 'Book Now', 'Sign Up'].map((cta) => (
+                    <button
+                      key={cta}
+                      type="button"
+                      onClick={() => setFormData(prev => ({ ...prev, call_to_action: cta }))}
+                      className={`text-xs px-2 py-1 rounded-full transition-colors ${
+                        formData.call_to_action === cta
+                          ? 'bg-green-600 text-white'
+                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      }`}
+                    >
+                      {cta}
+                    </button>
+                  ))}
+                </div>
               </div>
 
               <div>

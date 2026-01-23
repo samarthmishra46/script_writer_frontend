@@ -41,6 +41,9 @@ import SelectAdType from './pages/SelectAdType';
 import SelectAngles from './pages/SelectAngles';
 import GenerationProgress from './pages/GenerationProgress';
 import ImageSwiper from './pages/ImageSwiper';
+import VideoAdParameters from './pages/VideoAdParameters';
+import VideoIdeasSelection from './pages/VideoIdeasSelection';
+import VideoGenerationPage from './pages/VideoGenerationPage';
 import { OrderTimerProvider } from "./context/OrderTimerContext"; // <-- 1. IMPORT
 
 
@@ -197,6 +200,21 @@ function App() {
                 <Route path="/brands/:brandId/products/:productId/select-ad-type" element={
                   <ProtectedRoute>
                     <SelectAdType />
+                  </ProtectedRoute>
+                } />
+                <Route path="/brands/:brandId/products/:productId/video-parameters" element={
+                  <ProtectedRoute>
+                    <VideoAdParameters />
+                  </ProtectedRoute>
+                } />
+                <Route path="/brands/:brandId/products/:productId/video-ideas" element={
+                  <ProtectedRoute>
+                    <VideoIdeasSelection />
+                  </ProtectedRoute>
+                } />
+                <Route path="/brands/:brandId/products/:productId/video-generation" element={
+                  <ProtectedRoute>
+                    <VideoGenerationPage />
                   </ProtectedRoute>
                 } />
                 <Route path="/brands/:brandId/products/:productId/select-angles" element={

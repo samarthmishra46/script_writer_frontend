@@ -48,6 +48,7 @@ interface FormData {
   category: string;
   targetAudience: string;
   usp: string;
+  callToAction: string;
 }
 
 const CreateCampaign: React.FC = () => {
@@ -69,6 +70,7 @@ const CreateCampaign: React.FC = () => {
     category: '',
     targetAudience: '',
     usp: '',
+    callToAction: '',
   });
   
   // Brand image - now stores GCS data
@@ -131,7 +133,7 @@ const CreateCampaign: React.FC = () => {
     const files = e.target.files;
     if (!files) return;
 
-    const filesToUpload: File[] = [];
+    const filesToUpload: File[] = []; 
     const tempPreviews: string[] = [];
 
     for (let i = 0; i < files.length; i++) {
@@ -248,6 +250,7 @@ const CreateCampaign: React.FC = () => {
         category: result.data.category || prev.category,
         targetAudience: result.data.targetAudience || prev.targetAudience,
         usp: result.data.usp || prev.usp,
+        callToAction: result.data.callToAction || prev.callToAction,
       }));
 
       // Upload scraped images directly to GCS
@@ -349,6 +352,7 @@ const CreateCampaign: React.FC = () => {
         category: formData.category,
         targetAudience: formData.targetAudience,
         usp: formData.usp,
+        callToAction: formData.callToAction || 'Shop Now',
         // Brand image from GCS
         brandLogo: brandImage ? {
           url: brandImage.url,
@@ -664,6 +668,38 @@ const CreateCampaign: React.FC = () => {
                     placeholder="What makes your product unique?"
                     className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none transition-all"
                   />
+                </div>
+              </div>
+
+              {/* Call to Action */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Call to Action <span className="text-gray-400 text-xs">(Displayed on ad images)</span>
+                </label>
+                <input
+                  type="text"
+                  name="callToAction"
+                  value={formData.callToAction}
+                  onChange={handleInputChange}
+                  placeholder="e.g., Shop Now, Learn More, Get Started"
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none transition-all"
+                />
+                <div className="mt-2 flex flex-wrap gap-2">
+                  <span className="text-xs text-gray-500">Quick select:</span>
+                  {['Shop Now', 'Learn More', 'Get Started', 'Subscribe Now', 'Buy Now', 'Try Free', 'Book Now', 'Sign Up'].map((cta) => (
+                    <button
+                      key={cta}
+                      type="button"
+                      onClick={() => setFormData(prev => ({ ...prev, callToAction: cta }))}
+                      className={`text-xs px-2 py-1 rounded-full transition-colors ${
+                        formData.callToAction === cta
+                          ? 'bg-purple-600 text-white'
+                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      }`}
+                    >
+                      {cta}
+                    </button>
+                  ))}
                 </div>
               </div>
 

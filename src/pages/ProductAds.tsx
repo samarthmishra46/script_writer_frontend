@@ -12,7 +12,9 @@ import {
   X,
   Sparkles,
   Edit,
-  Upload
+  Upload,
+  Video,
+  Play
 } from 'lucide-react';
 import { buildApiUrl } from '../config/api';
 
@@ -31,6 +33,16 @@ interface IndividualImage {
   brandLogo: string | null;
 }
 
+interface ProductVideo {
+  _id: string;
+  url: string;
+  platform: string;
+  ageGroup: string;
+  primaryGoal: string;
+  ideaTitle: string;
+  createdAt: string;
+}
+
 interface Product {
   _id: string;
   name: string;
@@ -40,6 +52,7 @@ interface Product {
   category: string;
   targetAudience?: string;
   usp?: string;
+  videos?: ProductVideo[];
 }
 
 interface Brand {
@@ -405,6 +418,75 @@ const ProductAds: React.FC = () => {
             {error}
           </div>
         )}
+
+        {/* Videos Section */}
+        {product?.videos && product.videos.length > 0 && (
+          <div className="mb-10">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+                <Video className="w-5 h-5 text-purple-600" />
+                Generated Videos ({product.videos.length})
+              </h3>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {product.videos.map((video) => (
+                <div
+                  key={video._id}
+                  className="bg-white rounded-xl overflow-hidden border border-gray-200 hover:shadow-lg transition-all group"
+                >
+                  {/* Video Player */}
+                  <div className="aspect-video relative bg-black">
+                    <video
+                      src={video.url}
+                      className="w-full h-full object-contain"
+                      controls
+                      poster={product.primaryImage || undefined}
+                    />
+                  </div>
+
+                  {/* Card Footer */}
+                  <div className="p-4">
+                    <p className="text-sm font-medium text-gray-900 truncate mb-2">
+                      {video.ideaTitle || 'Video Ad'}
+                    </p>
+                    <div className="flex flex-wrap gap-1.5 mb-2">
+                      {video.platform && (
+                        <span className="text-xs px-2 py-0.5 rounded-full bg-blue-100 text-blue-600 capitalize">
+                          {video.platform.replace('_', ' ')}
+                        </span>
+                      )}
+                      {video.primaryGoal && (
+                        <span className="text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-600 capitalize">
+                          {video.primaryGoal.replace('_', ' ')}
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-gray-500">
+                        {video.createdAt ? new Date(video.createdAt).toLocaleDateString() : 'Recently'}
+                      </span>
+                      <a
+                        href={video.url}
+                        download
+                        className="flex items-center gap-1 text-xs text-purple-600 hover:text-purple-700"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <Download className="w-3 h-3" />
+                        Download
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Image Ads Section Title */}
+        <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2 mb-4">
+          <ImageIcon className="w-5 h-5 text-purple-600" />
+          Image Ads
+        </h3>
 
         {/* Images Grid */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">

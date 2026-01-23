@@ -365,10 +365,15 @@ const ImageAdViewer: React.FC<ImageAdViewerProps> = ({
                 <p className="mt-2 text-base font-medium text-slate-900">{platformLabel}</p>
                 <p className="text-xs text-slate-500">{paletteLabel}</p>
               </div>
-              <div className="rounded-xl bg-slate-50 px-4 py-3 border border-slate-100">
-                <p className="text-xs uppercase tracking-wider text-slate-500">Asset inputs</p>
-                <p className="mt-2 text-base font-medium text-slate-900">{referenceLabel}</p>
-                <p className="text-xs text-slate-500">{localImageAd.brand_name}</p>
+              <div className="rounded-xl bg-purple-50 px-4 py-3 border border-purple-200">
+                <p className="text-xs uppercase tracking-wider text-purple-600">Call to Action</p>
+                <p className="mt-2 text-base font-bold text-purple-900">
+                  {(localImageAd.metadata?.call_to_action as string) || 
+                   (localImageAd.metadata?.callToAction as string) ||
+                   (localImageAd.campaign?.call_to_action) ||
+                   'Shop Now'}
+                </p>
+                <p className="text-xs text-purple-600">Displayed on images</p>
               </div>
             </div>
           </div>
