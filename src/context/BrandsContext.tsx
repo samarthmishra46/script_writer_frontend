@@ -5,6 +5,9 @@ interface Brand {
   name: string;
   products: string[];
   id: string;
+  logo?: string | null;
+  productCount?: number;
+  adCount?: number;
 }
 
 // Define the context shape

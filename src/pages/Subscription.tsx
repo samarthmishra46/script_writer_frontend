@@ -194,7 +194,7 @@ const Subscription: React.FC = () => {
       <div className="mt-6">
         <div className="bg-white border border-purple-200 rounded-2xl p-5 text-left shadow-sm">
           <h4 className="text-lg font-semibold text-purple-700 mb-3">
-            Credit Wallet
+            LiPiCoins Wallet
           </h4>
           <div className="flex items-center justify-between mb-3">
             <div>
@@ -211,17 +211,17 @@ const Subscription: React.FC = () => {
 
           {paidTrialStatus?.isActive ? (
             <p className="text-xs text-gray-600 bg-purple-50 border border-purple-100 rounded-lg px-3 py-2">
-              Trial includes {trialCreditAmount} credits. Use them before your trial ends on {formatDate(subscriptionData.trialEndDate)}.
+              Trial includes {trialCreditAmount} LiPiCoins. Use them before your trial ends on {formatDate(subscriptionData.trialEndDate)}.
             </p>
           ) : (
             <p className="text-xs text-gray-600 bg-blue-50 border border-blue-100 rounded-lg px-3 py-2">
-              Each monthly renewal adds {monthlyCreditAmount} credits to your balance automatically.
+              Each monthly renewal adds {monthlyCreditAmount} LiPiCoins to your balance automatically.
             </p>
           )}
 
           {creditSummary.mostRecentEvent && (
             <div className="mt-4 text-xs text-gray-500">
-              <p className="font-medium text-gray-600 mb-1">Last credit event</p>
+              <p className="font-medium text-gray-600 mb-1">Last LiPiCoins event</p>
               <p>
                 {creditSummary.mostRecentEvent.amount > 0 ? "+" : ""}
                 {creditSummary.mostRecentEvent.amount} ({creditSummary.mostRecentEvent.event})
@@ -782,7 +782,7 @@ const Subscription: React.FC = () => {
             <div className="bg-white rounded-lg p-4 border border-yellow-100 text-left text-sm text-yellow-700">
               <p className="font-semibold">Upcoming charge</p>
               <p className="mt-1">
-                Scheduled for {formatDate(nextChargeDate)} · Includes {monthlyCreditAmount} monthly credits.
+                Scheduled for {formatDate(nextChargeDate)} · Includes {monthlyCreditAmount} monthly LiPiCoins.
               </p>
             </div>
           </div>
@@ -797,7 +797,7 @@ const Subscription: React.FC = () => {
           </button>
 
           <p className="text-xs text-gray-500 mt-4">
-            You can cancel anytime before your trial ends. After the trial, billing switches to a 30-day cycle with automatic credit renewals.
+            You can cancel anytime before your trial ends. After the trial, billing switches to a 30-day cycle with automatic LiPiCoins renewals.
           </p>
         </div>
       </div>
@@ -883,7 +883,7 @@ const Subscription: React.FC = () => {
           </button>
 
           <p className="text-xs text-gray-500 mt-4">
-            Each renewal keeps your access active for 30 days and refreshes {monthlyCreditAmount} credits automatically.
+            Each renewal keeps your access active for 30 days and refreshes {monthlyCreditAmount} LiPiCoins automatically.
           </p>
         </div>
       </div>

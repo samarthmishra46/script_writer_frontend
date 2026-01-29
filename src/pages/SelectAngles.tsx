@@ -122,14 +122,28 @@ const SelectAngles: React.FC = () => {
   const [selectedAngles, setSelectedAngles] = useState<string[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showOutOfCredits, setShowOutOfCredits] = useState(false);
+
+  const storedUser = localStorage.getItem('user');
+  let parsedUser: { subscription?: { status?: string; plan?: string } } | null = null;
+  try {
+    parsedUser = storedUser ? JSON.parse(storedUser) : null;
+  } catch {
+    parsedUser = null;
+  }
+  const hasActivePaidSubscription = Boolean(
+    parsedUser?.subscription?.status === 'active' &&
+      (parsedUser?.subscription?.plan === 'individual' || parsedUser?.subscription?.plan === 'organization')
+  );
+  const maxAngles = hasActivePaidSubscription ? 5 : 1;
 
   const toggleAngle = (angleId: string) => {
     setSelectedAngles(prev => {
       if (prev.includes(angleId)) {
         return prev.filter(id => id !== angleId);
       }
-      // Limit to 5 angles max
-      if (prev.length >= 5) {
+      // Limit to 5 angles for subscribers, 1 for trial users
+      if (prev.length >= maxAngles) {
         return prev;
       }
       return [...prev, angleId];
@@ -167,6 +181,11 @@ const SelectAngles: React.FC = () => {
       const result = await response.json();
 
       if (!response.ok) {
+        if (response.status === 402) {
+          setShowOutOfCredits(true);
+          setIsGenerating(false);
+          return;
+        }
         throw new Error(result.message || 'Failed to start generation');
       }
 
@@ -199,7 +218,7 @@ const SelectAngles: React.FC = () => {
             <span>Back</span>
           </button>
           <div className="text-sm text-gray-500">
-            {selectedAngles.length}/5 angles selected
+            {selectedAngles.length}/{maxAngles} angles selected
           </div>
         </div>
       </header>
@@ -222,7 +241,11 @@ const SelectAngles: React.FC = () => {
         {/* Title */}
         <div className="text-center mb-12">
           <h1 className="text-3xl font-bold text-gray-900 mb-3">Choose Your Creative Angles</h1>
-          <p className="text-gray-600 text-lg">Select 1-5 creative angles to generate diverse ad variations</p>
+          <p className="text-gray-600 text-lg">
+            {hasActivePaidSubscription
+              ? 'Select 1-5 creative angles to generate diverse ad variations'
+              : 'Free trial allows only 1 angle. Upgrade to unlock more.'}
+          </p>
         </div>
 
         {/* Error Message */}
@@ -309,6 +332,7 @@ const SelectAngles: React.FC = () => {
             </div>
             <p className="text-sm text-gray-500 mt-3">
               ~{selectedAngles.length * 4} images will be generated ({selectedAngles.length} angles × 4 variations each)
+              {!hasActivePaidSubscription && ' • 2 images will be unlocked on trial'}
             </p>
           </div>
         )}
@@ -339,6 +363,30 @@ const SelectAngles: React.FC = () => {
             )}
           </button>
         </div>
+        {showOutOfCredits && (
+          <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-2xl p-6 max-w-md w-full shadow-xl">
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Out of LiPiCoins</h3>
+              <p className="text-gray-600 mb-6">
+                You’ve used all your trial LiPiCoins. Add more LiPiCoins to generate additional images.
+              </p>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowOutOfCredits(false)}
+                  className="flex-1 px-4 py-2 border border-gray-200 rounded-lg text-gray-700 hover:bg-gray-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => navigate('/subscription')}
+                  className="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+                >
+                  Manage LiPiCoins
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </main>
     </div>
   );

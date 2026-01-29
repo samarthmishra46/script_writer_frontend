@@ -76,22 +76,22 @@ const TrialStatus: React.FC<TrialStatusProps> = ({
               </span>
             </div>
             <p className="text-xs text-purple-700 mt-2">
-              Enjoy premium access while we complete your first billing cycle. Full credits unlock automatically after this trial.
+              Enjoy premium access while we complete your first billing cycle. Full LiPiCoins unlock automatically after this trial.
             </p>
             <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="bg-white/60 rounded-lg p-3 border border-purple-100">
                 <p className="text-xs text-purple-600 uppercase tracking-wide">Scripts</p>
                 <p className="text-lg font-semibold text-purple-900">{scriptsRemaining}</p>
-                <p className="text-xs text-purple-500">trial credits remaining</p>
+                <p className="text-xs text-purple-500">trial LiPiCoins remaining</p>
               </div>
               <div className="bg-white/60 rounded-lg p-3 border border-purple-100">
                 <p className="text-xs text-purple-600 uppercase tracking-wide">Images</p>
                 <p className="text-lg font-semibold text-purple-900">{imagesRemaining}</p>
-                <p className="text-xs text-purple-500">trial credits remaining</p>
+                <p className="text-xs text-purple-500">trial LiPiCoins remaining</p>
               </div>
             </div>
             <div className="mt-3 text-xs text-purple-600">
-              We’ll transition you to full plan credits automatically after the trial window completes.
+              We’ll transition you to full plan LiPiCoins automatically after the trial window completes.
             </div>
           </div>
         </div>

@@ -91,9 +91,7 @@ interface ApiProduct {
 
 const Dashboard: React.FC = () => {
   const [scripts, setScripts] = useState<Script[]>([]);
-  const [scriptGroups, setScriptGroups] = useState<ScriptGroup[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   //const [selectedScriptId, setSelectedScriptId] = useState<string | null>(null);
   //const [showStoryboard, setShowStoryboard] = useState(false);
@@ -259,6 +257,9 @@ const Dashboard: React.FC = () => {
         name: b.name,
         products: b.products?.map((p: ApiProduct) => p.name) || [],
         id: b._id,
+        logo: b.logo,
+        productCount: b.productCount,
+        adCount: b.adCount,
       }));
       setSidebarBrands(sidebarData);
 
@@ -374,91 +375,6 @@ const Dashboard: React.FC = () => {
     [brandsContext, apiBrands.length]
   );
 
-  // Fetch scripts function defined with useCallback for memoization
-  const fetchScripts = useCallback(async () => {
-    try {
-      setIsLoading(true);
-      setError(null);
-
-      const token = localStorage.getItem("token");
-      if (!token) {
-        setError("Authentication required");
-        return;
-      }
-
-      // Fetch unified data from scripts endpoint (includes both regular scripts and UGC ads)
-      const response = await fetch(buildApiUrl("api/scripts"), {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-  const result = await response.json();
-  const allData = (result.success ? result.data : result) as Script[];
-
-      console.log('📊 Unified data fetched from scripts endpoint:', allData.length, 'items');
-
-      // Sort by creation date (newest first)
-      const sortedScripts = allData.sort(
-        (a: Script, b: Script) =>
-          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-      );
-
-      // Debug UGC videos
-      const ugcScripts = sortedScripts.filter((script: Script) => script.metadata?.adType === 'ugc');
-      console.log('🎬 UGC Videos in dashboard data:', ugcScripts.map((script: Script) => ({
-        id: script._id,
-        product: script.metadata?.product,
-        hasVideoUrl: !!script.metadata?.videoUrl,
-        videoUrl: script.metadata?.videoUrl,
-        status: script.metadata?.status
-      })));
-
-      setScripts(sortedScripts || []);
-    } catch (error) {
-      console.error("Error fetching scripts:", error);
-      setError("Failed to load scripts. Please try again.");
-      // Fallback to sample data for demo
-      const sampleScripts = [
-        {
-          _id: "1",
-          title: "Ayush Wellness Script",
-          createdAt: "2025-07-30",
-          metadata: {
-            brand_name: "Ayush Wellness",
-            product: "Herbal Supplement",
-          },
-        },
-        {
-          _id: "2",
-          title: "DNA Consulting Script",
-          createdAt: "2025-07-29",
-          metadata: {
-            brand_name: "DNA Consulting",
-            product: "Business Advisory",
-          },
-        },
-        {
-          _id: "3",
-          title: "Pawblaze.in Script",
-          createdAt: "2025-07-28",
-          metadata: {
-            brand_name: "Pawblaze",
-            product: "Pet Food",
-          },
-        },
-      ];
-      setScripts(sampleScripts as Script[]);
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
   // Check if user has access to storyboard generation
   // const checkStoryboardAccess = useCallback(async () => {
   //   setCheckingAccess(true);
@@ -510,9 +426,9 @@ const Dashboard: React.FC = () => {
 
   // Fetch scripts and brands on component mount
   useEffect(() => {
-    fetchScripts();
+   
     fetchBrands();
-  }, [fetchScripts, fetchBrands]);
+  }, [ fetchBrands]);
 
   // Extract brands from scripts when scripts change (fallback if API brands empty)
   useEffect(() => {
@@ -521,88 +437,6 @@ const Dashboard: React.FC = () => {
     }
   }, [scripts, apiBrands.length, extractBrandsFromScripts]);
 
-  // Group scripts by brand_name + product
-  useEffect(() => {
-    if (scripts.length === 0) return;
-
-    const groups = new Map<string, ScriptGroup>();
-
-    scripts.forEach((script) => {
-      const brand_name =
-        script.brand_name ||
-        (script.metadata?.brand_name as string) ||
-        "Unknown Brand";
-      const product =
-        script.product ||
-        (script.metadata?.product as string) ||
-        "Unknown Product";
-      const key = `${brand_name}-${product}`;
-
-      const scriptDate = new Date(script.createdAt);
-
-      if (!groups.has(key)) {
-        // Create new group
-        const adType = script.metadata?.adType as string;
-        const imageUrl = (script.metadata?.imageUrl as string) || 
-                   (Array.isArray(script.metadata?.allImageUrls) && script.metadata.allImageUrls.length > 0 
-                    ? script.metadata.allImageUrls[0] as string 
-                    : undefined);
-        
-        console.log(`📊 Creating group for ${brand_name} - ${product}:`, {
-          scriptId: script._id,
-          adType,
-          hasImageUrl: !!imageUrl,
-          allImageUrls: script.metadata?.allImageUrls
-        });
-        
-        groups.set(key, {
-          key,
-          brand_name,
-          product,
-          scriptCount: 1,
-          latestDate: scriptDate,
-          preview: "/api/placeholder/150/100",
-          firstScriptId: script._id,
-          latestScriptId: script._id,
-          adType,
-          imageUrl,
-          campaignTheme: script.metadata?.campaign?.theme as string,
-          // UGC-specific fields
-          videoUrl: script.metadata?.videoUrl as string,
-          thumbnailUrl: script.metadata?.thumbnailUrl as string,
-          selectedCharacter: script.metadata?.selectedCharacter as string,
-        });
-      } else {
-        // Update existing group
-        const group = groups.get(key)!;
-        group.scriptCount += 1;
-
-        // Update latest script if this one is newer
-        if (scriptDate > group.latestDate) {
-          group.latestDate = scriptDate;
-          group.latestScriptId = script._id;
-          group.adType = script.metadata?.adType as string;
-          group.imageUrl = (script.metadata?.imageUrl as string) || 
-                          (Array.isArray(script.metadata?.allImageUrls) && script.metadata.allImageUrls.length > 0 
-                           ? script.metadata.allImageUrls[0] as string 
-                           : undefined);
-          group.campaignTheme = script.metadata?.campaign?.theme as string;
-          // UGC-specific fields
-          group.videoUrl = script.metadata?.videoUrl as string;
-          group.thumbnailUrl = script.metadata?.thumbnailUrl as string;
-          group.selectedCharacter = script.metadata?.selectedCharacter as string;
-        }
-      }
-    });
-
-    // Convert Map to array and sort by latest date
-    const groupsArray = Array.from(groups.values());
-
-    // Sort based on the current sort option
-    const sortedArray = [...groupsArray];
-    
-    setScriptGroups(sortedArray);
-  }, [scripts]);
 
   // Handle storyboard generation button click
   // const handleStoryboardGeneration = (scriptId: string) => {
@@ -624,11 +458,6 @@ const Dashboard: React.FC = () => {
   //   }
   // };
 
-  const filteredGroups = scriptGroups.filter(
-    (group) =>
-      group.brand_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      group.product.toLowerCase().includes(searchTerm.toLowerCase())
-  );
 
   // Filter brands based on search term
   const filteredBrands = apiBrands.filter(
@@ -842,7 +671,7 @@ const Dashboard: React.FC = () => {
           )}
 
           {/* Loading State */}
-          {(isLoading || brandsLoading) && (
+          {(brandsLoading) && (
             <div className="flex items-center justify-center py-12">
               <Loader2 className="w-8 h-8 animate-spin text-purple-600" />
               <span className="ml-2 text-gray-600">Loading brands...</span>
@@ -850,7 +679,7 @@ const Dashboard: React.FC = () => {
           )}
 
           {/* Brands Grid */}
-          {!isLoading && !brandsLoading && (
+          {!brandsLoading && (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {filteredBrands.length === 0 ? (
                 <div className="col-span-full text-center py-12">
@@ -910,7 +739,7 @@ const Dashboard: React.FC = () => {
                         <img
                           src={brand.logo}
                           alt={brand.name}
-                          className="w-14 h-14 rounded-xl object-cover border border-gray-200"
+                          className="w-14 h-14 rounded-xl object-contain border border-gray-200"
                         />
                       ) : (
                         <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center">

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+port React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Loader2, CheckCircle, Image, Sparkles, AlertCircle } from 'lucide-react';
 import { buildApiUrl } from '../config/api';
@@ -138,7 +138,7 @@ const GeneratingCampaign: React.FC = () => {
         if (!creditCheckResponse.ok) {
           const creditError = await creditCheckResponse.json();
           if (creditCheckResponse.status === 402) {
-            setError(creditError.message || 'Insufficient credits. Please top up.');
+            setError(creditError.message || 'Insufficient LiPiCoins. Please top up.');
             return;
           }
         }

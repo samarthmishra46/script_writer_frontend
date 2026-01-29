@@ -123,7 +123,8 @@ const VideoGenerationPage: React.FC = () => {
       });
 
       if (!videoResponse.ok) {
-        throw new Error('Failed to generate video');
+        const errorData = await videoResponse.json();
+        throw new Error(errorData.message || 'Failed to generate video');
       }
 
       const videoData = await videoResponse.json();

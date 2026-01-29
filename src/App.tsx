@@ -5,9 +5,6 @@ import { GoogleOAuthProvider } from '@react-oauth/google';
 import ReactPixel from 'react-facebook-pixel';
 import LandingPage from './pages/LandingPage';
 import Dashboard from './pages/Dashboard';
-import CreateScriptWizard from './pages/CreateScriptWizard';
-import GeneratedScripts from './pages/GeneratedScripts';
-import ScriptView from './pages/ScriptView';
 import NotFound from './pages/NotFound';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
@@ -20,17 +17,7 @@ import GoogleAuthTestPage from './pages/GoogleAuthTestPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import ScriptGroup from './pages/ScriptGroup';
 import Settings from './pages/Settings';
-import VideoGeneratorPage from './pages/VideoGeneratorPage';
-import AdTypeSelector from './pages/AdTypeSelector';
-import CreateImageAds from './pages/CreateImageAds';
 import CompetitorStrategy from './pages/CompetitorStrategy';
-import GeneratingCampaign from './pages/GeneratingCampaign';
-import ViewImageAd from './pages/ViewImageAd';
-import UGCDashboard from './pages/UGCDashboard';
-import CreateUGCAd from './pages/CreateUGCAd';
-import CharacterSelection from './pages/CharacterSelection';
-import ScriptGeneration from './pages/ScriptGeneration';
-import VideoGeneration from './pages/VideoGeneration';
 import { BrandsProvider } from './context/BrandsContext';
 // New Ad Creation Flow Pages
 import CreateCampaign from './pages/CreateCampaign';
@@ -44,6 +31,11 @@ import ImageSwiper from './pages/ImageSwiper';
 import VideoAdParameters from './pages/VideoAdParameters';
 import VideoIdeasSelection from './pages/VideoIdeasSelection';
 import VideoGenerationPage from './pages/VideoGenerationPage';
+import UGCParameters from './pages/UGCParameters';
+import UGCResult from './pages/UGCResult';
+
+
+
 import { OrderTimerProvider } from "./context/OrderTimerContext"; // <-- 1. IMPORT
 
 
@@ -115,66 +107,6 @@ function App() {
                     <Dashboard />
                   </ProtectedRoute>
                 } />
-                <Route path="/ad-type-selector" element={
-                  <ProtectedRoute>
-                    <AdTypeSelector />
-                  </ProtectedRoute>
-                } />
-                <Route path="/create-script" element={
-                  <ProtectedRoute>
-                    <CreateScriptWizard />
-                  </ProtectedRoute>
-                } />
-                <Route path="/create-script-wizard" element={
-                  <ProtectedRoute>
-                    <CreateScriptWizard />
-                  </ProtectedRoute>
-                } />
-                <Route path="/create-image-ads" element={
-                  <ProtectedRoute>
-                    <CreateImageAds />
-                  </ProtectedRoute>
-                } />
-                <Route path="/create-image-ads/competitor-strategy" element={
-                  <ProtectedRoute>
-                    <CompetitorStrategy />
-                  </ProtectedRoute>
-                } />
-                <Route path="/create-image-ads/generating" element={
-                  <ProtectedRoute>
-                    <GeneratingCampaign />
-                  </ProtectedRoute>
-                } />
-                <Route path="/image-ads/view/:adId" element={
-                  <ProtectedRoute>
-                    <ViewImageAd />
-                  </ProtectedRoute>
-                } />
-                <Route path="/ugc-ads" element={
-                  <ProtectedRoute>
-                    <UGCDashboard />
-                  </ProtectedRoute>
-                } />
-                <Route path="/ugc-ads/create" element={
-                  <ProtectedRoute>
-                    <CreateUGCAd />
-                  </ProtectedRoute>
-                } />
-                <Route path="/ugc-ads/:id/character-selection" element={
-                  <ProtectedRoute>
-                    <CharacterSelection />
-                  </ProtectedRoute>
-                } />
-                <Route path="/ugc-ads/:id/script-generation" element={
-                  <ProtectedRoute>
-                    <ScriptGeneration />
-                  </ProtectedRoute>
-                } />
-                <Route path="/ugc-ads/:id/video-generation" element={
-                  <ProtectedRoute>
-                    <VideoGeneration />
-                  </ProtectedRoute>
-                } />
                 
                 {/* New Ad Creation Flow Routes */}
                 <Route path="/create-campaign" element={
@@ -217,6 +149,16 @@ function App() {
                     <VideoGenerationPage />
                   </ProtectedRoute>
                 } />
+                <Route path="/brands/:brandId/products/:productId/ugc-parameters" element={
+                  <ProtectedRoute>
+                    <UGCParameters />
+                  </ProtectedRoute>
+                } />
+                <Route path="/brands/:brandId/products/:productId/ugc-result" element={
+                  <ProtectedRoute>
+                    <UGCResult />
+                  </ProtectedRoute>
+                } />
                 <Route path="/brands/:brandId/products/:productId/select-angles" element={
                   <ProtectedRoute>
                     <SelectAngles />
@@ -233,16 +175,7 @@ function App() {
                   </ProtectedRoute>
                 } />
 
-                <Route path="/scripts" element={
-                  <ProtectedRoute>
-                    <GeneratedScripts />
-                  </ProtectedRoute>
-                } />
-                <Route path="/script/:scriptId" element={
-                  <ProtectedRoute>
-                    <ScriptView />
-                  </ProtectedRoute>
-                } />
+               
                 <Route path="/subscription" element={<Subscription />} />
                 <Route path="/subscription/callback" element={
                   <ProtectedRoute>
@@ -255,7 +188,7 @@ function App() {
                   </ProtectedRoute>
                 } />
                 <Route path="/settings" element={<Settings />} />
-                <Route path="/video-generator" element={<VideoGeneratorPage />} />
+               
 
                 {/* Redirect unknown routes to dashboard */}
                 <Route path="*" element={<Navigate to="/dashboard" replace />} />

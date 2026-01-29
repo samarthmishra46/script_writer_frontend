@@ -18,12 +18,25 @@ const SubscriptionBanner: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    const SUBSCRIPTION_CACHE_TTL_MS = 30_000;
     const fetchSubscription = async () => {
       try {
         setLoading(true);
         const token = localStorage.getItem('token');
         if (!token) {
           return;
+        }
+
+        const lastFetched = Number(localStorage.getItem('subscription_last_fetched') || 0);
+        const cachedSubscription = localStorage.getItem('subscription_cache');
+        if (lastFetched && Date.now() - lastFetched < SUBSCRIPTION_CACHE_TTL_MS && cachedSubscription) {
+          try {
+            const parsed = JSON.parse(cachedSubscription) as SubscriptionInfo;
+            setSubscription(parsed);
+            return;
+          } catch (cacheError) {
+            console.warn('Failed to parse cached subscription:', cacheError);
+          }
         }
 
         const response = await fetch(buildApiUrl('api/subscription'), {
@@ -38,6 +51,8 @@ const SubscriptionBanner: React.FC = () => {
 
         const data = await response.json();
         setSubscription(data.subscription);
+        localStorage.setItem('subscription_cache', JSON.stringify(data.subscription));
+        localStorage.setItem('subscription_last_fetched', Date.now().toString());
       } catch (err) {
         console.error('Error fetching subscription:', err);
         setError('Failed to load subscription information');

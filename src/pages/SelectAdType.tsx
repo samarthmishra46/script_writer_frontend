@@ -42,7 +42,7 @@ const AD_TYPES = [
     title: 'UGC Video Ads',
     description: 'Create authentic user-generated content style videos with AI avatars',
     icon: Users,
-    available: false,
+    available: true,
     color: 'green',
     gradient: 'from-green-500 to-green-600',
     bgGradient: 'from-green-50 to-green-100',
@@ -67,12 +67,39 @@ const SelectAdType: React.FC = () => {
   
   const [selectedType, setSelectedType] = useState<string | null>(null);
 
+  const storedUser = localStorage.getItem('user');
+  let parsedUser: { subscription?: { status?: string; plan?: string } } | null = null;
+  try {
+    parsedUser = storedUser ? JSON.parse(storedUser) : null;
+  } catch {
+    parsedUser = null;
+  }
+  const hasActivePaidSubscription = Boolean(
+    parsedUser?.subscription?.status === 'active' &&
+      (parsedUser?.subscription?.plan === 'individual' || parsedUser?.subscription?.plan === 'organization')
+  );
+
+  const adTypes = AD_TYPES.map((type) => {
+    if (type.id === 'video' || type.id === 'ugc') {
+      return { ...type, available: hasActivePaidSubscription };
+    }
+    return type;
+  });
+
   const handleContinue = () => {
     if (!selectedType) return;
 
     // Route to video parameters page for video ads
     if (selectedType === 'video') {
       navigate(`/brands/${brandId}/products/${productId}/video-parameters`, {
+        state: {
+          ...state,
+          adType: selectedType,
+        }
+      });
+    } else if (selectedType === 'ugc') {
+      // Route to UGC parameters page for UGC ads
+      navigate(`/brands/${brandId}/products/${productId}/ugc-parameters`, {
         state: {
           ...state,
           adType: selectedType,
@@ -125,7 +152,7 @@ const SelectAdType: React.FC = () => {
 
         {/* Ad Type Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
-          {AD_TYPES.map((adType) => {
+          {adTypes.map((adType) => {
             const Icon = adType.icon;
             const isSelected = selectedType === adType.id;
             const isAvailable = adType.available;
@@ -147,7 +174,9 @@ const SelectAdType: React.FC = () => {
                 {!isAvailable && (
                   <div className="absolute top-4 right-4 flex items-center gap-1 px-3 py-1 bg-gray-100 rounded-full">
                     <Lock className="w-3 h-3 text-gray-500" />
-                    <span className="text-xs font-medium text-gray-500">Coming Soon</span>
+                    <span className="text-xs font-medium text-gray-500">
+                      {(adType.id === 'video' || adType.id === 'ugc') ? 'Requires Subscription' : 'Coming Soon'}
+                    </span>
                   </div>
                 )}
 

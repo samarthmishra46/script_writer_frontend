@@ -163,7 +163,7 @@ export const shouldRedirectToSubscription = (user: User): boolean => {
   }
 
   if (typeof user.redirectTo === 'string') {
-    return user.redirectTo !== '/dashboard';
+    return user.redirectTo === '/subscription';
   }
 
   const subscriptionPlan = user.subscription?.plan;
@@ -187,29 +187,7 @@ export const shouldRedirectToSubscription = (user: User): boolean => {
 
   const freeTrialStatus = user.trialStatus;
   if (freeTrialStatus?.isActive) {
-    return true;
-  }
-
-  if (subscriptionPlan === 'unsubscribed') {
-    return true;
-  }
-
-  if (subscriptionStatus === 'active' && subscriptionPlan === 'free') {
-    return true;
-  }
-
-  if (
-    subscriptionStatus === 'inactive' ||
-    subscriptionStatus === 'cancelled' ||
-    subscriptionStatus === 'expired' ||
-    user.subscriptionStatus === 'inactive' ||
-    user.subscriptionStatus === 'expired'
-  ) {
-    return true;
-  }
-
-  if (user.hasActiveSubscription === false || user.shouldShowUpgradePrompt === true) {
-    return true;
+    return false;
   }
 
   return false;

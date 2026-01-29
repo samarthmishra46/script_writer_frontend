@@ -299,7 +299,7 @@ const ProductsList: React.FC = () => {
             <img
               src={product.primaryImage || product.images[0]}
               alt={product.name}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-contain"
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
@@ -429,7 +429,7 @@ const ProductsList: React.FC = () => {
                 <img
                   src={brand.logo}
                   alt={brand.name}
-                  className="w-10 h-10 rounded-xl object-cover border border-gray-200"
+                  className="w-10 h-10 rounded-xl object-contain border border-gray-200"
                 />
               ) : (
                 <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center">
@@ -610,54 +610,7 @@ const ProductsList: React.FC = () => {
           )}
         </section>
 
-        {/* Recent Ads Section */}
-        <section>
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-semibold text-gray-900">Recent Ads</h2>
-            {products.length > 0 && (
-              <button
-                onClick={() => navigate(`/brands/${brand?._id}/products/${products[0]._id}/select-ad-type`, {
-                  state: {
-                    brandName: brand?.name,
-                    productName: products[0].name,
-                    category: products[0].category,
-                  }
-                })}
-                className="text-purple-600 hover:text-purple-700 font-medium text-sm"
-              >
-                Create New Ad
-              </button>
-            )}
-          </div>
-
-          {ads.length === 0 ? (
-            <div className="text-center py-12 bg-white rounded-2xl border border-gray-200">
-              <ImageIcon className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-              <p className="text-gray-600 mb-4">No ads created yet</p>
-              {products.length > 0 && (
-                <button
-                  onClick={() => navigate(`/brands/${brand?._id}/products/${products[0]._id}/select-ad-type`, {
-                    state: {
-                      brandName: brand?.name,
-                      productName: products[0].name,
-                      category: products[0].category,
-                    }
-                  })}
-                  className="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-colors"
-                >
-                  <Plus className="w-4 h-4" />
-                  Create First Ad
-                </button>
-              )}
-            </div>
-          ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
-              {ads.slice(0, 12).map(ad => (
-                <AdCard key={ad._id} ad={ad} />
-              ))}
-            </div>
-          )}
-        </section>
+        
       </main>
 
       {/* Delete Confirmation Modal */}

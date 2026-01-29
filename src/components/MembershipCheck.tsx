@@ -162,7 +162,7 @@ const MembershipCheck: React.FC<MembershipCheckProps> = ({
           <Crown className="w-12 h-12 text-blue-500 mx-auto mb-4" />
           <h3 className="text-lg font-semibold text-blue-800 mb-2">Paid Trial Active</h3>
           <p className="text-blue-600 mb-4">
-            You have temporary premium access while we finish activating your subscription. Remaining trial credits will appear below.
+            You have temporary premium access while we finish activating your subscription. Remaining trial LiPiCoins will appear below.
           </p>
           <div className="flex justify-center gap-4 text-sm">
             <div className="bg-white rounded-lg px-4 py-3 border border-blue-200">

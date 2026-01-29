@@ -52,6 +52,19 @@ const ImageSwiper: React.FC = () => {
   const [showSavedModal, setShowSavedModal] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [swipeDirection, setSwipeDirection] = useState<string | null>(null);
+  const [lockedImageIds, setLockedImageIds] = useState<Set<string>>(new Set());
+
+  const storedUser = localStorage.getItem('user');
+  let parsedUser: { subscription?: { status?: string; plan?: string } } | null = null;
+  try {
+    parsedUser = storedUser ? JSON.parse(storedUser) : null;
+  } catch {
+    parsedUser = null;
+  }
+  const hasActivePaidSubscription = Boolean(
+    parsedUser?.subscription?.status === 'active' &&
+      (parsedUser?.subscription?.plan === 'individual' || parsedUser?.subscription?.plan === 'organization')
+  );
 
   // Create refs for each card
   const childRefs = useMemo<React.RefObject<API>[]>(
@@ -80,8 +93,26 @@ const ImageSwiper: React.FC = () => {
       }
 
       const result = await response.json();
-      setAd(result.data);
-      setCurrentIndex(result.data.generatedImages.length - 1);
+      const allGenerated = result.data.generatedImages || [];
+
+      let lockedIds = new Set<string>();
+      let visibleGenerated = allGenerated;
+
+      if (!hasActivePaidSubscription && allGenerated.length > 2) {
+        lockedIds = new Set(
+          allGenerated
+            .slice(0, allGenerated.length - 2)
+            .map((img: GeneratedImage) => img._id)
+        );
+        visibleGenerated = allGenerated.filter((img: GeneratedImage) => !lockedIds.has(img._id));
+      }
+
+      setLockedImageIds(lockedIds);
+      setAd({
+        ...result.data,
+        generatedImages: visibleGenerated,
+      });
+      setCurrentIndex(visibleGenerated.length - 1);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load images');
     } finally {
@@ -97,7 +128,9 @@ const ImageSwiper: React.FC = () => {
     fetchAd();
   }, [state, fetchAd, navigate]);
 
-  const canSwipe = currentIndex >= 0;
+  const currentImage = ad?.generatedImages?.[currentIndex] || null;
+  const isCurrentLocked = currentImage ? lockedImageIds.has(currentImage._id) : false;
+  const canSwipe = currentIndex >= 0 && !isCurrentLocked;
 
   const handleSwipe = async (image: GeneratedImage, direction: 'left' | 'right') => {
     try {
@@ -304,13 +337,15 @@ const ImageSwiper: React.FC = () => {
       {/* Tinder Card Stack */}
       <main className="flex-1 flex flex-col items-center justify-center px-4 py-6">
         <div className="relative w-full max-w-sm h-[500px]">
-          {ad?.generatedImages.map((image, index) => (
+          {ad?.generatedImages.map((image, index) => {
+            const isLocked = lockedImageIds.has(image._id);
+            return (
             <TinderCard
               ref={childRefs[index]}
               key={image._id}
               onSwipe={(dir) => swiped(dir, image)}
               onCardLeftScreen={() => outOfFrame(image.variationName, index)}
-              preventSwipe={['up', 'down']}
+              preventSwipe={isLocked ? ['up', 'down', 'left', 'right'] : ['up', 'down']}
               swipeRequirementType="position"
               swipeThreshold={100}
               onSwipeRequirementFulfilled={onSwipeRequirementFulfilled}
@@ -318,16 +353,37 @@ const ImageSwiper: React.FC = () => {
               className="absolute w-full h-full"
             >
               <div 
-                className="relative w-full h-full bg-gray-800 rounded-3xl overflow-hidden shadow-2xl cursor-grab active:cursor-grabbing"
+                className={`relative w-full h-full bg-gray-800 rounded-3xl overflow-hidden shadow-2xl ${
+                  isLocked ? 'cursor-not-allowed' : 'cursor-grab active:cursor-grabbing'
+                }`}
                 style={{ touchAction: 'none' }}
+                onClick={() => {
+                  if (isLocked) {
+                    navigate('/subscription');
+                  }
+                }}
               >
                 {/* Image */}
                 <img
                   src={image.imageUrl}
                   alt={image.variationName}
-                  className="w-full h-full object-cover"
+                  className={`w-full h-full object-cover ${isLocked ? 'blur-md' : ''}`}
                   draggable={false}
                 />
+
+                {isLocked && (
+                  <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                    <button
+                      className="px-4 py-2 bg-white text-gray-900 rounded-lg text-sm font-semibold"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigate('/subscription');
+                      }}
+                    >
+                      Unlock with LiPiCoins
+                    </button>
+                  </div>
+                )}
 
                 {/* Swipe Indicators */}
                 <div 
@@ -354,7 +410,8 @@ const ImageSwiper: React.FC = () => {
                 </div>
               </div>
             </TinderCard>
-          ))}
+          );
+          })}
 
           {remainingCount === 0 && savedCount === 0 && rejectedCount === 0 && (
             <div className="absolute inset-0 flex items-center justify-center">

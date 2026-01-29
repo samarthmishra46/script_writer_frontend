@@ -77,14 +77,14 @@ const UsageWarning: React.FC<UsageWarningProps> = ({
           <div className="flex-1">
             <h3 className="text-sm font-medium text-yellow-800">
               {remaining === 0 
-                ? `No ${featureDisplayName} Credits Left`
-                : `Last ${featureDisplayName} Credit`
+                ? `No ${featureDisplayName} LiPiCoins Left`
+                : `Last ${featureDisplayName} LiPiCoin`
               }
             </h3>
             <p className="text-sm text-yellow-700 mt-1">
               {remaining === 0 
-                ? `You've used all your ${trialLabel} ${featureType} credits. Upgrade to continue creating.`
-                : `You have ${remaining} ${featureType} credit left in your ${trialLabel}. Upgrade for unlimited access.`
+                ? `You've used all your ${trialLabel} ${featureType} LiPiCoins. Upgrade to continue creating.`
+                : `You have ${remaining} ${featureType} LiPiCoin left in your ${trialLabel}. Upgrade for unlimited access.`
               }
             </p>
             {onUpgrade && (
@@ -115,7 +115,7 @@ const UsageWarning: React.FC<UsageWarningProps> = ({
           <Zap className="h-4 w-4 text-blue-500" />
           <div className="flex-1">
             <p className="text-sm text-blue-800">
-              <span className="font-medium">{remaining} {featureType}</span> credits left • 
+              <span className="font-medium">{remaining} {featureType}</span> LiPiCoins left • 
               <span className="font-medium"> {daysRemaining} days</span> of {trialLabel} remaining
             </p>
           </div>

@@ -12,6 +12,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isChecking, setIsChecking] = useState(true);
   const token = localStorage.getItem('token');
+  const USER_CACHE_TTL_MS = 30_000;
 
   useEffect(() => {
     if (!token) {
@@ -32,6 +33,12 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
           }
         }
 
+        const lastFetched = Number(localStorage.getItem('user_last_fetched') || 0);
+        if (lastFetched && Date.now() - lastFetched < USER_CACHE_TTL_MS) {
+          setIsChecking(false);
+          return;
+        }
+
         const response = await fetch(buildApiUrl('api/auth/me'), {
           headers: {
             Authorization: `Bearer ${token}`
@@ -44,6 +51,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
 
         const freshUser: User = await response.json();
         localStorage.setItem('user', JSON.stringify(freshUser));
+        localStorage.setItem('user_last_fetched', Date.now().toString());
         setUser(freshUser);
       } catch (error) {
         console.error('Auth guard failed to refresh user:', error);

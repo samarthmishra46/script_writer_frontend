@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
   ArrowLeft,
@@ -14,7 +14,6 @@ import {
   Edit,
   Upload,
   Video,
-  Play
 } from 'lucide-react';
 import { buildApiUrl } from '../config/api';
 
@@ -75,6 +74,18 @@ const ProductAds: React.FC = () => {
   const [imageToDelete, setImageToDelete] = useState<string | null>(null);
   const [filter, setFilter] = useState<'all' | 'saved' | 'generated'>('all');
   const [stats, setStats] = useState({ total: 0, saved: 0, generated: 0 });
+
+  const storedUser = localStorage.getItem('user');
+  let parsedUser: { subscription?: { status?: string; plan?: string } } | null = null;
+  try {
+    parsedUser = storedUser ? JSON.parse(storedUser) : null;
+  } catch {
+    parsedUser = null;
+  }
+  const hasActivePaidSubscription = Boolean(
+    parsedUser?.subscription?.status === 'active' &&
+      (parsedUser?.subscription?.plan === 'individual' || parsedUser?.subscription?.plan === 'organization')
+  );
 
   // Edit product modal state
   const [showEditProductModal, setShowEditProductModal] = useState(false);
@@ -299,6 +310,28 @@ const ProductAds: React.FC = () => {
     return true;
   });
 
+  const lockedImageIds = useMemo(() => {
+    if (hasActivePaidSubscription) {
+      return new Set<string>();
+    }
+
+    const grouped = new Map<string, IndividualImage[]>();
+    images.forEach((img) => {
+      if (img.status !== 'generated') return;
+      if (!grouped.has(img.adId)) {
+        grouped.set(img.adId, []);
+      }
+      grouped.get(img.adId)?.push(img);
+    });
+
+    const locked = new Set<string>();
+    grouped.forEach((list) => {
+      const sorted = [...list].sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+      sorted.slice(2).forEach((img) => locked.add(img._id));
+    });
+    return locked;
+  }, [images, hasActivePaidSubscription]);
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -328,7 +361,7 @@ const ProductAds: React.FC = () => {
               <img
                 src={product.primaryImage}
                 alt={product.name}
-                className="w-10 h-10 rounded-lg object-cover"
+                className="w-10 h-10 rounded-lg object-contain"
               />
             ) : (
               <div className="w-10 h-10 rounded-lg bg-purple-100 flex items-center justify-center">
@@ -490,22 +523,43 @@ const ProductAds: React.FC = () => {
 
         {/* Images Grid */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-          {filteredImages.map((image) => (
+          {filteredImages.map((image) => {
+            const isLocked = lockedImageIds.has(image._id);
+            return (
             <div
               key={image._id}
-              className="bg-white rounded-xl overflow-hidden border border-gray-200 hover:shadow-lg transition-all group cursor-pointer"
-              onClick={() => setSelectedImage(image)}
+              className={`bg-white rounded-xl overflow-hidden border border-gray-200 hover:shadow-lg transition-all group cursor-pointer ${isLocked ? 'cursor-not-allowed' : ''}`}
+              onClick={() => {
+                if (isLocked) {
+                  navigate('/subscription');
+                  return;
+                }
+                setSelectedImage(image);
+              }}
             >
               {/* Image */}
               <div className="aspect-square relative">
                 <img
                   src={image.imageUrl}
                   alt={image.angle}
-                  className="w-full h-full object-cover"
+                  className={`w-full h-full object-contain ${isLocked ? 'blur-md' : ''}`}
                 />
+                {isLocked && (
+                  <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                    <button
+                      className="px-3 py-1.5 bg-white text-gray-900 rounded-lg text-xs font-semibold"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigate('/subscription');
+                      }}
+                    >
+                      Unlock with LiPiCoins
+                    </button>
+                  </div>
+                )}
                 
                 {/* Overlay on hover */}
-                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                <div className={`absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 ${isLocked ? 'pointer-events-none' : ''}`}>
                   <button 
                     className="p-2 bg-white rounded-full hover:bg-gray-100 transition-colors"
                     onClick={(e) => {
@@ -551,7 +605,8 @@ const ProductAds: React.FC = () => {
                 </div>
               </div>
             </div>
-          ))}
+          );
+          })}
         </div>
 
         {/* Empty State */}
