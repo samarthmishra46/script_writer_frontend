@@ -122,20 +122,88 @@ const ProductAds: React.FC = () => {
         setProduct(foundProduct || null);
       }
 
-      // Fetch individual images for this product
+      // Fetch individual images for this product (original ads)
       const imagesRes = await fetch(buildApiUrl(`api/ads/images/all?productId=${productId}&brandId=${brandId}`), {
         headers: { 'Authorization': `Bearer ${token}` }
       });
 
+      let allImages: IndividualImage[] = [];
+      let originalStats = { total: 0, saved: 0, generated: 0 };
+
       if (imagesRes.ok) {
         const imagesData = await imagesRes.json();
-        setImages(imagesData.data || []);
-        setStats({
+        allImages = imagesData.data || [];
+        originalStats = {
           total: imagesData.total || 0,
           saved: imagesData.savedCount || 0,
           generated: imagesData.generatedCount || 0,
-        });
+        };
       }
+
+      // Fetch AdV2 images for this product
+      try {
+        const adV2Res = await fetch(buildApiUrl(`api/image-gen-v2?productId=${productId}`), {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (adV2Res.ok) {
+          const adV2Data = await adV2Res.json();
+          const adV2Ads = adV2Data.data || [];
+          
+          // Convert AdV2 images to IndividualImage format
+          adV2Ads.forEach((ad: any) => {
+            // Add saved images
+            (ad.savedImages || []).forEach((img: any) => {
+              allImages.push({
+                _id: img._id || `${ad._id}_${img.promptId}_saved`,
+                imageUrl: img.imageUrl,
+                prompt: img.promptTitle || img.summary || 'AI Generated Image',
+                angle: img.creativeAngle || 'V2 Creative',
+                status: 'saved',
+                userAction: 'liked',
+                createdAt: img.generatedAt || ad.createdAt,
+                adId: ad._id,
+                adType: 'image_v2',
+                category: ad.productInfo?.category || '',
+                brandName: ad.productInfo?.brandName || '',
+                brandLogo: null,
+              });
+              originalStats.saved++;
+              originalStats.total++;
+            });
+
+            // Add generated images (not yet swiped)
+            (ad.generatedImages || []).forEach((img: any) => {
+              if (img.userAction === 'none' || !img.userAction) {
+                allImages.push({
+                  _id: img._id || `${ad._id}_${img.promptId}_gen`,
+                  imageUrl: img.imageUrl,
+                  prompt: img.promptTitle || img.summary || 'AI Generated Image',
+                  angle: img.creativeAngle || 'V2 Creative',
+                  status: 'generated',
+                  userAction: 'none',
+                  createdAt: img.generatedAt || ad.createdAt,
+                  adId: ad._id,
+                  adType: 'image_v2',
+                  category: ad.productInfo?.category || '',
+                  brandName: ad.productInfo?.brandName || '',
+                  brandLogo: null,
+                });
+                originalStats.generated++;
+                originalStats.total++;
+              }
+            });
+          });
+        }
+      } catch (adV2Error) {
+        console.warn('Could not fetch AdV2 images:', adV2Error);
+      }
+
+      // Sort all images by creation date (newest first)
+      allImages.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+      
+      setImages(allImages);
+      setStats(originalStats);
 
     } catch (err) {
       setError('Failed to load data');

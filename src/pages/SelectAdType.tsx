@@ -7,7 +7,8 @@ import {
   Users,
   FileText,
   ArrowRight,
-  Lock
+  Lock,
+  Sparkles
 } from 'lucide-react';
 
 interface LocationState {
@@ -28,6 +29,17 @@ const AD_TYPES = [
     bgGradient: 'from-purple-50 to-purple-100',
   },
   {
+    id: 'image_v2',
+    title: 'Image Ads V2 ✨',
+    description: 'Advanced AI image ads with competition analysis, AI-scored prompts, and creative variations',
+    icon: Sparkles,
+    available: true,
+    color: 'pink',
+    gradient: 'from-pink-500 to-rose-600',
+    bgGradient: 'from-pink-50 to-rose-100',
+    badge: 'NEW',
+  },
+  {
     id: 'video',
     title: 'Video Ads',
     description: 'Generate engaging video advertisements with motion graphics',
@@ -46,6 +58,16 @@ const AD_TYPES = [
     color: 'green',
     gradient: 'from-green-500 to-green-600',
     bgGradient: 'from-green-50 to-green-100',
+  },
+  {
+    id: 'image_deep_research',
+    title: 'Image Deep Research',
+    description: 'AI-powered competitive analysis that generates 20 ads based on market research',
+    icon: Sparkles,
+    available: true,
+    color: 'amber',
+    gradient: 'from-amber-500 to-amber-600',
+    bgGradient: 'from-amber-50 to-amber-100',
   },
   {
     id: 'script',
@@ -102,6 +124,26 @@ const SelectAdType: React.FC = () => {
       navigate(`/brands/${brandId}/products/${productId}/ugc-parameters`, {
         state: {
           ...state,
+          adType: selectedType,
+        }
+      });
+    } else if (selectedType === 'image_deep_research') {
+      // Route to deep research page
+      navigate(`/brands/${brandId}/products/${productId}/image-deep-research`, {
+        state: {
+          ...state,
+          adType: selectedType,
+        }
+      });
+    } else if (selectedType === 'image_v2') {
+      // Route to Image Gen V2 flow
+      navigate('/image-gen-v2/product-info', {
+        state: {
+          brandId,
+          productId,
+          brandName: state?.brandName,
+          productName: state?.productName,
+          category: state?.category,
           adType: selectedType,
         }
       });
@@ -177,6 +219,13 @@ const SelectAdType: React.FC = () => {
                     <span className="text-xs font-medium text-gray-500">
                       {(adType.id === 'video' || adType.id === 'ugc') ? 'Requires Subscription' : 'Coming Soon'}
                     </span>
+                  </div>
+                )}
+
+                {/* NEW Badge for Image V2 */}
+                {adType.id === 'image_v2' && !isSelected && (
+                  <div className="absolute top-4 right-4 px-3 py-1 bg-gradient-to-r from-pink-500 to-rose-500 rounded-full">
+                    <span className="text-xs font-bold text-white">NEW</span>
                   </div>
                 )}
 

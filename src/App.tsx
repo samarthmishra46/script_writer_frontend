@@ -33,6 +33,15 @@ import VideoIdeasSelection from './pages/VideoIdeasSelection';
 import VideoGenerationPage from './pages/VideoGenerationPage';
 import UGCParameters from './pages/UGCParameters';
 import UGCResult from './pages/UGCResult';
+import ImageDeepResearch from './pages/ImageDeepResearch';
+import DeepResearchGenerating from './pages/DeepResearchGenerating';
+// Image Gen V2 Pages
+import ImageGenV2ProductInfo from './pages/ImageGenV2ProductInfo';
+import ImageGenV2Competition from './pages/ImageGenV2Competition';
+import ImageGenV2Prompts from './pages/ImageGenV2Prompts';
+import ImageGenV2Swiper from './pages/ImageGenV2Swiper';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import TermsOfService from './pages/TermsOfService';
 
 
 
@@ -99,6 +108,8 @@ function App() {
                 <Route path="/login" element={<Login />} />
                 <Route path="/signup" element={<Signup />} />
                 <Route path="/google-auth-test" element={<GoogleAuthTestPage />} />
+                <Route path="/privacy" element={<PrivacyPolicy />} />
+                <Route path="/terms" element={<TermsOfService />} />
                 <Route path="*" element={<NotFound />} />
 
                 {/* Protected Routes */}
@@ -159,6 +170,16 @@ function App() {
                     <UGCResult />
                   </ProtectedRoute>
                 } />
+                <Route path="/brands/:brandId/products/:productId/image-deep-research" element={
+                  <ProtectedRoute>
+                    <ImageDeepResearch />
+                  </ProtectedRoute>
+                } />
+                <Route path="/brands/:brandId/products/:productId/deep-research-generating" element={
+                  <ProtectedRoute>
+                    <DeepResearchGenerating />
+                  </ProtectedRoute>
+                } />
                 <Route path="/brands/:brandId/products/:productId/select-angles" element={
                   <ProtectedRoute>
                     <SelectAngles />
@@ -172,6 +193,28 @@ function App() {
                 <Route path="/swipe-images/:adId" element={
                   <ProtectedRoute>
                     <ImageSwiper />
+                  </ProtectedRoute>
+                } />
+
+                {/* Image Gen V2 Routes */}
+                <Route path="/image-gen-v2/product-info" element={
+                  <ProtectedRoute>
+                    <ImageGenV2ProductInfo />
+                  </ProtectedRoute>
+                } />
+                <Route path="/image-gen-v2/competition" element={
+                  <ProtectedRoute>
+                    <ImageGenV2Competition />
+                  </ProtectedRoute>
+                } />
+                <Route path="/image-gen-v2/prompts" element={
+                  <ProtectedRoute>
+                    <ImageGenV2Prompts />
+                  </ProtectedRoute>
+                } />
+                <Route path="/image-gen-v2/swiper" element={
+                  <ProtectedRoute>
+                    <ImageGenV2Swiper />
                   </ProtectedRoute>
                 } />
 
