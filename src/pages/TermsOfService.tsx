@@ -17,7 +17,7 @@ const TermsOfService = () => {
             <span>Back to Home</span>
           </Link>
           <Link to="/" className="text-xl font-bold text-white">
-            ScriptWriter
+            Lipiads
           </Link>
         </div>
       </header>
@@ -39,7 +39,7 @@ const TermsOfService = () => {
           <section className="bg-gray-800/50 rounded-2xl p-6 border border-gray-700/50">
             <h2 className="text-xl font-semibold text-white mb-4">1. Agreement to Terms</h2>
             <p className="text-gray-300 leading-relaxed">
-              By accessing or using ScriptWriter ("the Service"), you agree to be bound by these Terms of Service. 
+              By accessing or using Lipiads ("the Service"), you agree to be bound by these Terms of Service. 
               If you disagree with any part of these terms, you may not access the Service. These Terms apply to 
               all visitors, users, and others who access or use the Service.
             </p>
@@ -52,7 +52,7 @@ const TermsOfService = () => {
               <h2 className="text-xl font-semibold text-white">2. Description of Service</h2>
             </div>
             <p className="text-gray-300 mb-4">
-              ScriptWriter is an AI-powered platform that provides:
+              Lipiads is an AI-powered platform that provides:
             </p>
             <ul className="space-y-2 text-gray-300">
               <li className="flex items-start gap-3">
@@ -213,7 +213,7 @@ const TermsOfService = () => {
                 <h3 className="font-medium text-white mb-2">Our Service</h3>
                 <p>
                   The Service, including its original content, features, and functionality, is owned 
-                  by ScriptWriter and protected by international copyright, trademark, and other 
+                  by Lipiads and protected by international copyright, trademark, and other 
                   intellectual property laws.
                 </p>
               </div>
@@ -258,7 +258,7 @@ const TermsOfService = () => {
               <h2 className="text-xl font-semibold text-white">9. Limitation of Liability</h2>
             </div>
             <p className="text-gray-300">
-              To the maximum extent permitted by law, ScriptWriter shall not be liable for any indirect, 
+              To the maximum extent permitted by law, Lipiads shall not be liable for any indirect, 
               incidental, special, consequential, or punitive damages, including but not limited to 
               loss of profits, data, use, goodwill, or other intangible losses, resulting from:
             </p>
@@ -321,8 +321,7 @@ const TermsOfService = () => {
               If you have any questions about these Terms, please contact us:
             </p>
             <div className="space-y-2 text-gray-300">
-              <p><strong>Email:</strong> legal@scriptwriter.com</p>
-              <p><strong>Support:</strong> support@scriptwriter.com</p>
+              <p><strong>Email:</strong> support@yuvichaarfunnenls.com</p>
             </div>
           </section>
         </div>

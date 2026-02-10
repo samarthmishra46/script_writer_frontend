@@ -17,7 +17,7 @@ const PrivacyPolicy = () => {
             <span>Back to Home</span>
           </Link>
           <Link to="/" className="text-xl font-bold text-white">
-            ScriptWriter
+            Lipiads
           </Link>
         </div>
       </header>
@@ -39,7 +39,7 @@ const PrivacyPolicy = () => {
           <section className="bg-gray-800/50 rounded-2xl p-6 border border-gray-700/50">
             <h2 className="text-xl font-semibold text-white mb-4">Introduction</h2>
             <p className="text-gray-300 leading-relaxed">
-              Welcome to ScriptWriter ("we," "our," or "us"). We are committed to protecting your privacy 
+              Welcome to Lipiads ("we," "our," or "us"). We are committed to protecting your privacy 
               and ensuring the security of your personal information. This Privacy Policy explains how we 
               collect, use, disclose, and safeguard your information when you use our platform for 
               generating ad scripts, images, and related marketing content.
@@ -245,8 +245,7 @@ const PrivacyPolicy = () => {
               If you have any questions about this Privacy Policy or wish to exercise your rights, please contact us:
             </p>
             <div className="space-y-2 text-gray-300">
-              <p><strong>Email:</strong> privacy@scriptwriter.com</p>
-              <p><strong>Support:</strong> support@scriptwriter.com</p>
+              <p><strong>Email:</strong> support@yuvichaarfunnenls.com</p>
             </div>
           </section>
 
