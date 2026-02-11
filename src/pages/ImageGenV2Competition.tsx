@@ -10,7 +10,6 @@ import {
   Lightbulb,
   AlertCircle,
   CheckCircle2,
-  Loader2,
   ChevronDown,
   ChevronUp,
 } from 'lucide-react';
@@ -43,6 +42,7 @@ interface Competitor {
 }
 
 interface CompetitionAnalysis {
+  workflow?: string;
   directCompetitors: Competitor[];
   indirectCompetitors: Competitor[];
   categoryTrends: {
@@ -65,6 +65,19 @@ interface CompetitionAnalysis {
     emotionalTerritory: string;
     avoidPatterns: string[];
   };
+  // GPT analysis specific fields
+  recommendedHooks?: string[];
+  recommendedCTAs?: string[];
+  topCreatives?: Array<{
+    brandName: string;
+    adId: string;
+    adSnapshotUrl: string;
+    analysis: {
+      effectivenessScore: number;
+      primaryHook: string;
+      keyTakeaways: string[];
+    };
+  }>;
 }
 
 const ImageGenV2Competition: React.FC = () => {
@@ -72,11 +85,11 @@ const ImageGenV2Competition: React.FC = () => {
   const location = useLocation();
   const state = location.state as LocationState | null;
 
-  const [isLoading, setIsLoading] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [analysis, setAnalysis] = useState<CompetitionAnalysis | null>(null);
-  const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set(['direct', 'trends', 'recommendations']));
+  const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set(['direct', 'trends', 'recommendations', 'hooks']));
+  const [hasAnalyzed, setHasAnalyzed] = useState(false);
 
   useEffect(() => {
     if (!state?.adId) {
@@ -84,12 +97,18 @@ const ImageGenV2Competition: React.FC = () => {
       return;
     }
     
+    // Prevent duplicate API calls (React StrictMode issue)
+    if (hasAnalyzed || isAnalyzing || analysis) {
+      return;
+    }
+    
     // Start analysis automatically
+    setHasAnalyzed(true);
     analyzeCompetition();
-  }, [state]);
+  }, [state, hasAnalyzed, isAnalyzing, analysis, navigate]);
 
   const analyzeCompetition = async () => {
-    if (!state?.adId) return;
+    if (!state?.adId || isAnalyzing) return;
     
     setIsAnalyzing(true);
     setError(null);
@@ -114,6 +133,7 @@ const ImageGenV2Competition: React.FC = () => {
       setAnalysis(result.data.competitionAnalysis);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
+      setHasAnalyzed(false); // Allow retry on error
     } finally {
       setIsAnalyzing(false);
     }
@@ -487,6 +507,60 @@ const ImageGenV2Competition: React.FC = () => {
                 </div>
               )}
             </div>
+
+            {/* Recommended Hooks & CTAs (GPT Workflow) */}
+            {(analysis.recommendedHooks?.length || analysis.recommendedCTAs?.length) && (
+              <div className="bg-gray-800/50 rounded-2xl border border-gray-700 overflow-hidden">
+                <button
+                  onClick={() => toggleSection('hooks')}
+                  className="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-700/30 transition-colors"
+                >
+                  <div className="flex items-center gap-3">
+                    <Sparkles className="w-6 h-6 text-pink-400" />
+                    <div className="text-left">
+                      <h3 className="text-lg font-semibold text-white">Recommended Hooks & CTAs</h3>
+                      <p className="text-gray-400 text-sm">Top performing approaches for your brand</p>
+                    </div>
+                  </div>
+                  {expandedSections.has('hooks') ? (
+                    <ChevronUp className="w-5 h-5 text-gray-400" />
+                  ) : (
+                    <ChevronDown className="w-5 h-5 text-gray-400" />
+                  )}
+                </button>
+                
+                {expandedSections.has('hooks') && (
+                  <div className="px-6 pb-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {analysis.recommendedHooks && analysis.recommendedHooks.length > 0 && (
+                      <div className="bg-gray-900/50 rounded-xl p-4 border border-gray-700">
+                        <p className="text-gray-400 text-sm mb-3">Top Hooks for Your Ads</p>
+                        <div className="space-y-2">
+                          {analysis.recommendedHooks.map((hook, i) => (
+                            <div key={i} className="flex items-start gap-2 p-2 bg-purple-500/10 rounded-lg border border-purple-500/20">
+                              <span className="text-purple-400 font-bold text-sm">{i + 1}.</span>
+                              <p className="text-gray-300 text-sm">{hook}</p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    
+                    {analysis.recommendedCTAs && analysis.recommendedCTAs.length > 0 && (
+                      <div className="bg-gray-900/50 rounded-xl p-4 border border-gray-700">
+                        <p className="text-gray-400 text-sm mb-3">Recommended Call-to-Actions</p>
+                        <div className="flex flex-wrap gap-2">
+                          {analysis.recommendedCTAs.map((cta, i) => (
+                            <span key={i} className="px-4 py-2 bg-gradient-to-r from-green-500/20 to-emerald-500/20 text-green-400 rounded-lg text-sm font-medium border border-green-500/30">
+                              {cta}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Continue Button */}
             <div className="flex justify-end pt-4">
